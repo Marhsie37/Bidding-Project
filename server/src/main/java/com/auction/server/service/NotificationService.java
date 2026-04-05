@@ -13,7 +13,7 @@ public class NotificationService {
     private NotificationService(){
         this.subscribers = new ConcurrentHashMap<>();
     }
-    private static NotificationService getInstance(){
+    public static NotificationService getInstance(){
         if (instance == null){
             instance = new NotificationService();
         }
