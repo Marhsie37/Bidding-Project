@@ -1,7 +1,6 @@
 package com.auction.server;
 
 import com.auction.shared.protocol.*;
-import com.auction.shared.utils.JsonUtils;
 import com.auction.server.service.AuctionService;
 import com.auction.server.service.NotificationService;
 
@@ -16,6 +15,9 @@ public class ClientHandler implements Runnable {
     private String username;
     private String role;
     private boolean connected;
+    private AuctionService auctionService;
+    private NotificationService notificationService;
+
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
