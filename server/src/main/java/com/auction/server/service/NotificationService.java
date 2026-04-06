@@ -21,7 +21,7 @@ public class NotificationService {
     }
     public void subscribe(int auctionId, String username, ClientHandler handler) {
         subscribers.computeIfAbsent(auctionId, k -> new CopyOnWriteArrayList<>())
-                .add(handler);
+                .add(handler); //ktra xem auctionId co trong map chua, neu chua co tao CopyOnWrite.. moi, neu da co tra ve danh sach hien tai
         System.out.println("User " + username + " subscribed to auction " + auctionId);
     }
     public void unsubscribe(int auctionId, String username){
