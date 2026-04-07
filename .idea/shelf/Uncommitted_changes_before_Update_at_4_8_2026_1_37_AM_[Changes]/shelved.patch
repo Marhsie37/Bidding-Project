@@ -1,0 +1,77 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"b93bedf1-3428-4e0f-9247-cffb760e7680\" name=\"Changes\" comment=\"\">\r\n      <change afterPath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/AuctionDAO.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/model/AuctionSession.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/model/BidTransaction.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/model/Product.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/server/src/main/java/resources/database/schema.sql\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/AuctionSession.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/BidTransaction.java\" afterDir=\"false\" />\r\n      <change afterPath=\"$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/User.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/.gitignore\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/Bidding-Project.iml\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/misc.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/misc.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/modules.xml\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/auction-system.iml\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/AutionDAO.java\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/BidDAO.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/BidDAO.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/DatabaseConnection.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/DatabaseConnection.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/ProductDAO.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/ProductDAO.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/UserDAO.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/UserDAO.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/model/User.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/server/src/main/java/com/auction/server/model/User.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/Product.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/Product.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/shared/src/main/java/com/auction/shared/utils/JsonUtils.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/shared/src/main/java/com/auction/shared/utils/JsonUtils.java\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;UetDoran&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\">{\r\n  &quot;selectedUrlAndAccountId&quot;: {\r\n    &quot;url&quot;: &quot;http://github.com/Marhsie37/Bidding-Project&quot;,\r\n    &quot;accountId&quot;: &quot;8ddb5ec3-dc49-4ea1-b8e2-e98852bec29d&quot;\r\n  }\r\n}</component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;customColor&quot;: &quot;&quot;,\r\n  &quot;associatedIndex&quot;: 0\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"3C2V1grZEwtqHzYasZ33PQJctci\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;Application.ServerMain.executor&quot;: &quot;Run&quot;,\r\n    &quot;Maven.AuctionSystem [clean].executor&quot;: &quot;Run&quot;,\r\n    &quot;Maven.AuctionSystem [compile].executor&quot;: &quot;Run&quot;,\r\n    &quot;Maven.AuctionSystem [install].executor&quot;: &quot;Run&quot;,\r\n    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;master&quot;,\r\n    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,\r\n    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,\r\n    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,\r\n    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RunManager\">\r\n    <configuration name=\"ServerMain\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"com.auction.server.ServerMain\" />\r\n      <module name=\"server\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"com.auction.server.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <recent_temporary>\r\n      <list>\r\n        <item itemvalue=\"Application.ServerMain\" />\r\n      </list>\r\n    </recent_temporary>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"b93bedf1-3428-4e0f-9247-cffb760e7680\" name=\"Changes\" comment=\"\" />\r\n      <created>1775583441337</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1775583441337</updated>\r\n    </task>\r\n    <servers />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision be862d5306fb66f04fdc1aaa31efba091057b0b9)
++++ b/.idea/workspace.xml	(date 1775586795418)
+@@ -5,27 +5,7 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="b93bedf1-3428-4e0f-9247-cffb760e7680" name="Changes" comment="">
+-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/AuctionDAO.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/AuctionSession.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/BidTransaction.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/Product.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/server/src/main/java/resources/database/schema.sql" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/AuctionSession.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/BidTransaction.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/User.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/Bidding-Project.iml" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/auction-system.iml" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/AutionDAO.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/BidDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/BidDAO.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/DatabaseConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/DatabaseConnection.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/ProductDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/ProductDAO.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/UserDAO.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/User.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/Product.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/utils/JsonUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/utils/JsonUtils.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -56,22 +36,22 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent">{
+-  &quot;keyToString&quot;: {
+-    &quot;Application.ServerMain.executor&quot;: &quot;Run&quot;,
+-    &quot;Maven.AuctionSystem [clean].executor&quot;: &quot;Run&quot;,
+-    &quot;Maven.AuctionSystem [compile].executor&quot;: &quot;Run&quot;,
+-    &quot;Maven.AuctionSystem [install].executor&quot;: &quot;Run&quot;,
+-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "Application.ServerMain.executor": "Run",
++    "Maven.AuctionSystem [clean].executor": "Run",
++    "Maven.AuctionSystem [compile].executor": "Run",
++    "Maven.AuctionSystem [install].executor": "Run",
++    "ModuleVcsDetector.initialDetectionPerformed": "true",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "RunOnceActivity.git.unshallow": "true",
++    "git-widget-placeholder": "Merging master",
++    "kotlin-language-version-configured": "true",
++    "project.structure.last.edited": "Modules",
++    "project.structure.proportion": "0.0",
++    "project.structure.side.proportion": "0.2"
+   }
+-}</component>
++}]]></component>
+   <component name="RunManager">
+     <configuration name="ServerMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+       <option name="MAIN_CLASS_NAME" value="com.auction.server.ServerMain" />
