@@ -1,6 +1,7 @@
 package com.auction.server.dao;
 
 import com.auction.shared.model.BidTransaction;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ public class BidDAO {
             if (affected > 0) {
                 try (ResultSet rs = pstmt.getGeneratedKeys()) {
                     if (rs.next()) {
-                        bid.setId(rs.getInt(1)); // bid_id tự tăng trong MySQL
+                        bid.setId(rs.getInt(1));
                     }
                 }
                 return true;
@@ -37,9 +38,8 @@ public class BidDAO {
 
     public List<BidTransaction> getBidsByProduct(int productId) {
         List<BidTransaction> bids = new ArrayList<>();
-        // Lưu ý: u.id đổi thành u.user_id để khớp MySQL
         String sql = "SELECT b.*, u.username as bidder_name FROM bids b " +
-                "LEFT JOIN users u ON b.bidder_id = u.user_id " +
+                "LEFT JOIN users u ON b.bidder_id = u.id " +
                 "WHERE b.product_id = ? ORDER BY b.bid_time DESC";
         try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, productId);
@@ -57,7 +57,7 @@ public class BidDAO {
     public List<BidTransaction> getBidsByUser(int userId) {
         List<BidTransaction> bids = new ArrayList<>();
         String sql = "SELECT b.*, u.username as bidder_name FROM bids b " +
-                "LEFT JOIN users u ON b.bidder_id = u.user_id " +
+                "LEFT JOIN users u ON b.bidder_id = u.id " +
                 "WHERE b.bidder_id = ? ORDER BY b.bid_time DESC LIMIT 50";
         try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, userId);
@@ -104,7 +104,7 @@ public class BidDAO {
 
     private BidTransaction mapResultSetToBid(ResultSet rs) throws SQLException {
         BidTransaction bid = new BidTransaction();
-        bid.setId(rs.getInt("bid_id"));
+        bid.setId(rs.getInt("id"));
         bid.setAuctionId(rs.getInt("product_id"));
         bid.setBidderId(rs.getInt("bidder_id"));
         bid.setBidderName(rs.getString("bidder_name"));

@@ -17,9 +17,9 @@ public class AuctionDAO {
 
     public AuctionSession getAuctionSession(int productId) {
         String sql = "SELECT p.id, p.name, p.current_price, p.end_time, p.status, " +
-                "u.user_id as winner_id, u.username as winner_name " +
+                "u.id as winner_id, u.username as winner_name " +
                 "FROM products p " +
-                "LEFT JOIN users u ON p.winner_id = u.user_id " +
+                "LEFT JOIN users u ON p.winner_id = u.id " +
                 "WHERE p.id = ?";
         try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, productId);
@@ -29,9 +29,19 @@ public class AuctionDAO {
                     session.setProductId(rs.getInt("id"));
                     session.setProductName(rs.getString("name"));
                     session.setCurrentPrice(rs.getDouble("current_price"));
-                    session.setEndTime(rs.getTimestamp("end_time").toLocalDateTime());
+
+                    Timestamp endTime = rs.getTimestamp("end_time");
+                    if (endTime != null) {
+                        session.setEndTime(endTime.toLocalDateTime());
+                    }
+
                     session.setStatus(rs.getString("status"));
-                    session.setCurrentWinnerId(rs.getInt("winner_id"));
+
+                    int winnerId = rs.getInt("winner_id");
+                    if (!rs.wasNull()) {
+                        session.setCurrentWinnerId(winnerId);
+                    }
+
                     session.setCurrentWinnerName(rs.getString("winner_name"));
                     return session;
                 }
@@ -54,7 +64,7 @@ public class AuctionDAO {
             if (affected > 0) {
                 try (ResultSet rs = pstmt.getGeneratedKeys()) {
                     if (rs.next()) {
-                        bid.setId(rs.getInt(1)); // bid_id trong MySQL
+                        bid.setId(rs.getInt(1));
                     }
                 }
                 return true;
@@ -68,14 +78,27 @@ public class AuctionDAO {
     public List<BidTransaction> getBidHistory(int productId, int limit) {
         List<BidTransaction> bids = new ArrayList<>();
         String sql = "SELECT b.*, u.username as bidder_name " +
-                "FROM bids b LEFT JOIN users u ON b.bidder_id = u.user_id " +
+                "FROM bids b LEFT JOIN users u ON b.bidder_id = u.id " +
                 "WHERE b.product_id = ? ORDER BY b.bid_time DESC LIMIT ?";
         try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, productId);
             pstmt.setInt(2, limit);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    bids.add(mapResultSetToBid(rs));
+                    BidTransaction bid = new BidTransaction();
+                    bid.setId(rs.getInt("id"));
+                    bid.setAuctionId(rs.getInt("product_id"));
+                    bid.setBidderId(rs.getInt("bidder_id"));
+                    bid.setBidderName(rs.getString("bidder_name"));
+                    bid.setBidAmount(rs.getDouble("bid_amount"));
+
+                    Timestamp bidTime = rs.getTimestamp("bid_time");
+                    if (bidTime != null) {
+                        bid.setBidTime(bidTime.toLocalDateTime());
+                    }
+
+                    bid.setAutoBid(rs.getBoolean("is_auto_bid"));
+                    bids.add(bid);
                 }
             }
         } catch (SQLException e) {
@@ -95,6 +118,21 @@ public class AuctionDAO {
             }
         } catch (SQLException e) {
             System.err.println("Error getting highest bid: " + e.getMessage());
+        }
+        return 0;
+    }
+
+    public int getHighestBidder(int productId) {
+        String sql = "SELECT bidder_id FROM bids WHERE product_id = ? ORDER BY bid_amount DESC LIMIT 1";
+        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+            pstmt.setInt(1, productId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("bidder_id");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting highest bidder: " + e.getMessage());
         }
         return 0;
     }
@@ -119,34 +157,32 @@ public class AuctionDAO {
     public List<BidTransaction> getBidsAfterTime(int productId, LocalDateTime afterTime) {
         List<BidTransaction> bids = new ArrayList<>();
         String sql = "SELECT b.*, u.username as bidder_name " +
-                "FROM bids b LEFT JOIN users u ON b.bidder_id = u.user_id " +
+                "FROM bids b LEFT JOIN users u ON b.bidder_id = u.id " +
                 "WHERE b.product_id = ? AND b.bid_time > ? ORDER BY b.bid_time ASC";
         try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, productId);
             pstmt.setTimestamp(2, Timestamp.valueOf(afterTime));
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    bids.add(mapResultSetToBid(rs));
+                    BidTransaction bid = new BidTransaction();
+                    bid.setId(rs.getInt("id"));
+                    bid.setAuctionId(rs.getInt("product_id"));
+                    bid.setBidderId(rs.getInt("bidder_id"));
+                    bid.setBidderName(rs.getString("bidder_name"));
+                    bid.setBidAmount(rs.getDouble("bid_amount"));
+
+                    Timestamp bidTime = rs.getTimestamp("bid_time");
+                    if (bidTime != null) {
+                        bid.setBidTime(bidTime.toLocalDateTime());
+                    }
+
+                    bid.setAutoBid(rs.getBoolean("is_auto_bid"));
+                    bids.add(bid);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error getting bids after time: " + e.getMessage());
         }
         return bids;
-    }
-
-    private BidTransaction mapResultSetToBid(ResultSet rs) throws SQLException {
-        BidTransaction bid = new BidTransaction();
-        bid.setId(rs.getInt("bid_id")); // bid_id trong script SQL
-        bid.setAuctionId(rs.getInt("product_id"));
-        bid.setBidderId(rs.getInt("bidder_id"));
-        bid.setBidderName(rs.getString("bidder_name"));
-        bid.setBidAmount(rs.getDouble("bid_amount"));
-        Timestamp bidTime = rs.getTimestamp("bid_time");
-        if (bidTime != null) {
-            bid.setBidTime(bidTime.toLocalDateTime());
-        }
-        bid.setAutoBid(rs.getBoolean("is_auto_bid"));
-        return bid;
     }
 }

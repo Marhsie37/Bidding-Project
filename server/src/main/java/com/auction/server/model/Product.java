@@ -1,4 +1,4 @@
-package com.auction.shared.model;
+package com.auction.server.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
