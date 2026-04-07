@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+
 public class JsonUtils {
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
@@ -23,7 +24,7 @@ public class JsonUtils {
         private final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
         @Override
-        public void write(com.google.gson.JsonWriter out, LocalDateTime value) throws java.io.IOException {
+        public void write(com.google.gson.stream.JsonWriter out, LocalDateTime value) throws java.io.IOException {
             if (value == null) {
                 out.nullValue();
             } else {
@@ -32,8 +33,8 @@ public class JsonUtils {
         }
 
         @Override
-        public LocalDateTime read(com.google.gson.JsonReader in) throws java.io.IOException {
-            if (in.peek() == com.google.gson.JsonToken.NULL) {
+        public LocalDateTime read(com.google.gson.stream.JsonReader in) throws java.io.IOException {
+            if (in.peek() == com.google.gson.stream.JsonToken.NULL) {
                 in.nextNull();
                 return null;
             }
