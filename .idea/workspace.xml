@@ -5,27 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b93bedf1-3428-4e0f-9247-cffb760e7680" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/AuctionDAO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/AuctionSession.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/BidTransaction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/Product.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/resources/database/schema.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/AuctionSession.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/BidTransaction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Bidding-Project.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/auction-system.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/AutionDAO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/BidDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/BidDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/DatabaseConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/DatabaseConnection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/ProductDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/ProductDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/UserDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/Product.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/utils/JsonUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/utils/JsonUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,11 +45,14 @@
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/IdeaProjects/Bidding-Project&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RunManager">
@@ -96,6 +79,7 @@
     <attachedChunks>
       <set>
         <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
       </set>
     </attachedChunks>
   </component>
@@ -106,7 +90,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1775583441337</updated>
+      <workItem from="1775659793256" duration="355000" />
+      <workItem from="1775693501376" duration="149000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
 </project>

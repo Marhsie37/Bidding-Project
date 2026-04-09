@@ -45,8 +45,8 @@ public class User implements Serializable{
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
 
-    public boolean isBidder() { return "BIDDER".equals(role); }
-    public boolean isSeller() { return "SELLER".equals(role); }
-    public boolean isAdmin() { return "ADMIN".equals(role); }
+    public boolean isBidder() { return "BIDDER".equalsIgnoreCase(role); }
+    public boolean isSeller() { return "SELLER".equalsIgnoreCase(role); }
+    public boolean isAdmin() { return "ADMIN".equalsIgnoreCase(role); }
 
 }
