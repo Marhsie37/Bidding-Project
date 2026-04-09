@@ -73,6 +73,5 @@ public class Product implements Serializable{
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public boolean isActive() { return "ACTIVE".equals(status); }
-
+    public boolean isActive() { return "ACTIVE".equalsIgnoreCase(status); }
 }
