@@ -1,0 +1,60 @@
+.text1 {
+    /* 1. ĐỔI MÀU BÊN TRONG: Dùng dải màu giống hệt nền */
+    /* to bottom: chạy từ trên xuống dưới để khớp với hướng của nền */
+    -fx-text-fill: linear-gradient(to bottom, #80ffff, #ff00ff);
+
+    /* 2. KIỂU CHỮ KHÙM KHOẰM & CHẤT */
+    /* Thử 'Impact' hoặc 'Arial Black' nếu muốn nét dày, khùm khoằm kiểu graffiti */
+    -fx-font-family: "Impact";
+    -fx-font-size: 80px;
+    -fx-font-weight: bold;
+
+    /* 3. HIỆU ỨNG ĐỂ KHÔNG BỊ CHÌM QUÁ MỨC */
+    /* Thêm một lớp viền (stroke) mỏng màu trắng hoặc neon để chữ tách biệt nhẹ với nền */
+    -fx-stroke: rgba(255, 255, 255, 0.3);
+    -fx-stroke-width: 1px;
+
+    /* Đổ bóng rực rỡ (Glow) cùng tông màu nền */
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 0, 255, 0.8), 15, 0, 0, 0);
+}
+
+.frame1 {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 5;
+    -fx-background-color: #fffff;
+    -fx-background-radius: 5;
+    -fx-border-color: white;
+    -fx-border-radius: 0;
+    -fx-border-width: 5;
+}
+
+.button1 {
+    -fx-background-color: #007bff;
+    -fx-background-radius: 25;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+.textField {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 20;
+    -fx-border-color: #b0b0b0;
+    -fx-border-radius: 20;
+
+    -fx-padding: 5 10 5 35;
+}
+.hBox1 {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 20;
+    -fx-border-color: #b0b0b0;
+    -fx-border-radius: 20;
+    -fx-padding: 5 15 5 15;
+}
+
+.menu-button {
+    -fx-background-color: white;
+    -fx-border-color: #333333;
+    -fx-background-radius: 0 50 50 0;
+    -fx-border-radius: 0 50 50 0; -fx-border-width: 1.5 1.5 1.5 1;
+    -fx-padding: 0 15;
+}
+
