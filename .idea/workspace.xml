@@ -5,32 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b93bedf1-3428-4e0f-9247-cffb760e7680" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/AuctionDAO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/AuctionSession.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/BidTransaction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/Product.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/main/java/resources/database/schema.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/AuctionSession.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/BidTransaction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Bidding-Project.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/auction-system.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/AutionDAO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/BidDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/BidDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/DatabaseConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/DatabaseConnection.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/ProductDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/ProductDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/dao/UserDAO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/java/com/auction/server/model/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/model/Product.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/utils/JsonUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/shared/src/main/java/com/auction/shared/utils/JsonUtils.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/ProductListController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/view/ProductListController.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/RegisterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/RegisterController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+        <option value="FxmlFile" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -43,8 +35,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;http://github.com/Marhsie37/Bidding-Project&quot;,
-    &quot;accountId&quot;: &quot;8ddb5ec3-dc49-4ea1-b8e2-e98852bec29d&quot;
+    &quot;url&quot;: &quot;https://github.com/Marhsie37/Bidding-Project&quot;,
+    &quot;accountId&quot;: &quot;22fa3f61-e7d4-4ff1-bf98-cd5f0e89c422&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -52,6 +44,9 @@
   &quot;associatedIndex&quot;: 0
 }</component>
   <component name="ProjectId" id="3C2V1grZEwtqHzYasZ33PQJctci" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -65,13 +60,33 @@
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Lenovo/IdeaProjects/New folder/client/src/main/java/com/auction/client/view&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Lenovo\IdeaProjects\New folder\client\src\main\java\com\auction\client\view" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.auction.client.controller" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="ServerMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.auction.server.ServerMain" />
@@ -106,7 +121,13 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1775583441337</updated>
+      <workItem from="1775696198289" duration="1767000" />
+      <workItem from="1775698370693" duration="45000" />
+      <workItem from="1775729785893" duration="838000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
 </project>
