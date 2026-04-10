@@ -2,32 +2,61 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="400.0" prefWidth="517.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Part1.Logister">
+<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.RegisterController">
    <children>
-      <ImageView fitHeight="400.0" fitWidth="600.0" pickOnBounds="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <image>
-            <Image url="@../Part2/images/pexels-codioful-7135066.jpg" />
-         </image>
-      </ImageView>
-      <AnchorPane prefHeight="400.0" prefWidth="600.0">
+      <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="545.0" prefWidth="428.0">
          <children>
-            <AnchorPane layoutX="116.0" layoutY="81.0" prefHeight="238.0" prefWidth="368.0" styleClass="frame1" stylesheets="@Colour.css">
+            <AnchorPane prefHeight="234.0" prefWidth="271.0">
                <children>
-                  <Label layoutX="73.0" layoutY="38.0" text="Email" />
-                  <Label layoutX="60.0" layoutY="74.0" text="PassWord" />
-                  <TextField fx:id="emailField" layoutX="156.0" layoutY="21.0" />
-                  <Label layoutX="37.0" layoutY="101.0" text="Confirm PassWord" />
-                  <TextField fx:id="passwordField" layoutX="156.0" layoutY="57.0" />
-                  <TextField fx:id="confirmPasswordField" layoutX="156.0" layoutY="97.0" />
-                  <Button layoutX="87.0" layoutY="152.0" mnemonicParsing="false" onAction="#handleCreateAccount" text="Create" />
-                  <Button layoutX="179.0" layoutY="152.0" mnemonicParsing="false" onAction="#goToLoginScreen" text="Cancel" />
+                  <ImageView fitHeight="558.0" fitWidth="428.0" layoutY="-7.0" pickOnBounds="true">
+                     <image>
+                        <Image url="@images/pexels-codioful-7135066.jpg" />
+                     </image>
+                  </ImageView>
+                  <VBox alignment="CENTER" layoutX="42.0" layoutY="107.0">
+                     <children>
+                        <AnchorPane prefHeight="386.0" prefWidth="349.0" styleClass="hBox1" stylesheets="@Colour.css">
+                           <children>
+                              <TextField fx:id="usernameField" layoutX="76.0" layoutY="14.0" prefHeight="38.0" prefWidth="200.0" promptText="Username *" styleClass="hBox1" stylesheets="@Colour.css" />
+                              <TextField fx:id="emailField" layoutX="76.0" layoutY="63.0" prefHeight="38.0" prefWidth="200.0" promptText="Email *" styleClass="hBox1" stylesheets="@Colour.css" />
+                              <TextField fx:id="passwordField" layoutX="76.0" layoutY="111.0" prefHeight="38.0" prefWidth="200.0" promptText="Password *" styleClass="hBox1" stylesheets="@Colour.css" />
+                              <TextField fx:id="confirmPasswordField" layoutX="76.0" layoutY="161.0" prefHeight="38.0" prefWidth="200.0" promptText="Confirm Password *" styleClass="hBox1" stylesheets="@Colour.css" />
+                              <TextField fx:id="fullnameField" layoutX="76.0" layoutY="210.0" prefHeight="38.0" prefWidth="200.0" promptText="Fullname *" styleClass="hBox1" stylesheets="@Colour.css" />
+                              <MenuButton layoutX="66.0" layoutY="280.0" mnemonicParsing="false" prefHeight="5.0" prefWidth="124.0" styleClass="menu-button-modern" stylesheets="@Colour.css" text="Role">
+                                 <items>
+                                    <MenuItem mnemonicParsing="false" text="User" />
+                                    <MenuItem mnemonicParsing="false" text="Admin" />
+                                 </items>
+                              </MenuButton>
+                              <Button layoutX="66.0" layoutY="332.0" mnemonicParsing="false" onAction="#goToLoginScreen" prefHeight="32.0" prefWidth="90.0" styleClass="button-custom" stylesheets="@Colour.css" text="Back" />
+                              <Button layoutX="186.0" layoutY="332.0" mnemonicParsing="false" onAction="#handleCreateAccount" prefHeight="32.0" prefWidth="90.0" styleClass="button-custom" stylesheets="@Colour.css" text="Register" />
+                           </children>
+                        </AnchorPane>
+                     </children>
+                  </VBox>
+                  <Label layoutX="68.0" layoutY="14.0" styleClass="text2" stylesheets="@Colour.css" text="Create Your Account" />
+                  <ImageView fitHeight="110.0" fitWidth="124.0" layoutX="13.0" layoutY="63.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/rocket.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fitHeight="120.0" fitWidth="110.0" layoutX="329.0" layoutY="307.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@images/astronaut.png" />
+                     </image>
+                  </ImageView>
                </children>
             </AnchorPane>
-         </children></AnchorPane>
+         </children>
+      </AnchorPane>
    </children>
-</AnchorPane>
+</StackPane>
