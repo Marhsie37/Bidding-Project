@@ -1,4 +1,4 @@
-package Part1;
+package com.auction.client.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -50,7 +50,7 @@ public class LoginController {
         if (emailDaNhap.equals(emailHeThong) && passDaNhap.equals(passHeThong)) {
 
             try {
-                Parent homeRoot = FXMLLoader.load(getClass().getResource("/Part1/Page.fxml"));
+                Parent homeRoot = FXMLLoader.load(getClass().getResource("/Part1/ProductListController.fxml"));
                 Scene homeScene = new Scene(homeRoot);
                 Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
@@ -59,7 +59,7 @@ public class LoginController {
                 window.show();
             } catch (IOException e) {
                 e.printStackTrace();
-                System.out.println("Lỗi không tải được Page.fxml, hãy kiểm tra lại đường dẫn!");
+                System.out.println("Lỗi không tải được ProductListController.fxml, hãy kiểm tra lại đường dẫn!");
             }
 
         } else {
