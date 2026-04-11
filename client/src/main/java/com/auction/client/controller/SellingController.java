@@ -32,19 +32,19 @@ public class SellingController {
 
     @FXML
     void handleAddProduct() {
-        // 1. Lấy dữ liệu từ giao diện
+
         String name = txtName.getText().trim();
         String price = txtPrice.getText().trim();
         String url = txtImageUrl.getText().trim();
         String durationStr = txtDuration.getText().trim();
 
-        // 2. Kiểm tra dữ liệu trống
+
         if (name.isEmpty() || price.isEmpty() || url.isEmpty() || durationStr.isEmpty()) {
             System.out.println("Lỗi: Vui lòng nhập đầy đủ thông tin!");
             return;
         }
 
-        // 3. Chuyển đổi thời gian sang số
+
         int totalSeconds;
         try {
             totalSeconds = Integer.parseInt(durationStr);
@@ -53,7 +53,6 @@ public class SellingController {
             return;
         }
 
-        // --- TẠO GIAO DIỆN HIỂN THỊ SẢN PHẨM (THẺ SẢN PHẨM) ---
 
         HBox productRow = new HBox(15);
         productRow.setAlignment(Pos.CENTER_LEFT);
@@ -64,7 +63,7 @@ public class SellingController {
                         "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);"
         );
 
-        // Xử lý Ảnh
+
         ImageView imgView = new ImageView();
         try {
             Image image = new Image(url, true);
@@ -76,7 +75,7 @@ public class SellingController {
             System.out.println("Lỗi link ảnh!");
         }
 
-        // Thông tin chữ và Bộ đếm ngược
+
         VBox details = new VBox(5);
         Label lblName = new Label(name);
         lblName.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
@@ -84,13 +83,13 @@ public class SellingController {
         Label lblPrice = new Label(price + " $");
         lblPrice.setStyle("-fx-text-fill: #e44d26; -fx-font-weight: bold;");
 
-        // Label hiển thị đếm ngược
+
         Label lblCountdown = new Label("Thời gian: " + totalSeconds + "s");
         lblCountdown.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
 
         details.getChildren().addAll(lblName, lblPrice, lblCountdown);
 
-        // --- LOGIC ĐẾM NGƯỢC (COUNTDOWN) ---
+
         final int[] timeRemaining = {totalSeconds};
         Timeline timeline = new Timeline(
                 new KeyFrame(Duration.seconds(1), e -> {
@@ -107,7 +106,7 @@ public class SellingController {
         timeline.setCycleCount(totalSeconds);
         timeline.play();
 
-        // Nút xóa
+
         Button btnDelete = new Button("Xóa");
         btnDelete.setStyle("-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-cursor: hand;");
         btnDelete.setOnAction(e -> {
@@ -115,12 +114,12 @@ public class SellingController {
             vboxDisplay.getChildren().remove(productRow);
         });
 
-        // Đưa tất cả vào hàng và đẩy lên VBox hiển thị
+
         productRow.getChildren().addAll(imgView, details, btnDelete);
         vboxDisplay.getChildren().add(productRow);
         vboxDisplay.setSpacing(10);
 
-        // Xóa sạch ô nhập để nhập món mới
+
         clearFields();
     }
 

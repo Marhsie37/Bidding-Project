@@ -1,4 +1,4 @@
-package Part1; // Kiểm tra lại tên package của bạn
+package com.auction.client.controller; // Kiểm tra lại tên package của bạn
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,17 +22,16 @@ import java.util.ResourceBundle;
 public class ProductListController implements Initializable {
 
     @FXML
-    private TextField searchField; // Phải trùng với fx:id trong Scene Builder
+    private TextField searchField;
 
     @FXML
-    private ListView<String> resultList; // Phải trùng với fx:id trong Scene Builder
+    private ListView<String> resultList;
 
-    // Danh sách dữ liệu mẫu
     private ObservableList<String> masterData = FXCollections.observableArrayList("Đồng hồ", "Loa Bluetooth", "Máy đo điện", "Điện thoại");
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // 1. Tạo FilteredList bao quanh dữ liệu gốc
+
         FilteredList<String> filteredData = new FilteredList<>(masterData, p -> true);
 
         // 2. Thiết lập logic lọc khi gõ chữ
@@ -46,7 +45,7 @@ public class ProductListController implements Initializable {
             });
         });
 
-        // 3. Đổ dữ liệu đã lọc vào ListView
+
         resultList.setItems(filteredData);
     }
 
