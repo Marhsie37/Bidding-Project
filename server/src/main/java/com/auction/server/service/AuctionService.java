@@ -72,12 +72,12 @@ public class AuctionService {
         }
     }
 
-    // --- HÀM MỚI BỔ SUNG CHO SERVER: TỰ ĐỘNG QUÉT VÀ CHỐT SỔ ---
+    // --- TỰ ĐỘNG QUÉT VÀ CHỐT SỔ ---
     public void checkAndEndAuctions() {
         LocalDateTime now = LocalDateTime.now();
         for (Map.Entry<Integer, AuctionSession> entry : sessions.entrySet()) {
             AuctionSession session = entry.getValue();
-            // Nếu phiên đang mở mà thời gian hiện tại đã vượt qua thời gian kết thúc
+
             if ("ACTIVE".equals(session.getStatus()) && now.isAfter(session.getEndTime())) {
                 endAuction(entry.getKey());
             }
