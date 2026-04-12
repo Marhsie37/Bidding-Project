@@ -16,22 +16,23 @@
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="1004.0" prefWidth="754.0">
                <children>
-                  <Label layoutX="82.0" layoutY="28.0" prefHeight="70.0" prefWidth="94.0" styleClass="text3" stylesheets="@Colour.css" text="AIB" />
+                  <Label fx:id="imgView" layoutX="82.0" layoutY="28.0" prefHeight="70.0" prefWidth="94.0" styleClass="text3" stylesheets="@Colour.css" text="AIB" />
                   <MenuButton layoutX="624.0" layoutY="28.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="100.0" text="System">
                     <items>
                       <MenuItem mnemonicParsing="false" text="Profile" />
                       <MenuItem mnemonicParsing="false" text="Selling" />
                         <MenuItem mnemonicParsing="false" text="History" />
+                        <MenuItem mnemonicParsing="false" onAction="#toProductListController" text="Page" />
                     </items>
                   </MenuButton>
                   <Separator layoutX="133.0" layoutY="130.0" prefHeight="17.0" prefWidth="586.0" />
-                  <VBox layoutX="103.0" layoutY="148.0" prefHeight="438.0" prefWidth="414.0">
+                  <VBox layoutX="14.0" layoutY="148.0" prefHeight="438.0" prefWidth="500.0">
                      <children>
-                        <ScrollPane prefHeight="214.0" prefWidth="275.0">
+                        <ScrollPane fitToWidth="true" prefHeight="349.0" prefWidth="500.0">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="443.0" prefWidth="398.0">
                                  <children>
-                                    <VBox fx:id="vboxDisplay" prefHeight="442.0" prefWidth="398.0" />
+                                    <VBox fx:id="vboxDisplay" prefHeight="442.0" prefWidth="486.0" />
                                  </children>
                               </AnchorPane>
                           </content>
@@ -41,25 +42,25 @@
                      <children>
                         <AnchorPane prefHeight="50.0" prefWidth="211.0">
                            <children>
-                              <TextField fx:id="txtName" layoutX="61.0" layoutY="12.0" />
+                              <TextField fx:id="txtName" layoutX="78.0" layoutY="12.0" prefHeight="26.0" prefWidth="133.0" />
                               <Label layoutX="14.0" layoutY="16.0" text="Name" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="38.0" prefWidth="146.0">
                            <children>
-                              <TextField fx:id="txtPrice" layoutX="47.0" layoutY="10.0" />
+                              <TextField fx:id="txtPrice" layoutX="79.0" layoutY="7.0" prefHeight="26.0" prefWidth="135.0" />
                               <Label layoutX="12.0" layoutY="11.0" text="Price" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="50.0" prefWidth="211.0">
                            <children>
                               <TextField fx:id="txtImageUrl" layoutX="79.0" layoutY="12.0" prefHeight="26.0" prefWidth="134.0" />
-                              <Label layoutX="14.0" layoutY="17.0" text="Image URL" />
+                              <Label layoutX="8.0" layoutY="16.0" text="Image URL" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="46.0" prefWidth="211.0">
                            <children>
-                              <TextField fx:id="txtDuration" layoutX="62.0" layoutY="2.0" />
+                              <TextField fx:id="txtDuration" layoutX="80.0" layoutY="2.0" prefHeight="26.0" prefWidth="132.0" />
                               <Label layoutX="7.0" layoutY="6.0" text="Duration" />
                            </children>
                         </AnchorPane>

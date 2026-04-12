@@ -2,8 +2,13 @@ package com.auction.client.controller;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -11,123 +16,122 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class SellingController {
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-    @FXML
-    private VBox vboxDisplay;
+public class SellingController implements Initializable {
+    @FXML private VBox vboxDisplay;
+    @FXML private TextField txtName, txtPrice, txtImageUrl, txtDuration;
 
-    @FXML
-    private TextField txtName;
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
 
-    @FXML
-    private TextField txtPrice;
-
-    @FXML
-    private TextField txtImageUrl;
-
-    @FXML
-    private TextField txtDuration; // Ô nhập số giây đếm ngược
-
-    @FXML
-    void handleAddProduct() {
-
-        String name = txtName.getText().trim();
-        String price = txtPrice.getText().trim();
-        String url = txtImageUrl.getText().trim();
-        String durationStr = txtDuration.getText().trim();
-
-
-        if (name.isEmpty() || price.isEmpty() || url.isEmpty() || durationStr.isEmpty()) {
-            System.out.println("Lỗi: Vui lòng nhập đầy đủ thông tin!");
-            return;
+        vboxDisplay.getChildren().clear();
+        vboxDisplay.setSpacing(10);
+        for (Product p : DataManager.sharedProductList) {
+            reconstructProductUI(p);
         }
+    }
 
 
-        int totalSeconds;
-        try {
-            totalSeconds = Integer.parseInt(durationStr);
-        } catch (NumberFormatException e) {
-            System.out.println("Lỗi: Thời gian phải là con số!");
-            return;
-        }
-
+    private void reconstructProductUI(Product p) {
 
         HBox productRow = new HBox(15);
         productRow.setAlignment(Pos.CENTER_LEFT);
-        productRow.setStyle(
-                "-fx-padding: 10; " +
-                        "-fx-background-color: #ffffff; " +
-                        "-fx-background-radius: 10; " +
-                        "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);"
-        );
+        productRow.setStyle("-fx-padding: 10; -fx-background-color: #ffffff; -fx-background-radius: 10; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);");
 
 
         ImageView imgView = new ImageView();
         try {
-            Image image = new Image(url, true);
-            imgView.setImage(image);
+            imgView.setImage(new Image(p.getImageUrl(), true));
             imgView.setFitWidth(80);
             imgView.setFitHeight(80);
             imgView.setPreserveRatio(true);
         } catch (Exception e) {
-            System.out.println("Lỗi link ảnh!");
+            System.out.println("Lỗi link ảnh: " + p.getName());
         }
 
 
         VBox details = new VBox(5);
-        Label lblName = new Label(name);
+        Label lblName = new Label(p.getName());
         lblName.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
-
-        Label lblPrice = new Label(price + " $");
+        Label lblPrice = new Label(p.getPrice() + " $");
         lblPrice.setStyle("-fx-text-fill: #e44d26; -fx-font-weight: bold;");
 
 
-        Label lblCountdown = new Label("Thời gian: " + totalSeconds + "s");
+        Label lblCountdown = new Label();
         lblCountdown.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
-
         details.getChildren().addAll(lblName, lblPrice, lblCountdown);
 
 
-        final int[] timeRemaining = {totalSeconds};
-        Timeline timeline = new Timeline(
-                new KeyFrame(Duration.seconds(1), e -> {
-                    timeRemaining[0]--;
-                    lblCountdown.setText("Thời gian: " + timeRemaining[0] + "s");
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            int remaining = p.getRemainingSeconds(); // Lấy số giây còn lại thực tế
 
-                    if (timeRemaining[0] <= 0) {
-                        lblCountdown.setText("HẾT HẠN!");
-                        lblCountdown.setStyle("-fx-text-fill: #7f8c8d;");
-                        productRow.setOpacity(0.6); // Làm mờ khi hết hạn
-                    }
-                })
-        );
-        timeline.setCycleCount(totalSeconds);
+            if (remaining <= 0) {
+                lblCountdown.setText("HẾT HẠN!");
+                lblCountdown.setStyle("-fx-text-fill: #7f8c8d;");
+                productRow.setOpacity(0.6);
+            } else {
+                lblCountdown.setText("Thời gian: " + remaining + "s");
+            }
+        }));
+        timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
 
 
         Button btnDelete = new Button("Xóa");
         btnDelete.setStyle("-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-cursor: hand;");
         btnDelete.setOnAction(e -> {
-            timeline.stop(); // Quan trọng: Dừng đếm ngược trước khi xóa để tiết kiệm RAM
+            timeline.stop();
             vboxDisplay.getChildren().remove(productRow);
+            DataManager.sharedProductList.remove(p);
         });
 
 
         productRow.getChildren().addAll(imgView, details, btnDelete);
         vboxDisplay.getChildren().add(productRow);
-        vboxDisplay.setSpacing(10);
+    }
+
+    @FXML
+    void handleAddProduct() {
+        String name = txtName.getText().trim();
+        String price = txtPrice.getText().trim();
+        String url = txtImageUrl.getText().trim();
+        String durationStr = txtDuration.getText().trim();
+
+        if (name.isEmpty() || price.isEmpty() || url.isEmpty() || durationStr.isEmpty()) return;
+
+        try {
+            int totalSeconds = Integer.parseInt(durationStr);
+
+            Product newP = new Product(name, price, url, totalSeconds);
 
 
-        clearFields();
+            DataManager.sharedProductList.add(newP);
+            reconstructProductUI(newP);
+
+            clearFields();
+        } catch (NumberFormatException e) {
+            System.out.println("Lỗi: Thời gian phải là số!");
+        }
+    }
+
+    @FXML
+    public void toProductListController(ActionEvent event) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/Part1/ProductListController.fxml"));
+
+        Stage window = (Stage) vboxDisplay.getScene().getWindow();
+        window.setScene(new Scene(root));
+        window.show();
     }
 
     private void clearFields() {
-        txtName.clear();
-        txtPrice.clear();
-        txtImageUrl.clear();
-        txtDuration.clear();
+        txtName.clear(); txtPrice.clear(); txtImageUrl.clear(); txtDuration.clear();
         txtName.requestFocus();
     }
 }

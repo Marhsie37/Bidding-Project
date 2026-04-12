@@ -32,10 +32,10 @@
                               <TextField fx:id="confirmPasswordField" layoutX="76.0" layoutY="161.0" prefHeight="38.0" prefWidth="200.0" promptText="Confirm Password *" styleClass="hBox1" stylesheets="@Colour.css" />
                               <TextField fx:id="fullnameField" layoutX="76.0" layoutY="210.0" prefHeight="38.0" prefWidth="200.0" promptText="Fullname *" styleClass="hBox1" stylesheets="@Colour.css" />
                               <MenuButton layoutX="66.0" layoutY="280.0" mnemonicParsing="false" prefHeight="5.0" prefWidth="124.0" styleClass="menu-button-modern" stylesheets="@Colour.css" text="Role">
-                                 <items>
-                                    <MenuItem mnemonicParsing="false" text="User" />
-                                    <MenuItem mnemonicParsing="false" text="Admin" />
-                                 </items>
+                                <items>
+                                  <MenuItem mnemonicParsing="false" text="User" />
+                                  <MenuItem mnemonicParsing="false" text="Admin" />
+                                </items>
                               </MenuButton>
                               <Button layoutX="66.0" layoutY="332.0" mnemonicParsing="false" onAction="#goToLoginScreen" prefHeight="32.0" prefWidth="90.0" styleClass="button-custom" stylesheets="@Colour.css" text="Back" />
                               <Button layoutX="186.0" layoutY="332.0" mnemonicParsing="false" onAction="#handleCreateAccount" prefHeight="32.0" prefWidth="90.0" styleClass="button-custom" stylesheets="@Colour.css" text="Register" />

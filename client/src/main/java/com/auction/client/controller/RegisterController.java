@@ -62,12 +62,12 @@ public class RegisterController {
 
         if (isSaved) {
 
-            Part1.LoginController.userHeThong = username;
-            Part1.LoginController.fullnameHeThong = fullname;
+            LoginController.userHeThong = username;
+            LoginController.fullnameHeThong = fullname;
 
 
-            Part1.LoginController.emailHeThong = email;
-            Part1.LoginController.passHeThong = password;
+            LoginController.emailHeThong = email;
+            LoginController.passHeThong = password;
 
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo tài khoản thành công! Nhấn OK để quay lại trang Đăng nhập.");
             goToLoginScreen(event);
