@@ -52,5 +52,26 @@ public class Product implements Serializable {
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
+    public int getDurationHours() { return durationHours; }
+    public void setDurationHours(int durationHours) { this.durationHours = durationHours; }
 
+    public LocalDateTime getStartTime() { return startTime; }
+    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+
+    public LocalDateTime getEndTime() { return endTime; }
+    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public int getWinnerId() { return winnerId; }
+    public void setWinnerId(int winnerId) { this.winnerId = winnerId; }
+
+    public String getWinnerName() { return winnerName; }
+    public void setWinnerName(String winnerName) { this.winnerName = winnerName; }
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public boolean isActive() { return "ACTIVE".equalsIgnoreCase(status); }
 }

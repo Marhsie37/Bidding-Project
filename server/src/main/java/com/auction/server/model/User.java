@@ -45,5 +45,16 @@ public class User implements Serializable {
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
 
+    public double getBalance() { return balance; }
+    public void setBalance(double balance) { this.balance = balance; }
 
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
+
+    public boolean isBidder() { return "BIDDER".equalsIgnoreCase(role); }
+    public boolean isSeller() { return "SELLER".equalsIgnoreCase(role); }
+    public boolean isAdmin() { return "ADMIN".equalsIgnoreCase(role); }
 }
