@@ -14,16 +14,18 @@ import java.io.IOException;
 
 public class RegisterController {
 
-    // ĐÃ BỎ hoField và tenField
+    @FXML private TextField usernameField;
+    @FXML private TextField fullnameField;
+
+
     @FXML private TextField emailField;
     @FXML private TextField passwordField;
     @FXML private TextField confirmPasswordField;
 
-    // Nút Cancel hoặc khi tạo thành công thì quay lại Login
     @FXML
     public void goToLoginScreen(ActionEvent event) {
         try {
-            Parent loginRoot = FXMLLoader.load(getClass().getResource("/Part1/Login.fxml"));
+            Parent loginRoot = FXMLLoader.load(getClass().getResource("/Part1/LoginController.fxml"));
             Scene loginScene = new Scene(loginRoot);
             Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
             window.setScene(loginScene);
@@ -34,35 +36,38 @@ public class RegisterController {
         }
     }
 
-    // Xử lý khi bấm nút Create
     @FXML
     public void handleCreateAccount(ActionEvent event) {
-        // Lấy Họ và Tên từ màn hình Name truyền sang
-        String ho = Name.hoDangKy;
-        String ten = Name.tenDangKy;
+
+        String username = usernameField.getText().trim();
+        String fullname = fullnameField.getText().trim();
 
         String email = emailField.getText().trim();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
 
-        // Kiểm tra trống
-        if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+
+        if (username.isEmpty() || fullname.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Lỗi", "Vui lòng nhập đầy đủ thông tin!");
             return;
         }
 
-        // Kiểm tra mật khẩu khớp nhau
         if (!password.equals(confirmPassword)) {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Mật khẩu xác nhận không khớp!");
             return;
         }
 
-        boolean isSaved = saveUserToDatabase(ho, ten, email, password);
+
+        boolean isSaved = saveUserToDatabase(username, fullname, email, password);
 
         if (isSaved) {
-            // Mẹo: Cập nhật luôn tài khoản hệ thống để bạn có thể test đăng nhập ngay sau khi tạo
-            Login.emailHeThong = email;
-            Login.passHeThong = password;
+
+            LoginController.userHeThong = username;
+            LoginController.fullnameHeThong = fullname;
+
+
+            LoginController.emailHeThong = email;
+            LoginController.passHeThong = password;
 
             showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo tài khoản thành công! Nhấn OK để quay lại trang Đăng nhập.");
             goToLoginScreen(event);
@@ -71,7 +76,8 @@ public class RegisterController {
         }
     }
 
-    private boolean saveUserToDatabase(String ho, String ten, String email, String password) {
+
+    private boolean saveUserToDatabase(String username, String fullname, String email, String password) {
         String mockExistingEmail = "admin@gmail.com";
         if (email.equalsIgnoreCase(mockExistingEmail)) {
             return false;

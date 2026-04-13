@@ -7,58 +7,39 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.paint.Color?>
-<?import javafx.scene.paint.RadialGradient?>
-<?import javafx.scene.paint.Stop?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="396.0" prefWidth="602.0" stylesheets="@Colour.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Part1.Login">
-   <children>
-      <ImageView fitHeight="400.0" fitWidth="602.0" pickOnBounds="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <image>
-            <Image url="@../Part2/images/pexels-codioful-7135066.jpg" />
-         </image>
-      </ImageView>
-      <AnchorPane layoutX="1.0" prefHeight="400.0" prefWidth="602.0" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-            <AnchorPane layoutX="260.0" layoutY="65.0" prefHeight="276.0" prefWidth="310.0" styleClass="frame1" stylesheets="@Colour.css">
-               <children>
-                  <Button layoutX="93.0" layoutY="169.0" mnemonicParsing="false" onAction="#handleLogin" prefHeight="34.0" prefWidth="150.0" styleClass="button1" stylesheets="@Colour.css" text="Login" />
-                  <Hyperlink layoutX="93.0" layoutY="235.0" onAction="#goToRegisterScreen" prefHeight="26.0" prefWidth="125.0" text="Create Your Account.." textFill="#7ea8a7" />
-                  <Label layoutX="57.0" layoutY="113.0" text="PassWord" />
-                  <Label layoutX="69.0" layoutY="64.0" text="Email" />
-                  <TextField fx:id="emailField" layoutX="124.0" layoutY="60.0" />
-                  <TextField fx:id="passwordField" layoutX="124.0" layoutY="109.0" />
-               </children>
-            </AnchorPane>
-            <ImageView fitHeight="212.0" fitWidth="207.0" layoutX="26.0" layoutY="100.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../Part2/images/fc361407c35caaa55cfe32f09030e3b2.png" />
-               </image>
-            </ImageView>
-            <Text fill="#299e8e" layoutX="67.0" layoutY="97.0" strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-text-fill: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);" styleClass="text1" text="AIB" textAlignment="CENTER" wrappingWidth="124.5366439819336">
-               <font>
-                  <Font size="48.0" />
-               </font>
-               <stroke>
-                  <RadialGradient centerX="0.845132709604449" centerY="0.5" radius="0.5">
-                     <stops>
-                        <Stop>
-                           <color>
-                              <Color red="0.8526315689086914" green="0.8183684349060059" blue="0.16736842691898346" />
-                           </color>
-                        </Stop>
-                        <Stop offset="1.0">
-                           <color>
-                              <Color red="0.10277918726205826" blue="0.8899999856948853" />
-                           </color>
-                        </Stop>
-                     </stops>
-                  </RadialGradient>
-               </stroke>
-            </Text>
-         </children>
-      </AnchorPane>
-   </children>
-</AnchorPane>
+<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.LoginController">
+    <children>
+        <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="538.0" prefWidth="428.0">
+            <children>
+                <ImageView fitHeight="545.0" fitWidth="434.0" layoutX="-2.0" layoutY="-2.0" pickOnBounds="true">
+                    <image>
+                        <Image url="@images/pexels-codioful-7135066.jpg" />
+                    </image>
+                </ImageView>
+                <VBox alignment="CENTER" layoutX="79.0" layoutY="246.0">
+                    <children>
+                        <AnchorPane prefHeight="234.0" prefWidth="271.0" styleClass="hBox1" stylesheets="@Colour.css">
+                            <children>
+                                <TextField fx:id="emailField" layoutX="48.0" layoutY="41.0" prefHeight="38.0" prefWidth="175.0" promptText="Email" styleClass="hBox1" stylesheets="@Colour.css" />
+                                <TextField fx:id="passwordField" layoutX="48.0" layoutY="98.0" prefHeight="38.0" prefWidth="175.0" promptText="Password" styleClass="hBox1" stylesheets="@Colour.css" />
+                                <Hyperlink layoutX="165.0" layoutY="192.0" onAction="#goToRegisterScreen" text="Register" />
+                                <Label layoutX="32.0" layoutY="195.0" text="Don't have an account" />
+                                <Button layoutX="76.0" layoutY="153.0" mnemonicParsing="false" onAction="#handleLogin" prefHeight="32.0" prefWidth="119.0" styleClass="button-custom" stylesheets="@Colour.css" text="Login" />
+                            </children>
+                        </AnchorPane>
+                    </children>
+                </VBox>
+                <Label layoutX="93.0" layoutY="88.0" prefHeight="58.0" prefWidth="242.0" styleClass="text2" stylesheets="@Colour.css" text="Login to your account" />
+                <ImageView fitHeight="161.0" fitWidth="175.0" layoutX="134.0" layoutY="125.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@images/fc361407c35caaa55cfe32f09030e3b2.png" />
+                    </image>
+                </ImageView>
+                <Label layoutX="173.0" layoutY="14.0" styleClass="text1" stylesheets="@Colour.css" text="AIB" />
+            </children>
+        </AnchorPane>
+    </children>
+</StackPane>
