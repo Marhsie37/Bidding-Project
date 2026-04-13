@@ -46,7 +46,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/IdeaProjects/Bidding-Project&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
@@ -92,6 +92,7 @@
       <updated>1775583441337</updated>
       <workItem from="1775659793256" duration="355000" />
       <workItem from="1775693501376" duration="149000" />
+      <workItem from="1776078348592" duration="23000" />
     </task>
     <servers />
   </component>
