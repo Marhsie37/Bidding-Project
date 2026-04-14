@@ -13,7 +13,7 @@ public class AuctionService {
     // --- SINGLETON ---
     private static AuctionService instance;
 
-    // --- HỆ THỐNG DATABASE TRÊN RAM ---
+    // --- Hệ thống database trên RAM ---
     // Lưu trữ Users: Dùng nested Map chứa thông tin (password, role, id)
     private Map<String, Map<String, Object>> usersDB = new ConcurrentHashMap<>();
     private AtomicInteger userIdGenerator = new AtomicInteger(1);
@@ -26,7 +26,7 @@ public class AuctionService {
     private Map<Integer, AuctionSession> sessions = new ConcurrentHashMap<>();
 
     private AuctionService() {
-        // TẠO SẴN 1 TÀI KHOẢN ADMIN 
+        // Tạo sẵn 1 tài khoản admin
         Map<String, Object> adminData = new HashMap<>();
         adminData.put("id", 0);
         adminData.put("password", "admin123");
@@ -41,9 +41,7 @@ public class AuctionService {
         return instance;
     }
 
-    // =========================================================
     // 1. Tài khoản
-    // =========================================================
     public Map<String, Object> login(String username, String password) {
         Map<String, Object> result = new HashMap<>();
         if (usersDB.containsKey(username)) {
@@ -84,9 +82,7 @@ public class AuctionService {
         return result;
     }
 
-    // =========================================================
     // 2.Quản lý sản phẩm
-    // =========================================================
     public Map<String, Object> addProduct(Map<String, Object> data) {
         Map<String, Object> result = new HashMap<>();
         int newProductId = productIdGenerator.getAndIncrement();
@@ -201,9 +197,7 @@ public class AuctionService {
         return result;
     }
 
-    // =========================================================
     // 3. Đặt & đấu giá
-    // =========================================================
     public Map<String, Object> placeBid(int productId, String username, double bidAmount) {
         Map<String, Object> result = new HashMap<>();
         AuctionSession session = sessions.get(productId);
@@ -253,9 +247,7 @@ public class AuctionService {
         return result;
     }
 
-    // =========================================================
     // 4. AUTO-BID:
-    // =========================================================
     public Map<String, Object> setAutoBid(int productId, String username, double maxBid, double increment) {
         Map<String, Object> result = new HashMap<>();
         AuctionSession session = sessions.get(productId);
@@ -281,9 +273,7 @@ public class AuctionService {
         return result;
     }
 
-    // =========================================================
-    // 5. Quyền của quản trị viên
-    // =========================================================
+    // 5. Quyền của quản trị viên(admin)
     public Map<String, Object> getAllUsers() {
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
@@ -327,9 +317,7 @@ public class AuctionService {
         return result;
     }
 
-    // =========================================================
     // 6. Dọn dẹp đi các phiên đấu giá đã hết hạn
-    // =========================================================
     public void checkAndEndAuctions() {
         LocalDateTime now = LocalDateTime.now();
         for (Map.Entry<Integer, AuctionSession> entry : sessions.entrySet()) {
