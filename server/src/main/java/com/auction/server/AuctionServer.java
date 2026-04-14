@@ -52,7 +52,7 @@ public class AuctionServer {
             while (running) {
                 try {
                     auctionService.checkAndEndAuctions();
-                    Thread.sleep(1000); // Check every second
+                    Thread.sleep(1000); // kiem tra moi mot giay
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
