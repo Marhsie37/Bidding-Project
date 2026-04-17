@@ -20,9 +20,9 @@ public class ProductDetailController {
     @FXML private TextField txtBidAmount;
 
     private Product product;
-    private Runnable onPriceChangeCallback; // Hàm chạy khi giá thay đổi
+    private Runnable onPriceChangeCallback;
 
-    // Hàm này giúp trang Danh sách "đăng ký" việc cập nhật
+
     public void setOnPriceChange(Runnable callback) {
         this.onPriceChangeCallback = callback;
     }
@@ -50,7 +50,7 @@ public class ProductDetailController {
                 lblDetailPrice.setText(giaMoi + " $");
                 txtBidAmount.clear();
 
-                // 3. QUAN TRỌNG: Gọi hàm cập nhật cho trang Danh sách (bên ngoài)
+
                 if (onPriceChangeCallback != null) {
                     onPriceChangeCallback.run();
                 }

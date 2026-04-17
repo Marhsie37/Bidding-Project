@@ -7,8 +7,6 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
@@ -25,25 +23,19 @@
               </items>
             </MenuButton>
             <Separator layoutX="133.0" layoutY="130.0" prefHeight="17.0" prefWidth="586.0" />
-            <TextField fx:id="searchField" layoutX="202.0" layoutY="86.0" />
-            <ImageView fitHeight="32.0" fitWidth="29.0" layoutX="205.0" layoutY="84.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@images/search.png" />
-               </image>
-            </ImageView>
-            <Label layoutX="328.0" layoutY="139.0" prefHeight="53.0" prefWidth="142.0" text="Proifle">
+            <Label layoutX="307.0" layoutY="139.0" prefHeight="46.0" prefWidth="147.0" text="Profile">
                <font>
                   <Font size="48.0" />
                </font>
             </Label>
-            <TextField layoutX="234.0" layoutY="216.0" />
+            <TextField layoutX="231.0" layoutY="216.0" />
             <Button layoutX="582.0" layoutY="216.0" mnemonicParsing="false" text="Confirm" />
-            <Label layoutX="176.0" layoutY="220.0" text="Fullname" />
+            <Label layoutX="160.0" layoutY="220.0" text="Fullname" />
             <TextField layoutX="231.0" layoutY="251.0" />
             <Label layoutX="173.0" layoutY="255.0" text="Age" />
             <TextField layoutX="231.0" layoutY="288.0" />
             <Label layoutX="173.0" layoutY="292.0" text="Email" />
-            <TextField layoutX="236.0" layoutY="327.0" />
+            <TextField layoutX="231.0" layoutY="327.0" />
             <Label layoutX="160.0" layoutY="331.0" text="Username" />
          </children>
       </AnchorPane>

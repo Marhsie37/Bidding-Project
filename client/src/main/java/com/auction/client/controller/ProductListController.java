@@ -106,4 +106,12 @@ public class ProductListController implements Initializable {
         window.setScene(new Scene(root));
         window.show();
     }
+
+    @FXML
+    public void toAdmin(ActionEvent event) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/Part1/Admin.fxml"));
+        Stage window = (Stage) vboxGallery.getScene().getWindow();
+        window.setScene(new Scene(root));
+        window.show();
+    }
 }
