@@ -7,7 +7,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class Admin {
-    @FXML private VBox vBoxDisplay; // Đây là VBox nằm trong ScrollPane của bạn
+    @FXML private VBox vBoxDisplay;
 
     @FXML
     public void initialize() {
@@ -15,11 +15,11 @@ public class Admin {
     }
 
     public void renderUserList() {
-        vBoxDisplay.getChildren().clear(); // Xóa trắng để vẽ lại từ đầu
+        vBoxDisplay.getChildren().clear();
         vBoxDisplay.setSpacing(10);
 
         for (User user : DataManager.allUsers) {
-            // Không hiển thị chính Admin trong danh sách quản lý
+
             if (user.getRole().equals("ADMIN")) continue;
 
             HBox userRow = new HBox(20);
@@ -31,14 +31,14 @@ public class Admin {
             Button banBtn = new Button(user.getStatus().equals("ACTIVE") ? "Ban" : "Unban");
             banBtn.setStyle(user.getStatus().equals("ACTIVE") ? "-fx-background-color: red; -fx-text-fill: white;" : "-fx-background-color: green; -fx-text-fill: white;");
 
-            // Xử lý sự kiện khi nhấn nút Ban
+
             banBtn.setOnAction(e -> {
                 if (user.getStatus().equals("ACTIVE")) {
                     user.setStatus("BANNED");
                 } else {
                     user.setStatus("ACTIVE");
                 }
-                renderUserList(); // Vẽ lại danh sách để cập nhật chữ trên Label và Button
+                renderUserList();
             });
 
             userRow.getChildren().addAll(infoLabel, banBtn);

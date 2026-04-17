@@ -71,10 +71,9 @@ public class ProductListController implements Initializable {
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
 
-        // 4. SỰ KIỆN CLICK (Sửa lỗi Location is not set)
+
         card.setOnMouseClicked(event -> {
             try {
-                // QUAN TRỌNG: Tên file FXML phải đúng là ProductDetailController.fxml như trong ảnh của bạn
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/Part1/ProductDetailController.fxml"));
                 Parent root = loader.load();
 

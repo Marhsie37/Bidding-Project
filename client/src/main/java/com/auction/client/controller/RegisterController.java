@@ -21,30 +21,28 @@ public class RegisterController {
     @FXML private TextField passwordField;
     @FXML private TextField confirmPasswordField;
 
-    // Đổi từ ComboBox sang MenuButton cho khớp với Scene Builder của bạn
+
     @FXML private MenuButton roleMenuButton;
 
     private String selectedRole = ""; // Biến này dùng để lưu Role đã chọn
 
     @FXML
     public void initialize() {
-        // Tạo các lựa chọn cho MenuButton
+
         MenuItem bidderItem = new MenuItem("Bidder");
         MenuItem sellerItem = new MenuItem("Seller");
 
-        // Xử lý khi chọn "Bidder"
+
         bidderItem.setOnAction(e -> {
             selectedRole = "Bidder";
             roleMenuButton.setText("Bidder"); // Hiển thị chữ đã chọn lên mặt nút
         });
 
-        // Xử lý khi chọn "Seller"
         sellerItem.setOnAction(e -> {
             selectedRole = "Seller";
             roleMenuButton.setText("Seller");
         });
 
-        // Thêm các mục vào MenuButton
         roleMenuButton.getItems().setAll(bidderItem, sellerItem);
     }
 
@@ -56,10 +54,8 @@ public class RegisterController {
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
 
-        // Lấy giá trị từ biến selectedRole thay vì getValue()
         String role = selectedRole;
 
-        // Kiểm tra xem đã chọn Role chưa và các trường khác có trống không
         if (username.isEmpty() || fullname.isEmpty() || email.isEmpty() ||
                 password.isEmpty() || confirmPassword.isEmpty() || role.isEmpty()) {
 
@@ -72,7 +68,6 @@ public class RegisterController {
             return;
         }
 
-        // Lưu người dùng vào danh sách tổng trong DataManager
         User newUser = new User(username, fullname, email, password, role);
         DataManager.allUsers.add(newUser);
 
@@ -80,7 +75,6 @@ public class RegisterController {
         goToLoginScreen(event);
     }
 
-    // Các hàm phụ giữ nguyên
     private void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);

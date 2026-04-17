@@ -43,10 +43,9 @@ public class ProductDetailController {
             double giaHienTai = Double.parseDouble(product.getPrice());
 
             if (giaMoi > giaHienTai) {
-                // 1. Cập nhật dữ liệu trong đối tượng product
                 product.setPrice(String.valueOf(giaMoi));
 
-                // 2. Cập nhật giao diện trang Chi tiết
+
                 lblDetailPrice.setText(giaMoi + " $");
                 txtBidAmount.clear();
 

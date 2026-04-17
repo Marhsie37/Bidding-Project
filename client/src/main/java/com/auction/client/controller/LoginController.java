@@ -52,12 +52,11 @@ public class LoginController {
             return;
         }
 
-        // 2. Kiểm tra trong danh sách DataManager
         User userHienTai = null;
         boolean timThay = false;
 
         for (User u : DataManager.allUsers) {
-            // So sánh Email và Password (đảm bảo class User đã có hàm getEmail() và getPassword())
+
             if (u.getEmail().equals(emailDaNhap) && u.getPassword().equals(passDaNhap)) {
                 timThay = true;
                 userHienTai = u;
@@ -65,21 +64,21 @@ public class LoginController {
             }
         }
 
-        // 3. Xử lý kết quả đăng nhập
+
         if (timThay) {
-            // Kiểm tra xem có bị Admin chặn không
+
             if (userHienTai.getStatus().equals("BANNED")) {
                 showAlert(Alert.AlertType.ERROR, "Lỗi", "Tài khoản của bạn đã bị khóa!");
                 return;
             }
 
             try {
-                // Chuyển màn hình dựa trên Role (theo yêu cầu bài tập lớn)
+
                 String fxmlPath = "";
                 if (userHienTai.getRole().equals("ADMIN")) {
-                    fxmlPath = "/Part1/Admin.fxml"; // Nếu là Admin thì vào trang quản lý
+                    fxmlPath = "/Part1/Admin.fxml";
                 } else {
-                    fxmlPath = "/Part1/ProductListController.fxml"; // Bidder/Seller vào trang chủ sản phẩm
+                    fxmlPath = "/Part1/ProductListController.fxml";
                 }
 
                 Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
@@ -99,7 +98,6 @@ public class LoginController {
         }
     }
 
-    // Hàm phụ để hiển thị thông báo cho gọn code
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
