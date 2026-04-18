@@ -5,16 +5,25 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDAO {
+public class    UserDAO {
     private DatabaseConnection dbConnection;
-
+    private Connection conn;
+    public UserDAO(Connection conn) {
+        this.conn = conn;
+    }
     public UserDAO() {
         this.dbConnection = DatabaseConnection.getInstance();
+    }
+    private Connection getConnection() throws SQLException {
+        if (this.conn != null) {
+            return this.conn; // Trả về kết nối ảo H2 nếu đang chạy Test
+        }
+        return dbConnection.getConnection(); // Trả về kết nối MySQL thật
     }
 
     public User findByUsername(String username) {
         String sql = "SELECT * FROM users WHERE username = ?";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, username);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -29,7 +38,7 @@ public class UserDAO {
 
     public User findByEmail(String email) {
         String sql = "SELECT * FROM users WHERE email = ?";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, email);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -44,7 +53,7 @@ public class UserDAO {
 
     public boolean createUser(String username, String password, String email, String fullName, String role) {
         String sql = "INSERT INTO users (username, password, email, full_name, role) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, username);
             pstmt.setString(2, password);
             pstmt.setString(3, email);
@@ -60,7 +69,7 @@ public class UserDAO {
 
     public boolean updateUser(User user) {
         String sql = "UPDATE users SET email = ?, full_name = ?, balance = ?, active = ? WHERE id = ?";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, user.getEmail());
             pstmt.setString(2, user.getFullName());
             pstmt.setDouble(3, user.getBalance());
@@ -76,7 +85,7 @@ public class UserDAO {
 
     public boolean updateBalance(int userId, double newBalance) {
         String sql = "UPDATE users SET balance = ? WHERE id = ?";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setDouble(1, newBalance);
             pstmt.setInt(2, userId);
             return pstmt.executeUpdate() > 0;
@@ -88,7 +97,7 @@ public class UserDAO {
 
     public boolean deleteUser(int userId) {
         String sql = "DELETE FROM users WHERE id = ? AND role != 'ADMIN'";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, userId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -100,7 +109,7 @@ public class UserDAO {
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users ORDER BY id";
-        try (Statement stmt = dbConnection.getConnection().createStatement();
+        try (Statement stmt = getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 users.add(mapResultSetToUser(rs));
@@ -114,7 +123,7 @@ public class UserDAO {
     public List<User> getUsersByRole(String role) {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE role = ? ORDER BY id";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setString(1, role);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
