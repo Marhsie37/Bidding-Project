@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="01423300-cd26-49c7-9fa6-557b192bd638" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/ProductLogin.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/view/ProductLogin.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/Admin.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/Admin.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/LoginController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/ProductDetailController.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/ProductDetailController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/ProductListController.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/ProductListController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/RegisterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/RegisterController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/SellingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/controller/SellingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/view/Admin.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/view/Admin.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/view/Colour.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/view/Colour.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/view/ProductListController.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/view/ProductListController.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/view/RegisterController.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/view/RegisterController.fxml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/java/com/auction/client/view/Selling.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/java/com/auction/client/view/Selling.fxml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "NguyenTai3101-tech"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Marhsie37/Bidding-Project",
+    "accountId": "22fa3f61-e7d4-4ff1-bf98-cd5f0e89c422"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 0
+}]]></component>
+  <component name="ProjectId" id="3CWMFj0EJxs7AlaftLffZRwcZg3" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "master",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Lenovo/IdeaProjects/New folder/client/src/main/java/com/auction/client/view",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Lenovo\IdeaProjects\New folder\client\src\main\java\com\auction\client\view" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.auction.client.controller" />
+    </key>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="01423300-cd26-49c7-9fa6-557b192bd638" name="Changes" comment="" />
+      <created>1776496770773</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1776496770773</updated>
+      <workItem from="1776496771983" duration="337000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

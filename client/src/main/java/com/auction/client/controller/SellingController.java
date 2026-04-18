@@ -138,4 +138,13 @@ public class SellingController implements Initializable {
         txtName.clear(); txtPrice.clear(); txtImageUrl.clear(); txtDuration.clear();
         txtName.requestFocus();
     }
+
+    @FXML
+    public void toAdmin(ActionEvent event) throws IOException {
+        Parent root = FXMLLoader.load(getClass().getResource("/Part1/Admin.fxml"));
+
+        Stage window = (Stage) vboxDisplay.getScene().getWindow();
+        window.setScene(new Scene(root));
+        window.show();
+    }
 }
