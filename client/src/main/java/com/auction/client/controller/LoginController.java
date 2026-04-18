@@ -21,7 +21,7 @@ public class LoginController {
     private TextField passwordField;
 
 
-    public static String userHeThong = "admin_user";
+    public static String userHeThong = "adminUser";
     public static String fullnameHeThong = "Quản trị viên";
 
 
@@ -46,29 +46,63 @@ public class LoginController {
         String emailDaNhap = emailField.getText().trim();
         String passDaNhap = passwordField.getText().trim();
 
+        // 1. Kiểm tra rỗng
+        if(emailDaNhap.isEmpty() || passDaNhap.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Lỗi đăng nhập", "Không được để tài khoản hoặc mật khẩu trống");
+            return;
+        }
 
-        if (emailDaNhap.equals(emailHeThong) && passDaNhap.equals(passHeThong)) {
+        User userHienTai = null;
+        boolean timThay = false;
+
+        for (User u : DataManager.allUsers) {
+
+            if (u.getEmail().equals(emailDaNhap) && u.getPassword().equals(passDaNhap)) {
+                timThay = true;
+                userHienTai = u;
+                break;
+            }
+        }
+
+
+        if (timThay) {
+
+            if (userHienTai.getStatus().equals("BANNED")) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Tài khoản của bạn đã bị khóa!");
+                return;
+            }
 
             try {
-                Parent homeRoot = FXMLLoader.load(getClass().getResource("/Part1/ProductListController.fxml"));
-                Scene homeScene = new Scene(homeRoot);
-                Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-                window.setScene(homeScene);
-                window.setTitle("Trang chủ Sản Phẩm");
+                String fxmlPath = "";
+                if (userHienTai.getRole().equals("ADMIN")) {
+                    fxmlPath = "/Part1/Admin.fxml";
+                } else {
+                    fxmlPath = "/Part1/ProductListController.fxml";
+                }
+
+                Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
+                Scene scene = new Scene(root);
+                Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                window.setScene(scene);
+                window.setTitle("Hệ thống Đấu giá - " + userHienTai.getFullname());
                 window.show();
+
             } catch (IOException e) {
                 e.printStackTrace();
-                System.out.println("Lỗi không tải được ProductListController.fxml, hãy kiểm tra lại đường dẫn!");
+                System.out.println("Lỗi đường dẫn FXML!");
             }
 
         } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Lỗi đăng nhập");
-            alert.setHeaderText(null);
-
-            alert.setContentText("Sai tài khoản/mật khẩu! Nếu chưa có tài khoản, vui lòng bấm Register để tạo.");
-            alert.showAndWait();
+            showAlert(Alert.AlertType.ERROR, "Lỗi đăng nhập", "Sai tài khoản/mật khẩu! Nếu chưa có, vui lòng bấm Register.");
         }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 }

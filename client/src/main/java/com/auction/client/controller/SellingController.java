@@ -27,15 +27,6 @@ public class SellingController implements Initializable {
     @FXML private VBox vboxDisplay;
     @FXML private TextField txtName, txtPrice, txtImageUrl, txtDuration;
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-
-        vboxDisplay.getChildren().clear();
-        vboxDisplay.setSpacing(10);
-        for (Product p : DataManager.sharedProductList) {
-            reconstructProductUI(p);
-        }
-    }
 
 
     private void reconstructProductUI(Product p) {
@@ -96,6 +87,19 @@ public class SellingController implements Initializable {
         productRow.getChildren().addAll(imgView, details, btnDelete);
         vboxDisplay.getChildren().add(productRow);
     }
+    @Override
+
+    public void initialize(URL location, ResourceBundle resources) {
+
+        vboxDisplay.getChildren().clear();
+        vboxDisplay.setSpacing(10);
+        for (Product p : DataManager.sharedProductList) {
+            reconstructProductUI(p);
+        }
+    }
+
+
+
 
     @FXML
     void handleAddProduct() {

@@ -12,12 +12,12 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.SellingController">
    <children>
-      <ScrollPane layoutY="1.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="628.0" prefWidth="771.0">
+      <ScrollPane layoutY="1.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="724.0" prefWidth="771.0">
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="1004.0" prefWidth="754.0">
                <children>
                   <Label fx:id="imgView" layoutX="82.0" layoutY="28.0" prefHeight="70.0" prefWidth="94.0" styleClass="text3" stylesheets="@Colour.css" text="AIB" />
-                  <MenuButton layoutX="624.0" layoutY="28.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="100.0" text="System">
+                  <MenuButton layoutX="592.0" layoutY="20.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="132.0" text="System">
                     <items>
                       <MenuItem mnemonicParsing="false" text="Profile" />
                       <MenuItem mnemonicParsing="false" text="Selling" />
@@ -26,13 +26,13 @@
                     </items>
                   </MenuButton>
                   <Separator layoutX="133.0" layoutY="130.0" prefHeight="17.0" prefWidth="586.0" />
-                  <VBox layoutX="14.0" layoutY="148.0" prefHeight="438.0" prefWidth="500.0">
+                  <VBox layoutX="14.0" layoutY="148.0" prefHeight="564.0" prefWidth="500.0">
                      <children>
-                        <ScrollPane fitToWidth="true" prefHeight="349.0" prefWidth="500.0">
+                        <ScrollPane fitToWidth="true" prefHeight="358.0" prefWidth="500.0">
                           <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="443.0" prefWidth="398.0">
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="588.0" prefWidth="485.0">
                                  <children>
-                                    <VBox fx:id="vboxDisplay" prefHeight="442.0" prefWidth="486.0" />
+                                    <VBox fx:id="vboxDisplay" prefHeight="577.0" prefWidth="484.0" />
                                  </children>
                               </AnchorPane>
                           </content>

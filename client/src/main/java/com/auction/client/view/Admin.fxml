@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="816.0" prefWidth="694.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.Admin">
+   <children>
+      <VBox layoutX="29.0" layoutY="155.0" prefHeight="438.0" prefWidth="500.0" spacing="10.0">
+         <children>
+            <ScrollPane fitToWidth="true" prefHeight="349.0" prefWidth="500.0">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="443.0" prefWidth="398.0">
+                     <children>
+                        <VBox fx:id="vBoxDisplay" prefHeight="442.0" prefWidth="486.0" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </ScrollPane>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </VBox>
+      <Label fx:id="imgView" layoutX="53.0" layoutY="31.0" prefHeight="70.0" prefWidth="94.0" styleClass="text3" stylesheets="@Colour.css" text="AIB" />
+   </children>
+</AnchorPane>
