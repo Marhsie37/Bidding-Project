@@ -31,7 +31,7 @@
                               <TextField fx:id="passwordField" layoutX="76.0" layoutY="111.0" prefHeight="38.0" prefWidth="200.0" promptText="Password *" styleClass="hBox1" stylesheets="@Colour.css" />
                               <TextField fx:id="confirmPasswordField" layoutX="76.0" layoutY="161.0" prefHeight="38.0" prefWidth="200.0" promptText="Confirm Password *" styleClass="hBox1" stylesheets="@Colour.css" />
                               <TextField fx:id="fullnameField" layoutX="76.0" layoutY="210.0" prefHeight="38.0" prefWidth="200.0" promptText="Fullname *" styleClass="hBox1" stylesheets="@Colour.css" />
-                              <MenuButton fx:id="roleMenuButton" layoutX="66.0" layoutY="280.0" mnemonicParsing="false" prefHeight="5.0" prefWidth="124.0" styleClass="menu-button-modern" stylesheets="@Colour.css" text="Role">
+                              <MenuButton fx:id="roleMenuButton" layoutX="49.0" layoutY="274.0" mnemonicParsing="false" prefHeight="5.0" prefWidth="124.0" styleClass="hBox1" stylesheets="@Colour.css" text="Role">
                                 <items>
                                   <MenuItem mnemonicParsing="false" text="User" />
                                   <MenuItem mnemonicParsing="false" text="Admin" />
@@ -43,7 +43,7 @@
                         </AnchorPane>
                      </children>
                   </VBox>
-                  <Label layoutX="68.0" layoutY="14.0" styleClass="text2" stylesheets="@Colour.css" text="Create Your Account" />
+                  <Label layoutX="106.0" layoutY="14.0" styleClass="text2" stylesheets="@Colour.css" text="Create Your Account" />
                   <ImageView fitHeight="110.0" fitWidth="124.0" layoutX="13.0" layoutY="63.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@images/rocket.png" />

@@ -43,8 +43,8 @@ public class ProductDetailController {
             double giaHienTai = Double.parseDouble(product.getPrice());
 
             if (giaMoi > giaHienTai) {
-                product.setPrice(String.valueOf(giaMoi));
 
+                product.setPrice(String.valueOf(giaMoi));
 
                 lblDetailPrice.setText(giaMoi + " $");
                 txtBidAmount.clear();

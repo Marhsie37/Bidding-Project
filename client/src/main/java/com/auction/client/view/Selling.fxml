@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
@@ -9,22 +10,14 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.SellingController">
+<AnchorPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.Selling">
    <children>
       <ScrollPane layoutY="1.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="724.0" prefWidth="771.0">
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="1004.0" prefWidth="754.0">
                <children>
-                  <Label fx:id="imgView" layoutX="82.0" layoutY="28.0" prefHeight="70.0" prefWidth="94.0" styleClass="text3" stylesheets="@Colour.css" text="AIB" />
-                  <MenuButton layoutX="592.0" layoutY="20.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="132.0" text="System">
-                    <items>
-                      <MenuItem mnemonicParsing="false" text="Profile" />
-                      <MenuItem mnemonicParsing="false" text="Selling" />
-                        <MenuItem mnemonicParsing="false" text="History" />
-                        <MenuItem mnemonicParsing="false" onAction="#toProductListController" text="Page" />
-                    </items>
-                  </MenuButton>
                   <Separator layoutX="133.0" layoutY="130.0" prefHeight="17.0" prefWidth="586.0" />
                   <VBox layoutX="14.0" layoutY="148.0" prefHeight="564.0" prefWidth="500.0">
                      <children>
@@ -38,7 +31,7 @@
                           </content>
                         </ScrollPane>
                      </children></VBox>
-                  <VBox layoutX="518.0" layoutY="148.0" prefHeight="405.0" prefWidth="211.0" spacing="15.0">
+                  <VBox layoutX="518.0" layoutY="148.0" prefHeight="357.0" prefWidth="214.0" spacing="15.0">
                      <children>
                         <AnchorPane prefHeight="50.0" prefWidth="211.0">
                            <children>
@@ -49,7 +42,7 @@
                         <AnchorPane prefHeight="38.0" prefWidth="146.0">
                            <children>
                               <TextField fx:id="txtPrice" layoutX="79.0" layoutY="7.0" prefHeight="26.0" prefWidth="135.0" />
-                              <Label layoutX="12.0" layoutY="11.0" text="Price" />
+                              <Label layoutX="22.0" layoutY="10.0" text="Price" />
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="50.0" prefWidth="211.0">
@@ -66,11 +59,28 @@
                         </AnchorPane>
                         <AnchorPane prefHeight="43.0" prefWidth="211.0">
                            <children>
-                              <Button layoutX="124.0" layoutY="13.0" mnemonicParsing="false" onAction="#handleAddProduct" prefHeight="26.0" prefWidth="66.0" text="Add" />
+                              <Button layoutX="133.0" layoutY="8.0" mnemonicParsing="false" onAction="#handleAddProduct" prefHeight="26.0" prefWidth="66.0" text="Add" />
                            </children>
                         </AnchorPane>
                      </children>
                   </VBox>
+                  <AnchorPane layoutY="-7.0" prefHeight="56.0" prefWidth="758.0" style="-fx-background-color: grey;">
+                     <children>
+                        <Label fx:id="imgView" layoutX="22.0" layoutY="7.0" prefHeight="70.0" prefWidth="94.0" styleClass="text3" stylesheets="@Colour.css" text="AIB" />
+                        <MenuButton layoutX="612.0" layoutY="21.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="132.0" stylesheets="@Colour.css" text="System">
+                          <items>
+                            <MenuItem mnemonicParsing="false" text="Profile" />
+                            <MenuItem mnemonicParsing="false" text="Selling" />
+                              <MenuItem mnemonicParsing="false" text="History" />
+                              <MenuItem mnemonicParsing="false" onAction="#toProductListController" text="Page" />
+                              <MenuItem mnemonicParsing="false" onAction="#toAdmin" text="Admin" />
+                          </items>
+                           <font>
+                              <Font size="20.0" />
+                           </font>
+                        </MenuButton>
+                     </children>
+                  </AnchorPane>
                </children>
             </AnchorPane>
         </content>
