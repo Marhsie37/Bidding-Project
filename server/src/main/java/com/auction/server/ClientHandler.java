@@ -197,7 +197,7 @@ public class ClientHandler implements Runnable {
 
     private void handleSubscribeAuction(Map<String, Object> data) {
         int productId = ((Number) data.get("productId")).intValue();
-        notificationService.subscribe(productId, username, this);
+        notificationService.subscribe(productId, username, this); // this la clienthandler
         sendResponse(CommandType.SUBSCRIBE_AUCTION, true, "Subscribed", null);
     }
     private void handleUnsubscribeAuction(Map<String, Object> data) {

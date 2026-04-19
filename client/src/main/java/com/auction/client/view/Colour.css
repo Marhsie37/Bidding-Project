@@ -82,3 +82,38 @@
     -fx-padding: 5 15 5 15;
 
 }
+
+
+
+.button {
+    -fx-font-family: "Segoe UI", Arial;
+    -fx-font-size: 14px;
+    -fx-transition: 0.3s; /* Hiệu ứng mượt mà */
+}
+
+
+.menu-button {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+
+    -fx-font-family: "Segoe UI Semibold", "Arial";
+
+    -fx-background-color: transparent;
+    -fx-alignment: center-left;
+    -fx-padding: 10 20 10 20;
+}
+
+/* Hiệu ứng khi di chuột vào (Hover) */
+.menu-button:hover {
+    /* Khi trỏ vào thì chữ đổi sang màu xanh sáng hoặc vàng để biết là đang chọn */
+    -fx-text-fill: #00a2ff;
+    -fx-background-color: #3d3d3d;
+    -fx-cursor: hand;
+}
+
+/* Kiểu nút khi đang được chọn (Active) */
+.menu-button:focused {
+    -fx-background-color: #4f4f4f;
+    -fx-border-color: #00a2ff;    /* Thêm một vạch xanh bên cạnh */
+    -fx-border-width: 0 0 0 4;
+}

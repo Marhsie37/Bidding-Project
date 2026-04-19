@@ -68,7 +68,7 @@ public class AutoBidService {
                 // Mặc định mỗi lần Auto-bid sẽ cộng thêm 10.0 vào giá hiện tại
                 double nextBid = session.getCurrentPrice() + 10.0;
 
-                // Kích hoạt đặt giá nếu ví tiền (maxBid) của họ vẫn chịu được nhiệt
+                // Kích hoạt đặt giá nếu ví tiền (maxBid) của họ vẫn tiếp tục được
                 if (topBidder.maxBid >= nextBid) {
                     System.out.println("[AUTO-BID] Tự động nâng giá cho user [" + topBidder.username + "] lên mức " + nextBid);
                     // Gọi ngược lại hàm placeBid của AuctionService để chốt giá chuẩn quy trình

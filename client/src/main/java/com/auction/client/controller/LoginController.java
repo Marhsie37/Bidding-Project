@@ -46,7 +46,7 @@ public class LoginController {
         String emailDaNhap = emailField.getText().trim();
         String passDaNhap = passwordField.getText().trim();
 
-        // 1. Kiểm tra rỗng
+
         if(emailDaNhap.isEmpty() || passDaNhap.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Lỗi đăng nhập", "Không được để tài khoản hoặc mật khẩu trống");
             return;
@@ -76,9 +76,9 @@ public class LoginController {
 
                 String fxmlPath = "";
                 if (userHienTai.getRole().equals("ADMIN")) {
-                    fxmlPath = "/Part1/Admin.fxml";
+                    fxmlPath = "/Part1/Admin.fxml"; // Nếu là Admin thì vào trang quản lý
                 } else {
-                    fxmlPath = "/Part1/ProductListController.fxml";
+                    fxmlPath = "/Part1/ProductListController.fxml"; // Bidder/Seller vào trang chủ sản phẩm
                 }
 
                 Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));

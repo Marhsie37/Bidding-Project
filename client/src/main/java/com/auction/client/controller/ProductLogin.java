@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class ProductListController implements Initializable {
+public class ProductLogin implements Initializable {
 
     @FXML private VBox vboxGallery;
 
