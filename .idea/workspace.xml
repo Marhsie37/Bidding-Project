@@ -4,23 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b93bedf1-3428-4e0f-9247-cffb760e7680" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/server/server.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/test/java/com/auction/test/network/NetWorkTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/client.iml" beforeDir="false" afterPath="$PROJECT_DIR$/client/client.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/client/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/model/AuctionSession.class" beforeDir="false" afterPath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/model/AuctionSession.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/model/BidTransaction.class" beforeDir="false" afterPath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/model/BidTransaction.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/model/Product.class" beforeDir="false" afterPath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/model/Product.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/model/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/model/User.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/protocol/CommandType.class" beforeDir="false" afterPath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/protocol/CommandType.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/protocol/Request.class" beforeDir="false" afterPath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/protocol/Request.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/protocol/Response.class" beforeDir="false" afterPath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/protocol/Response.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/utils/JsonUtils$LocalDateTimeAdapter.class" beforeDir="false" afterPath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/utils/JsonUtils$LocalDateTimeAdapter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/utils/JsonUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/shared/target/classes/com/auction/shared/utils/JsonUtils.class" afterDir="false" />
-    </list>
+    <list default="true" id="b93bedf1-3428-4e0f-9247-cffb760e7680" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
