@@ -1,0 +1,9 @@
+com\auction\test\network\NetWorkTest$1.class
+com\auction\test\network\NetWorkTest$2.class
+com\auction\server\service\DatabaseConnectionTest.class
+com\auction\test\network\NetWorkTest$4.class
+com\auction\test\network\NetWorkTest$3.class
+com\auction\test\network\NetWorkTest.class
+com\auction\server\service\AuctionServiceTest.class
+com\auction\test\network\NetWorkTest$5.class
+com\auction\server\service\AutoBidServiceTest.class

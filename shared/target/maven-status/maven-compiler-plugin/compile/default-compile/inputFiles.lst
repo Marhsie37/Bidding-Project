@@ -1,8 +1,8 @@
-D:\IdeaProjects\Bidding-Project\shared\src\main\java\com\auction\shared\model\AuctionSession.java
-D:\IdeaProjects\Bidding-Project\shared\src\main\java\com\auction\shared\model\BidTransaction.java
-D:\IdeaProjects\Bidding-Project\shared\src\main\java\com\auction\shared\model\Product.java
-D:\IdeaProjects\Bidding-Project\shared\src\main\java\com\auction\shared\model\User.java
-D:\IdeaProjects\Bidding-Project\shared\src\main\java\com\auction\shared\protocol\CommandType.java
-D:\IdeaProjects\Bidding-Project\shared\src\main\java\com\auction\shared\protocol\Request.java
-D:\IdeaProjects\Bidding-Project\shared\src\main\java\com\auction\shared\protocol\Response.java
-D:\IdeaProjects\Bidding-Project\shared\src\main\java\com\auction\shared\utils\JsonUtils.java
+D:\Bidding-Project\shared\src\main\java\com\auction\shared\model\AuctionSession.java
+D:\Bidding-Project\shared\src\main\java\com\auction\shared\model\BidTransaction.java
+D:\Bidding-Project\shared\src\main\java\com\auction\shared\model\Product.java
+D:\Bidding-Project\shared\src\main\java\com\auction\shared\model\User.java
+D:\Bidding-Project\shared\src\main\java\com\auction\shared\protocol\CommandType.java
+D:\Bidding-Project\shared\src\main\java\com\auction\shared\protocol\Request.java
+D:\Bidding-Project\shared\src\main\java\com\auction\shared\protocol\Response.java
+D:\Bidding-Project\shared\src\main\java\com\auction\shared\utils\JsonUtils.java
