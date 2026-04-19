@@ -1,6 +1,5 @@
 import com.auction.server.dao.UserDAO;
 import com.auction.shared.model.User;
-import com.auction.shared.model.User;
 import org.junit.jupiter.api.*;
 import java.sql.*;
 import static org.junit.jupiter.api.Assertions.*;
