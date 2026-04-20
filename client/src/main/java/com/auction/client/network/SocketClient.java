@@ -68,6 +68,9 @@ public class SocketClient {
         if (!connected){
             throw new IOException("Not connected to server");
         }
+        if (authToken != null) {
+            request.setToken(authToken);  // Thêm token vào request
+        }
         outputStream.writeObject(request);
         outputStream.flush();
     }
