@@ -52,7 +52,6 @@ public class AutoBidService {
             Map<String, Double> autoBids = session.getAutoBids();
             if (autoBids == null || autoBids.isEmpty()) continue;
 
-            // Dùng PriorityQueue để xếp hạng
             PriorityQueue<AutoBidTask> queue = new PriorityQueue<>((a, b) -> Double.compare(b.maxBid, a.maxBid));
 
             for (Map.Entry<String, Double> entry : autoBids.entrySet()) {
@@ -63,13 +62,10 @@ public class AutoBidService {
 
             if (topBidder != null && !topBidder.username.equals(session.getCurrentWinnerName())) {
 
-                // Mặc định mỗi lần Auto-bid sẽ cộng thêm 10.0 vào giá hiện tại
                 double nextBid = session.getCurrentPrice() + 10.0;
 
-                // Kích hoạt đặt giá nếu ví tiền (maxBid) của họ vẫn tiếp tục được
                 if (topBidder.maxBid >= nextBid) {
                     System.out.println("[AUTO-BID] Tự động nâng giá cho user [" + topBidder.username + "] lên mức " + nextBid);
-                    // Gọi ngược lại hàm placeBid của AuctionService để chốt giá chuẩn quy trình
                     auctionService.placeBid(session.getProductId(), topBidder.username, nextBid);
                 }
             }
