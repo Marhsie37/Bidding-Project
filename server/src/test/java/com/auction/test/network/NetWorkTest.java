@@ -15,19 +15,14 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Test Suite: Kiểm thử đa luồng và Socket cho Auction System
- * Người C - Network Testing (JUnit 5 / Jupiter)
- */
+
 public class NetWorkTest {
 
     private static final int MOCK_PORT = 9999;
     private static ServerSocket mockServerSocket;
     private static Thread mockServerThread;
 
-    // =========================================================
-    //  MOCK SERVER
-    // =========================================================
+   //Mock server
     @BeforeAll
     static void startMockServer() throws IOException {
         mockServerSocket = new ServerSocket(MOCK_PORT);

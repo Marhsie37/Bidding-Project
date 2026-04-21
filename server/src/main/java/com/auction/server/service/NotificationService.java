@@ -2,6 +2,7 @@ package com.auction.server.service;
 
 import com.auction.server.ClientHandler;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.*;
@@ -47,6 +48,14 @@ public class NotificationService {
 
         } //clean up subscribers
         subscribers.remove(auctionId);
+    }
+    public void notifyAuctionExtended(int auctionId, LocalDateTime newEndTime) {
+        CopyOnWriteArrayList<ClientHandler> handlers = subscribers.get(auctionId);
+        if (handlers != null) {
+            for (ClientHandler handler : handlers) {
+                handler.sendAuctionExtended(auctionId, newEndTime);
+            }
+        }
     }
 
 

@@ -15,6 +15,8 @@ public class AuctionSession implements Serializable{
     private LocalDateTime endTime;
     private String status;
     private ConcurrentHashMap<String, Double> autoBids;
+    private LocalDateTime scheduledEndTime;
+    private int extensionCount;
 
     public AuctionSession() {
         this.autoBids = new ConcurrentHashMap<>();
@@ -53,4 +55,19 @@ public class AuctionSession implements Serializable{
     public ConcurrentHashMap<String, Double> getAutoBids() { return autoBids; }
     public void setAutoBids(ConcurrentHashMap<String, Double> autoBids) { this.autoBids = autoBids; }
 
+    public LocalDateTime getScheduledEndTime() {
+        return scheduledEndTime;
+    }
+
+    public void setScheduledEndTime(LocalDateTime scheduledEndTime) {
+        this.scheduledEndTime = scheduledEndTime;
+    }
+
+    public int getExtensionCount() {
+        return extensionCount;
+    }
+
+    public void setExtensionCount(int extensionCount) {
+        this.extensionCount = extensionCount;
+    }
 }

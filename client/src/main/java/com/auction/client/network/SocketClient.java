@@ -216,6 +216,9 @@ public class SocketClient {
     public void setAuctionEndHandler(Consumer<Response> handler) {
         responseHandlers.put(CommandType.AUCTION_END, handler);
     }
+    public void setAuctionExtendedHandler(Consumer<Response> handler) {
+        responseHandlers.put(CommandType.AUCTION_EXTENDED, handler);
+    }
 
     public void disconnect() {
         connected = false;

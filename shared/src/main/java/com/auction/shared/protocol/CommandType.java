@@ -39,6 +39,7 @@ public enum CommandType {
     SUCCESS,
     ERROR,
     BID_UPDATE,
-    AUCTION_END
+    AUCTION_END,
+    AUCTION_EXTENDED,
 
 }

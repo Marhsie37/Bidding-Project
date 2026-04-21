@@ -7,6 +7,7 @@ import com.auction.server.service.NotificationService;
 
 import java.io.*;
 import java.net.*;
+import java.time.LocalDateTime;
 import java.util.*;
 public class ClientHandler implements Runnable {
     private  Socket socket;
@@ -316,6 +317,14 @@ public class ClientHandler implements Runnable {
     }
     public String getUsername(){
         return username;
+    }
+
+    public void sendAuctionExtended(int productId, LocalDateTime newEndTime) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("productId", productId);
+        data.put("newEndTime", newEndTime.toString());
+
+        sendResponse(CommandType.AUCTION_EXTENDED, true, "Auction extended", data);
     }
 
 

@@ -2,9 +2,13 @@ package com.auction.server;
 
 import com.auction.server.service.AuctionService;
 import com.auction.server.service.AutoBidService;
+import com.auction.client.model.AuctionSession;
+
 
 import java.io.*;
 import java.net.*;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.*;
 
 public class AuctionServer {
@@ -51,11 +55,18 @@ public class AuctionServer {
         Thread monitor = new Thread(() -> {
             while (running) {
                 try {
-                    auctionService.checkAndEndAuctions();
-                    Thread.sleep(1000); // kiem tra moi mot giay
+                    List<AuctionSession> activeAuctions = auctionService.getActiveAuctions();
+                    for (AuctionSession auction : activeAuctions) {
+                        if (LocalDateTime.now().isAfter(auction.getScheduledEndTime())) {
+                            auctionService.endAuction(auction.getId());
+                        }
+                    }
+                    Thread.sleep(1000);  // ✅ Đặt TRONG try block
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
+                } catch (Exception e) {  // ✅ Bắt các lỗi khác để monitor không crash
+                    System.err.println("Monitor error: " + e.getMessage());
                 }
             }
         });
