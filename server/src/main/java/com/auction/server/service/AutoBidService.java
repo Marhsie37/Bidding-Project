@@ -28,7 +28,6 @@ public class AutoBidService {
 
     public void start() {
         scheduler = Executors.newScheduledThreadPool(1);
-        // Cứ 3 giây luồng này sẽ tự động quét một lần
         scheduler.scheduleAtFixedRate(this::processAllAutoBids, 0, 3, TimeUnit.SECONDS);
         System.out.println("AutoBidService: Hệ thống luồng tự động đặt giá đã khởi chạy!");
     }
@@ -43,7 +42,6 @@ public class AutoBidService {
     // Lõi thuật toán Auto-Bid
     @SuppressWarnings("unchecked")
     private void processAllAutoBids() {
-        // Mượn danh sách các phiên đấu giá đang mở từ AuctionService
         AuctionService auctionService = AuctionService.getInstance();
         Map<String, Object> activeData = auctionService.getActiveProducts();
 
@@ -54,7 +52,7 @@ public class AutoBidService {
             Map<String, Double> autoBids = session.getAutoBids();
             if (autoBids == null || autoBids.isEmpty()) continue;
 
-            // Dùng PriorityQueue để xếp hạng ưu tiên (Ai cài MaxBid cao nhất thì lên đầu)
+            // Dùng PriorityQueue để xếp hạng
             PriorityQueue<AutoBidTask> queue = new PriorityQueue<>((a, b) -> Double.compare(b.maxBid, a.maxBid));
 
             for (Map.Entry<String, Double> entry : autoBids.entrySet()) {
@@ -78,7 +76,6 @@ public class AutoBidService {
         }
     }
 
-    // Lớp phụ trợ bọc dữ liệu để ném vào Priority Queue
     private static class AutoBidTask {
         String username;
         double maxBid;
