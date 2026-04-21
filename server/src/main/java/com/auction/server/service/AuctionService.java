@@ -11,16 +11,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class AuctionService {
 
-    // singleton
     private static AuctionService instance;
 
     private static final int ANTI_SNIPING_WINDOW_SECONDS = 30;
     private static final int ANTI_SNIPING_EXTENSION_SECONDS = 60;
 
-    // gọi service thông báo
     private NotificationService notificationService = NotificationService.getInstance();
 
-    // mock database lưu trên RAM (dùng ConcurrentHashMap cho an toàn thread)
     private Map<String, Map<String, Object>> usersDB = new ConcurrentHashMap<>();
     private AtomicInteger userIdGenerator = new AtomicInteger(1);
 
@@ -77,7 +74,7 @@ public class AuctionService {
         Map<String, Object> newUser = new HashMap<>();
         newUser.put("id", userIdGenerator.getAndIncrement());
         newUser.put("password", password);
-        newUser.put("role", "USER"); // default user role
+        newUser.put("role", "USER");
         
         usersDB.put(username, newUser);
 
@@ -86,7 +83,6 @@ public class AuctionService {
         return result;
     }
 
-    // product CRUD
     public Map<String, Object> addProduct(Map<String, Object> data) {
         Map<String, Object> result = new HashMap<>();
         int newProductId = productIdGenerator.getAndIncrement();
@@ -211,7 +207,7 @@ public class AuctionService {
             return result;
         }
 
-        // validate time & status
+        // validate time + status
         if (!"ACTIVE".equals(session.getStatus()) || LocalDateTime.now().isAfter(session.getEndTime())) {
             session.setStatus("FINISHED");
             result.put("success", false);
@@ -258,8 +254,7 @@ public class AuctionService {
             System.out.println("Anti-sniping: gia hạn thêm " + ANTI_SNIPING_EXTENSION_SECONDS + "s cho sp " + auction.getProductId());
 
             if (notificationService != null) {
-                // TODO: test xem service này chạy ok chưa
-                // notificationService.notifyAuctionExtended(auction.getProductId(), newEndTime);
+                
             }
         }
     }
