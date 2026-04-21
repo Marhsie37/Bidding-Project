@@ -4,29 +4,33 @@ import com.auction.shared.model.AuctionSession;
 import com.auction.shared.model.BidTransaction;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AuctionService {
 
-    // --- SINGLETON ---
+    // singleton
     private static AuctionService instance;
 
-    // --- Hệ thống database trên RAM ---
-    // Lưu trữ Users: Dùng nested Map chứa thông tin (password, role, id)
+    private static final int ANTI_SNIPING_WINDOW_SECONDS = 30;
+    private static final int ANTI_SNIPING_EXTENSION_SECONDS = 60;
+
+    // gọi service thông báo
+    private NotificationService notificationService = NotificationService.getInstance();
+
+    // mock database lưu trên RAM (dùng ConcurrentHashMap cho an toàn thread)
     private Map<String, Map<String, Object>> usersDB = new ConcurrentHashMap<>();
     private AtomicInteger userIdGenerator = new AtomicInteger(1);
 
-    // Lưu trữ Products
     private Map<Integer, Map<String, Object>> productsDB = new ConcurrentHashMap<>();
     private AtomicInteger productIdGenerator = new AtomicInteger(1);
 
-    // Lưu trữ Phiên đấu giá
     private Map<Integer, AuctionSession> sessions = new ConcurrentHashMap<>();
 
     private AuctionService() {
-        // Tạo sẵn 1 tài khoản admin
+        // init tài khoản admin test
         Map<String, Object> adminData = new HashMap<>();
         adminData.put("id", 0);
         adminData.put("password", "admin123");
@@ -41,7 +45,7 @@ public class AuctionService {
         return instance;
     }
 
-    // 1. Tài khoản
+    // auth module
     public Map<String, Object> login(String username, String password) {
         Map<String, Object> result = new HashMap<>();
         if (usersDB.containsKey(username)) {
@@ -50,7 +54,7 @@ public class AuctionService {
                 result.put("success", true);
                 result.put("message", "Đăng nhập thành công!");
                 result.put("role", userInfo.get("role"));
-                result.put("user", userInfo); // Trả về info để Client dùng
+                result.put("user", userInfo); 
                 return result;
             }
         }
@@ -73,7 +77,7 @@ public class AuctionService {
         Map<String, Object> newUser = new HashMap<>();
         newUser.put("id", userIdGenerator.getAndIncrement());
         newUser.put("password", password);
-        newUser.put("role", "USER"); // Mặc định là user thường
+        newUser.put("role", "USER"); // default user role
         
         usersDB.put(username, newUser);
 
@@ -82,21 +86,21 @@ public class AuctionService {
         return result;
     }
 
-    // 2.Quản lý sản phẩm
+    // product CRUD
     public Map<String, Object> addProduct(Map<String, Object> data) {
         Map<String, Object> result = new HashMap<>();
         int newProductId = productIdGenerator.getAndIncrement();
         String sellerId = (String) data.get("sellerId");
         String productName = (String) data.get("productName");
         double startingPrice = ((Number) data.get("startingPrice")).doubleValue();
-        int durationMinutes = ((Number) data.getOrDefault("duration", 60)).intValue(); // Mặc định 60 phút
+        int durationMinutes = ((Number) data.getOrDefault("duration", 60)).intValue();
 
-        // Tạo dữ liệu sản phẩm
+        // set data sp
         Map<String, Object> product = new HashMap<>(data);
         product.put("productId", newProductId);
         productsDB.put(newProductId, product);
 
-        // Khởi tạo luôn 1 phiên đấu giá cho sản phẩm này
+        // tạo session đấu giá luôn khi add sp
         LocalDateTime endTime = LocalDateTime.now().plusMinutes(durationMinutes);
         AuctionSession newSession = new AuctionSession(newProductId, productName, startingPrice, endTime);
         sessions.put(newProductId, newSession);
@@ -153,7 +157,6 @@ public class AuctionService {
             return result;
         }
 
-        // Cập nhật dữ liệu
         product.putAll(data);
         result.put("success", true);
         result.put("message", "Cập nhật thành công!");
@@ -197,7 +200,7 @@ public class AuctionService {
         return result;
     }
 
-    // 3. Đặt & đấu giá
+    // main bidding logic
     public Map<String, Object> placeBid(int productId, String username, double bidAmount) {
         Map<String, Object> result = new HashMap<>();
         AuctionSession session = sessions.get(productId);
@@ -208,6 +211,7 @@ public class AuctionService {
             return result;
         }
 
+        // validate time & status
         if (!"ACTIVE".equals(session.getStatus()) || LocalDateTime.now().isAfter(session.getEndTime())) {
             session.setStatus("FINISHED");
             result.put("success", false);
@@ -215,24 +219,49 @@ public class AuctionService {
             return result;
         }
 
+        // validate giá
         if (bidAmount <= session.getCurrentPrice()) {
             result.put("success", false);
-            result.put("message", "Lỗi: Giá đặt (" + bidAmount + ") phải cao hơn giá hiện hành (" + session.getCurrentPrice() + ")!");
+            result.put("message", "Lỗi: Giá đặt phải cao hơn giá hiện hành!");
             return result;
         }
 
-        // Lấy ID của user đang đấu giá
         int userId = (int) usersDB.get(username).get("id");
 
-        // Đặt giá thành công
+        // update winner hiện tại
         session.setCurrentPrice(bidAmount);
         session.setCurrentWinnerId(userId);
         session.setCurrentWinnerName(username);
+
+        // check anti-sniping để extend time
+        checkAndExtendAuctionIfNeeded(session);
 
         result.put("success", true);
         result.put("message", "Đặt giá thành công! Bạn đang dẫn đầu với giá " + bidAmount);
         result.put("currentPrice", bidAmount);
         return result;
+    }
+
+    private void checkAndExtendAuctionIfNeeded(AuctionSession auction) {
+        LocalDateTime endTime = auction.getEndTime(); 
+        LocalDateTime now = LocalDateTime.now();
+        
+        long secondsRemaining = ChronoUnit.SECONDS.between(now, endTime);
+        
+        // nếu bid trong 30s cuối -> cộng thêm 60s
+        if (secondsRemaining <= ANTI_SNIPING_WINDOW_SECONDS && secondsRemaining > 0) {
+            LocalDateTime newEndTime = endTime.plusSeconds(ANTI_SNIPING_EXTENSION_SECONDS);
+            auction.setEndTime(newEndTime);
+            
+            // auction.setExtensionCount(auction.getExtensionCount() + 1);
+            
+            System.out.println("Anti-sniping: gia hạn thêm " + ANTI_SNIPING_EXTENSION_SECONDS + "s cho sp " + auction.getProductId());
+
+            if (notificationService != null) {
+                // TODO: test xem service này chạy ok chưa
+                // notificationService.notifyAuctionExtended(auction.getProductId(), newEndTime);
+            }
+        }
     }
 
     public Map<String, Object> getAuctionDetails(int productId) {
@@ -247,7 +276,7 @@ public class AuctionService {
         return result;
     }
 
-    // 4. AUTO-BID:
+    // auto-bid tính năng
     public Map<String, Object> setAutoBid(int productId, String username, double maxBid, double increment) {
         Map<String, Object> result = new HashMap<>();
         AuctionSession session = sessions.get(productId);
@@ -273,7 +302,7 @@ public class AuctionService {
         return result;
     }
 
-    // 5. Quyền của quản trị viên(admin)
+    // admin functions
     public Map<String, Object> getAllUsers() {
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
@@ -283,7 +312,6 @@ public class AuctionService {
 
     public Map<String, Object> adminUpdateUser(Map<String, Object> data) {
         Map<String, Object> result = new HashMap<>();
-        // Logic mô phỏng cập nhật user
         result.put("success", true);
         result.put("message", "Admin: Cập nhật User thành công");
         return result;
@@ -291,7 +319,6 @@ public class AuctionService {
 
     public Map<String, Object> adminDeleteUser(int userId) {
         Map<String, Object> result = new HashMap<>();
-        // Logic mô phỏng xóa user
         result.put("success", true);
         result.put("message", "Admin: Xóa User thành công");
         return result;
@@ -317,14 +344,14 @@ public class AuctionService {
         return result;
     }
 
-    // 6. Dọn dẹp đi các phiên đấu giá đã hết hạn
+    // check end time
     public void checkAndEndAuctions() {
         LocalDateTime now = LocalDateTime.now();
         for (Map.Entry<Integer, AuctionSession> entry : sessions.entrySet()) {
             AuctionSession session = entry.getValue();
             if ("ACTIVE".equals(session.getStatus()) && now.isAfter(session.getEndTime())) {
                 session.setStatus("FINISHED");
-                System.out.println("Hệ thống tự động chốt phiên [" + session.getProductName() + "]. Người thắng: " + session.getCurrentWinnerName());
+                System.out.println("Chốt phiên [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
             }
         }
     }
