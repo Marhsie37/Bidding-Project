@@ -27,7 +27,6 @@ public class AuctionService {
     private Map<Integer, AuctionSession> sessions = new ConcurrentHashMap<>();
 
     private AuctionService() {
-        // init tài khoản admin test
         Map<String, Object> adminData = new HashMap<>();
         adminData.put("id", 0);
         adminData.put("password", "admin123");
@@ -42,7 +41,6 @@ public class AuctionService {
         return instance;
     }
 
-    // auth module
     public Map<String, Object> login(String username, String password) {
         Map<String, Object> result = new HashMap<>();
         if (usersDB.containsKey(username)) {
@@ -74,7 +72,7 @@ public class AuctionService {
         Map<String, Object> newUser = new HashMap<>();
         newUser.put("id", userIdGenerator.getAndIncrement());
         newUser.put("password", password);
-        newUser.put("role", "USER");
+        newUser.put("role", "USER"); 
         
         usersDB.put(username, newUser);
 
@@ -249,12 +247,9 @@ public class AuctionService {
             LocalDateTime newEndTime = endTime.plusSeconds(ANTI_SNIPING_EXTENSION_SECONDS);
             auction.setEndTime(newEndTime);
             
-            // auction.setExtensionCount(auction.getExtensionCount() + 1);
-            
             System.out.println("Anti-sniping: gia hạn thêm " + ANTI_SNIPING_EXTENSION_SECONDS + "s cho sp " + auction.getProductId());
 
             if (notificationService != null) {
-                
             }
         }
     }
@@ -339,7 +334,29 @@ public class AuctionService {
         return result;
     }
 
-    // check end time
+    // get list sp đang đấu giá 
+    public List<AuctionSession> getActiveAuctions() {
+        List<AuctionSession> activeAuctions = new ArrayList<>();
+        for (AuctionSession session : sessions.values()) {
+            if ("ACTIVE".equals(session.getStatus())) {
+                activeAuctions.add(session);
+            }
+        }
+        return activeAuctions;
+    }
+
+    public void endAuction(int productId) {
+        AuctionSession session = sessions.get(productId);
+        if (session != null && "ACTIVE".equals(session.getStatus())) {
+            session.setStatus("FINISHED");
+            System.out.println("Đã chốt phiên thủ công [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
+            
+            if (notificationService != null) {               
+            }
+        }
+    }
+
+    // cron job check end time
     public void checkAndEndAuctions() {
         LocalDateTime now = LocalDateTime.now();
         for (Map.Entry<Integer, AuctionSession> entry : sessions.entrySet()) {
