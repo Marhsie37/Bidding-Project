@@ -1,4 +1,4 @@
-package com.auction.client.controller;
+package Part1;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,94 +9,86 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 
 public class LoginController {
 
+    @FXML private TextField emailField;
+    @FXML private TextField passwordField;
+    String fxmlPath;
 
     @FXML
-    private TextField emailField;
-    @FXML
-    private TextField passwordField;
+    public void handleLogin(ActionEvent event) {
+        String emailEntered = emailField.getText().trim();
+        String passEntered = passwordField.getText().trim();
+        //Gán biến bằng dữ liệu nhận được từ việc nhập văn bản vào TextFile bỏ khoảng trắng
 
+        if(emailEntered.isEmpty() || passEntered.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Lỗi đăng nhập", "Không được để trống tài khoản hoặc mật khẩu");
+            return;
+        }
+        //Không được để email và pass trống
 
-    public static String userHeThong = "adminUser";
-    public static String fullnameHeThong = "Quản trị viên";
+        User userCurrent = null;
+        for (User user : DataManager.allUsers) {
+            if (user.getEmail().equalsIgnoreCase(emailEntered) && user.getPassword().equals(passEntered)) {
+                userCurrent = user;
+                break;
+            }
+        }
+        //Check coi email và mật khẩu đăng nhập ở Login có xuất hiện ở trong Data Manager không nếu
 
+        if (userCurrent != null) {
+            if (userCurrent.getStatus().equals("BANNED")) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Tài khoản của bạn đã bị khóa!");
+                return;
+            }
+            //Check thử trạng thái User hiện tại có bị BANNED không
 
-    public static String emailHeThong = "";
-    public static String passHeThong = "";
+            try {
+
+                if (userCurrent.getRole().equals("Admin")) {
+                    fxmlPath = "/Part1/Admin.fxml";
+                } else if(userCurrent.getRole().equals("Bidder")) {
+                    fxmlPath = "/Part1/ProductListController.fxml";
+                } else if(userCurrent.getRole().equals("Seller")) {
+                    fxmlPath = "/Part1/Selling.fxml";
+                }
+                /*Nếu vai trò là Admin thì lấy đường dẫn của riêng Admin ,nếu có vai trò Bidder hay Seller thì lấy đường dẫn
+                sang trang Seller hoặc Bidder
+
+                * */
+
+                Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
+                Stage window =  (Stage) ((Node) event.getSource()).getScene().getWindow();
+                window.setScene(new Scene(root));
+                window.show();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tải giao diện!");
+            }
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Lỗi đăng nhập", "Sai tài khoản hoặc mật khẩu!");
+        }
+    }
+
     @FXML
     public void goToRegisterScreen(ActionEvent event) {
         try {
             Parent registerRoot = FXMLLoader.load(getClass().getResource("/Part1/RegisterController.fxml"));
+            //Tải file giao diện của màn hình đăng kí
             Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            //Lấy thông tin của sổ hiện tại từ sự kiện click chuột
             window.setScene(new Scene(registerRoot));
-
-            window.setTitle("Đăng ký tài khoản");
+            //set màn hình window bằng màn hình đăng kí
+            window.setTitle("Đăng ký tài khoản"); //Đổi tên tiêu đề
             window.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @FXML
-    public void handleLogin(ActionEvent event) {
-        String emailDaNhap = emailField.getText().trim();
-        String passDaNhap = passwordField.getText().trim();
-
-
-        if(emailDaNhap.isEmpty() || passDaNhap.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi đăng nhập", "Không được để tài khoản hoặc mật khẩu trống");
-            return;
-        }
-
-        User userHienTai = null;
-        boolean timThay = false;
-
-        for (User u : DataManager.allUsers) {
-
-            if (u.getEmail().equals(emailDaNhap) && u.getPassword().equals(passDaNhap)) {
-                timThay = true;
-                userHienTai = u;
-                break;
-            }
-        }
-
-
-        if (timThay) {
-
-            if (userHienTai.getStatus().equals("BANNED")) {
-                showAlert(Alert.AlertType.ERROR, "Lỗi", "Tài khoản của bạn đã bị khóa!");
-                return;
-            }
-
-            try {
-
-                String fxmlPath = "";
-                if (userHienTai.getRole().equals("ADMIN")) {
-                    fxmlPath = "/Part1/Admin.fxml"; // Nếu là Admin thì vào trang quản lý
-                } else {
-                    fxmlPath = "/Part1/ProductListController.fxml"; // Bidder/Seller vào trang chủ sản phẩm
-                }
-
-                Parent root = FXMLLoader.load(getClass().getResource(fxmlPath));
-                Scene scene = new Scene(root);
-                Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                window.setScene(scene);
-                window.setTitle("Hệ thống Đấu giá - " + userHienTai.getFullname());
-                window.show();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("Lỗi đường dẫn FXML!");
-            }
-
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Lỗi đăng nhập", "Sai tài khoản/mật khẩu! Nếu chưa có, vui lòng bấm Register.");
-        }
-    }
 
     private void showAlert(Alert.AlertType type, String title, String content) {
         Alert alert = new Alert(type);
@@ -105,4 +97,5 @@ public class LoginController {
         alert.setContentText(content);
         alert.showAndWait();
     }
+    //Cấu trúc của phần báo lỗi,cảnh báo,....
 }

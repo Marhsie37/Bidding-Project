@@ -1,4 +1,4 @@
-package com.auction.client.controller;
+package Part1;
 
 public class Profile {
 }

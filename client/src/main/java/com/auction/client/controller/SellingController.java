@@ -1,4 +1,4 @@
-package com.auction.client.controller;
+package Part1;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -23,69 +24,64 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class SellingController implements Initializable {
+public class Selling implements Initializable {
     @FXML private VBox vboxDisplay;
     @FXML private TextField txtName, txtPrice, txtImageUrl, txtDuration;
 
-
+    // Thêm dòng này để lưu sản phẩm đang được chọn để sửa
+    private Product selectedProduct = null;
 
     private void reconstructProductUI(Product p) {
-
-        HBox productRow = new HBox(15);
-        productRow.setAlignment(Pos.CENTER_LEFT);
-        productRow.setStyle("-fx-padding: 10; -fx-background-color: #ffffff; -fx-background-radius: 10; " +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);");
-
-
-        ImageView imgView = new ImageView();
         try {
-            imgView.setImage(new Image(p.getImageUrl(), true));
-            imgView.setFitWidth(80);
-            imgView.setFitHeight(80);
-            imgView.setPreserveRatio(true);
-        } catch (Exception e) {
-            System.out.println("Lỗi link ảnh: " + p.getName());
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Part1/ProductItem.fxml"));
+            HBox productRow = loader.load();
+            /*Nạp file giao diện mẫu sau đó gán chuyuển file FXML thành một đối tượng
+            HBox tên là productRow
+            và new sẽ tạo ra một HBox mới
+            * */
+
+
+            ProductItemController controller = loader.getController();
+            controller.setData(p);
+            /*Mỗi file FXML có một Controller,Controller chính là các phương thức có trong
+            phương thức như getBtnBan,btnDelete....
+            * */
+
+            Label lblTimer = controller.getLblTimer();
+            Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+                int remaining = p.getRemainingSeconds();
+                if (remaining <= 0) {
+                    lblTimer.setText("HẾT HẠN!");
+                    productRow.setOpacity(0.6);
+                } else {
+                    lblTimer.setText("Còn: " + remaining + "s");
+                }
+            }));
+            timeline.setCycleCount(Timeline.INDEFINITE);
+            timeline.play();
+
+
+            controller.getBtnDelete().setOnAction(e -> {
+                timeline.stop();
+                vboxDisplay.getChildren().remove(productRow);
+                DataManager.sharedProductList.remove(p);
+            });
+
+            controller.getBtnEdit().setOnAction(e -> {
+                selectedProduct = p;
+                txtName.setText(p.getName());
+                txtPrice.setText(p.getPrice());
+                txtImageUrl.setText(p.getImageUrl());
+                txtDuration.setText("1200");
+            });
+
+            vboxDisplay.getChildren().add(productRow);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Lỗi: Không tìm thấy file ProductItem.fxml hoặc lỗi ép kiểu!");
         }
-
-
-        VBox details = new VBox(5);
-        Label lblName = new Label(p.getName());
-        lblName.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
-        Label lblPrice = new Label(p.getPrice() + " $");
-        lblPrice.setStyle("-fx-text-fill: #e44d26; -fx-font-weight: bold;");
-
-
-        Label lblCountdown = new Label();
-        lblCountdown.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
-        details.getChildren().addAll(lblName, lblPrice, lblCountdown);
-
-
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            int remaining = p.getRemainingSeconds(); // Lấy số giây còn lại thực tế
-
-            if (remaining <= 0) {
-                lblCountdown.setText("HẾT HẠN!");
-                lblCountdown.setStyle("-fx-text-fill: #7f8c8d;");
-                productRow.setOpacity(0.6);
-            } else {
-                lblCountdown.setText("Thời gian: " + remaining + "s");
-            }
-        }));
-        timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();
-
-
-        Button btnDelete = new Button("Xóa");
-        btnDelete.setStyle("-fx-background-color: #ff4d4d; -fx-text-fill: white; -fx-cursor: hand;");
-        btnDelete.setOnAction(e -> {
-            timeline.stop();
-            vboxDisplay.getChildren().remove(productRow);
-            DataManager.sharedProductList.remove(p);
-        });
-
-
-        productRow.getChildren().addAll(imgView, details, btnDelete);
-        vboxDisplay.getChildren().add(productRow);
     }
     @Override
 
@@ -113,15 +109,29 @@ public class SellingController implements Initializable {
         try {
             int totalSeconds = Integer.parseInt(durationStr);
 
-            Product newP = new Product(name, price, url, totalSeconds);
+            if (selectedProduct == null) {
 
+                Product newP = new Product(name, price, url, totalSeconds);
+                DataManager.sharedProductList.add(newP);
+            } else {
 
-            DataManager.sharedProductList.add(newP);
-            reconstructProductUI(newP);
+                selectedProduct.setName(name);
+                selectedProduct.setPrice(price);
+                selectedProduct.setImageUrl(url);
+
+                selectedProduct.resetEndTime(totalSeconds);
+
+                selectedProduct = null;
+            }
+
+            vboxDisplay.getChildren().clear();
+            for (Product p : DataManager.sharedProductList) {
+                reconstructProductUI(p);
+            }
 
             clearFields();
         } catch (NumberFormatException e) {
-            System.out.println("Lỗi: Thời gian phải là số!");
+            System.out.println("Lỗi: Thời gian và giá phải là số!");
         }
     }
 
@@ -146,5 +156,17 @@ public class SellingController implements Initializable {
         Stage window = (Stage) vboxDisplay.getScene().getWindow();
         window.setScene(new Scene(root));
         window.show();
+    }
+
+    public void goToLoginScreen(ActionEvent event) {
+        try {
+            Parent loginRoot = FXMLLoader.load(getClass().getResource("/Part1/LoginController.fxml"));
+            Scene loginScene = new Scene(loginRoot);
+            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            window.setScene(loginScene);
+            window.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

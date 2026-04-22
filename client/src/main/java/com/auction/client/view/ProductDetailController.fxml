@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
@@ -9,27 +11,64 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.ProductDetailController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="648.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Part1.ProductDetailController">
    <children>
-      <VBox layoutX="129.0" layoutY="14.0" prefHeight="346.0" prefWidth="433.0">
+      <HBox prefHeight="130.0" prefWidth="600.0">
          <children>
-            <ImageView fx:id="imgDetail" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-            <Label fx:id="lblDetailPrice" prefHeight="18.0" prefWidth="178.0" text="Label" />
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            <VBox prefHeight="290.0" prefWidth="300.0" spacing="15.0" styleClass="card" stylesheets="@Colour.css">
                <children>
-                  <Label fx:id="lblDetailPrice" prefHeight="18.0" prefWidth="316.0" text="Label" />
-                  <Label fx:id="lblDetailTimer" prefHeight="18.0" prefWidth="286.0" text="Label" />
+                  <Button mnemonicParsing="false" onAction="#goToMain" prefHeight="23.0" prefWidth="73.0" styleClass="button-add" stylesheets="@Colour.css" text="Previous" />
+                  <ImageView fx:id="imgDetail" fitHeight="150.0" fitWidth="198.0" pickOnBounds="true" />
+                  <Label prefHeight="18.0" prefWidth="98.0" text="Giá hiện tại" />
+                  <Label fx:id="lblDetailPrice" stylesheets="@Colour.css" text="Hiện giá max" />
+                  <Label text="Thời gian còn lại" />
+                  <Label fx:id="lblDetailTimer" text="Hiện thời gian" />
                </children>
-            </HBox>
-            <Separator prefWidth="200.0" />
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            </VBox>
+            <VBox prefHeight="322.0" prefWidth="300.0" spacing="15.0" styleClass="card" stylesheets="@Colour.css">
                <children>
-                  <TextField fx:id="txtBidAmount" prefHeight="26.0" prefWidth="254.0" />
-                  <Button fx:id="handlePlaceBid" mnemonicParsing="false" onAction="#handlePlaceBid" prefHeight="26.0" prefWidth="68.0" text="Button" />
+                  <Label text="                       Đấu giá tự động" />
+                  <HBox prefHeight="100.0" prefWidth="200.0" spacing="15.0">
+                     <children>
+                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                           <children>
+                              <TextField fx:id="txtMaxAutoPrice" layoutX="66.0" layoutY="11.0" prefHeight="35.0" prefWidth="162.0" />
+                              <Label layoutY="15.0" text="Max Bid" />
+                              <AnchorPane layoutY="79.0" prefHeight="60.0" prefWidth="152.0">
+                                 <children>
+                                    <TextField fx:id="txtIncrement" layoutX="65.0" layoutY="19.0" prefHeight="35.0" prefWidth="162.0" />
+                                    <Label layoutY="28.0" text="Increment" />
+                                 </children>
+                              </AnchorPane>
+                           </children>
+                        </AnchorPane>
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="42.0" prefWidth="209.0" />
+                  <Button mnemonicParsing="false" onAction="#handleStartAutoBid" prefHeight="23.0" prefWidth="82.0" styleClass="btn-primary" stylesheets="@Colour.css" text="AutoBid" />
+                  <CheckBox fx:id="chkSubscribe" mnemonicParsing="false" onAction="#handleSubscribeAction" text="CheckBox" />
                </children>
-            </HBox>
+            </VBox>
+         </children>
+      </HBox>
+      <Separator prefWidth="200.0" />
+      <HBox prefHeight="75.0" prefWidth="600.0">
+         <children>
+            <TextField fx:id="txtBidAmount" prefHeight="26.0" prefWidth="179.0" promptText="Nhập tiền cược" />
+            <Button mnemonicParsing="false" onAction="#handlePlaceBid" prefHeight="35.0" prefWidth="70.0" styleClass="btn-primary" stylesheets="@Colour.css" text="Bid" />
+         </children>
+      </HBox>
+      <VBox prefHeight="294.0" prefWidth="600.0" style="-fx-background-color: #87CEEB;">
+         <children>
+            <Label prefHeight="30.0" prefWidth="584.0" stylesheets="@Colour.css" text="                                                                              Mô tả sản phẩm" />
+            <Label fx:id="lblDescription" text="Phần mô tả" wrapText="true" />
+         </children>
+      </VBox>
+      <VBox prefHeight="310.0" prefWidth="600.0" spacing="15.0">
+         <children>
+            <Label prefHeight="18.0" prefWidth="582.0" text="                                                                                  Lịch sử bid" />
+            <ListView fx:id="lvBidHistory" prefHeight="197.0" prefWidth="600.0" style="-fx-background-color: #FFFFFF;" styleClass="card" stylesheets="@Colour.css" />
          </children>
       </VBox>
    </children>
-</AnchorPane>
+</VBox>
