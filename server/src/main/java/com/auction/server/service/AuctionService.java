@@ -3,6 +3,7 @@ package com.auction.server.service;
 import com.auction.shared.model.AuctionSession;
 import com.auction.shared.model.BidTransaction;
 
+import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -350,8 +351,8 @@ public class AuctionService {
         if (session != null && "ACTIVE".equals(session.getStatus())) {
             session.setStatus("FINISHED");
             System.out.println("Đã chốt phiên thủ công [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
-            
-            if (notificationService != null) {               
+
+            if (notificationService != null) {
             }
         }
     }

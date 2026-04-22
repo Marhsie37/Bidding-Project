@@ -2,7 +2,8 @@ package com.auction.server;
 
 import com.auction.server.service.AuctionService;
 import com.auction.server.service.AutoBidService;
-import com.auction.client.model.AuctionSession;
+import com.auction.shared.model.AuctionSession;
+
 
 
 import java.io.*;
@@ -61,11 +62,11 @@ public class AuctionServer {
                             auctionService.endAuction(auction.getId());
                         }
                     }
-                    Thread.sleep(1000);  // ✅ Đặt TRONG try block
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
-                } catch (Exception e) {  // ✅ Bắt các lỗi khác để monitor không crash
+                } catch (Exception e) {
                     System.err.println("Monitor error: " + e.getMessage());
                 }
             }
