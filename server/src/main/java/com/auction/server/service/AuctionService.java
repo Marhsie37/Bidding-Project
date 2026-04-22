@@ -249,9 +249,6 @@ public class AuctionService {
             auction.setEndTime(newEndTime);
             
             System.out.println("Anti-sniping: gia hạn thêm " + ANTI_SNIPING_EXTENSION_SECONDS + "s cho sp " + auction.getProductId());
-
-            if (notificationService != null) {
-            }
         }
     }
 
@@ -351,9 +348,6 @@ public class AuctionService {
         if (session != null && "ACTIVE".equals(session.getStatus())) {
             session.setStatus("FINISHED");
             System.out.println("Đã chốt phiên thủ công [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
-
-            if (notificationService != null) {
-            }
         }
     }
 
