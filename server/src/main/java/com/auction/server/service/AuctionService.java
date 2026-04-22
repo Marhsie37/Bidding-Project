@@ -356,7 +356,6 @@ public class AuctionService {
         }
     }
 
-    // cron job check end time
     public void checkAndEndAuctions() {
         LocalDateTime now = LocalDateTime.now();
         for (Map.Entry<Integer, AuctionSession> entry : sessions.entrySet()) {
