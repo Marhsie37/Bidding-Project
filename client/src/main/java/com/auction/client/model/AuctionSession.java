@@ -70,4 +70,8 @@ public class AuctionSession implements Serializable{
     public void setExtensionCount(int extensionCount) {
         this.extensionCount = extensionCount;
     }
+    public int getId() {
+        return productId;
+    }
+
 }
