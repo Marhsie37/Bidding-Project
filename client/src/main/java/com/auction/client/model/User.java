@@ -49,4 +49,5 @@ public class User implements Serializable{
     public boolean isSeller() { return "SELLER".equalsIgnoreCase(role); }
     public boolean isAdmin() { return "ADMIN".equalsIgnoreCase(role); }
 
+
 }

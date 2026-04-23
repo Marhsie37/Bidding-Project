@@ -1,4 +1,4 @@
-package Part1;
+package com.auction.client.controller;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

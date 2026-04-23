@@ -1,4 +1,4 @@
-package Part1;
+package com.auction.client.controller;
 
 import java.util.ArrayList;
 import java.util.List;

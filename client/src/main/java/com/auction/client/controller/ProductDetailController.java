@@ -1,4 +1,4 @@
-package Part1;
+package com.auction.client.controller;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;

@@ -2,6 +2,9 @@ package com.auction.client.model;
 
 import java.io.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Product implements Serializable{
     private static final long serialVersionUID = 1L;
 
@@ -74,4 +77,7 @@ public class Product implements Serializable{
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public boolean isActive() { return "ACTIVE".equalsIgnoreCase(status); }
+
+
+
 }

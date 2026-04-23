@@ -1,4 +1,4 @@
-package Part1;
+package com.auction.client.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

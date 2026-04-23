@@ -1,4 +1,4 @@
-package Part1;
+package com.auction.client.controller;
 
 public class User {
     private String username;
