@@ -32,6 +32,7 @@ public class AuctionService {
         adminData.put("id", 0);
         adminData.put("password", "admin123");
         adminData.put("role", "ADMIN");
+        adminData.put("balance", 0.0); // Thêm số dư khởi tạo cho admin
         usersDB.put("admin", adminData);
     }
 
@@ -50,7 +51,7 @@ public class AuctionService {
                 result.put("success", true);
                 result.put("message", "Đăng nhập thành công!");
                 result.put("role", userInfo.get("role"));
-                result.put("user", userInfo); 
+                result.put("user", userInfo);
                 return result;
             }
         }
@@ -73,8 +74,9 @@ public class AuctionService {
         Map<String, Object> newUser = new HashMap<>();
         newUser.put("id", userIdGenerator.getAndIncrement());
         newUser.put("password", password);
-        newUser.put("role", "USER"); 
-        
+        newUser.put("role", "USER");
+        newUser.put("balance", 0.0); // Khởi tạo số dư = 0 cho user mới
+
         usersDB.put(username, newUser);
 
         result.put("success", true);
@@ -90,12 +92,10 @@ public class AuctionService {
         double startingPrice = ((Number) data.get("startingPrice")).doubleValue();
         int durationMinutes = ((Number) data.getOrDefault("duration", 60)).intValue();
 
-        // set data sp
         Map<String, Object> product = new HashMap<>(data);
         product.put("productId", newProductId);
         productsDB.put(newProductId, product);
 
-        // tạo session đấu giá luôn khi add sp
         LocalDateTime endTime = LocalDateTime.now().plusMinutes(durationMinutes);
         AuctionSession newSession = new AuctionSession(newProductId, productName, startingPrice, endTime);
         sessions.put(newProductId, newSession);
@@ -109,13 +109,13 @@ public class AuctionService {
     public Map<String, Object> getActiveProducts() {
         Map<String, Object> result = new HashMap<>();
         List<AuctionSession> activeSessions = new ArrayList<>();
-        
+
         for (AuctionSession session : sessions.values()) {
             if ("ACTIVE".equals(session.getStatus())) {
                 activeSessions.add(session);
             }
         }
-        
+
         result.put("success", true);
         result.put("products", activeSessions);
         return result;
@@ -183,19 +183,18 @@ public class AuctionService {
     public Map<String, Object> getSellerProducts(String username) {
         Map<String, Object> result = new HashMap<>();
         List<Map<String, Object>> myProducts = new ArrayList<>();
-        
+
         for (Map<String, Object> p : productsDB.values()) {
             if (username.equals(p.get("sellerId"))) {
                 myProducts.add(p);
             }
         }
-        
+
         result.put("success", true);
         result.put("products", myProducts);
         return result;
     }
 
-    // main bidding logic
     public Map<String, Object> placeBid(int productId, String username, double bidAmount) {
         Map<String, Object> result = new HashMap<>();
         AuctionSession session = sessions.get(productId);
@@ -206,7 +205,6 @@ public class AuctionService {
             return result;
         }
 
-        // validate time + status
         if (!"ACTIVE".equals(session.getStatus()) || LocalDateTime.now().isAfter(session.getEndTime())) {
             session.setStatus("FINISHED");
             result.put("success", false);
@@ -214,7 +212,6 @@ public class AuctionService {
             return result;
         }
 
-        // validate giá
         if (bidAmount <= session.getCurrentPrice()) {
             result.put("success", false);
             result.put("message", "Lỗi: Giá đặt phải cao hơn giá hiện hành!");
@@ -223,31 +220,28 @@ public class AuctionService {
 
         int userId = (int) usersDB.get(username).get("id");
 
-        // update winner hiện tại
         session.setCurrentPrice(bidAmount);
         session.setCurrentWinnerId(userId);
         session.setCurrentWinnerName(username);
 
-        // check anti-sniping để extend time
         checkAndExtendAuctionIfNeeded(session);
 
         result.put("success", true);
         result.put("message", "Đặt giá thành công! Bạn đang dẫn đầu với giá " + bidAmount);
         result.put("currentPrice", bidAmount);
         return result;
-    }   
+    }
 
     private void checkAndExtendAuctionIfNeeded(AuctionSession auction) {
-        LocalDateTime endTime = auction.getEndTime(); 
+        LocalDateTime endTime = auction.getEndTime();
         LocalDateTime now = LocalDateTime.now();
-        
+
         long secondsRemaining = ChronoUnit.SECONDS.between(now, endTime);
-        
-        // nếu bid trong 30s cuối -> cộng thêm 60s
+
         if (secondsRemaining <= ANTI_SNIPING_WINDOW_SECONDS && secondsRemaining > 0) {
             LocalDateTime newEndTime = endTime.plusSeconds(ANTI_SNIPING_EXTENSION_SECONDS);
             auction.setEndTime(newEndTime);
-            
+
             System.out.println("Anti-sniping: gia hạn thêm " + ANTI_SNIPING_EXTENSION_SECONDS + "s cho sp " + auction.getProductId());
         }
     }
@@ -264,7 +258,6 @@ public class AuctionService {
         return result;
     }
 
-    // auto-bid tính năng
     public Map<String, Object> setAutoBid(int productId, String username, double maxBid, double increment) {
         Map<String, Object> result = new HashMap<>();
         AuctionSession session = sessions.get(productId);
@@ -290,7 +283,6 @@ public class AuctionService {
         return result;
     }
 
-    // admin functions
     public Map<String, Object> getAllUsers() {
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
@@ -332,7 +324,6 @@ public class AuctionService {
         return result;
     }
 
-    // get list sp đang đấu giá 
     public List<AuctionSession> getActiveAuctions() {
         List<AuctionSession> activeAuctions = new ArrayList<>();
         for (AuctionSession session : sessions.values()) {
@@ -360,5 +351,120 @@ public class AuctionService {
                 System.out.println("Chốt phiên [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
             }
         }
+    }
+
+    public synchronized Map<String, Object> addFunds(int userId, double amount) {
+        Map<String, Object> result = new HashMap<>();
+        if (amount <= 0) {
+            result.put("success", false);
+            result.put("message", "Số tiền nạp phải lớn hơn 0");
+            return result;
+        }
+
+        Map<String, Object> targetUser = null;
+        for (Map<String, Object> user : usersDB.values()) {
+            if ((int) user.get("id") == userId) {
+                targetUser = user;
+                break;
+            }
+        }
+
+        if (targetUser != null) {
+            double currentBalance = ((Number) targetUser.getOrDefault("balance", 0.0)).doubleValue();
+            double newBalance = currentBalance + amount;
+            targetUser.put("balance", newBalance);
+
+            result.put("success", true);
+            result.put("message", "Nạp tiền thành công");
+            result.put("balance", newBalance);
+        } else {
+            result.put("success", false);
+            result.put("message", "Nạp tiền thất bại: Không tìm thấy người dùng");
+        }
+        return result;
+    }
+
+    public synchronized Map<String, Object> processPayment(int userId, int auctionId) {
+        Map<String, Object> result = new HashMap<>();
+
+        // Kiểm tra auction đã xong chưa
+        AuctionSession auction = sessions.get(auctionId);
+        if (auction == null || !"FINISHED".equals(auction.getStatus())) {
+            result.put("success", false);
+            result.put("message", "Phiên đấu giá chưa kết thúc hoặc không tồn tại");
+            return result;
+        }
+
+        if (auction.getCurrentWinnerId() != userId) {
+            result.put("success", false);
+            result.put("message", "Bạn không phải người thắng cuộc");
+            return result;
+        }
+
+        if ("PAID".equals(auction.getStatus())) {
+            result.put("success", false);
+            result.put("message", "Phiên đấu giá đã được thanh toán");
+            return result;
+        }
+
+        // Tìm thông tin user
+        Map<String, Object> targetUser = null;
+        for (Map<String, Object> user : usersDB.values()) {
+            if ((int) user.get("id") == userId) {
+                targetUser = user;
+                break;
+            }
+        }
+
+        if (targetUser == null) {
+            result.put("success", false);
+            result.put("message", "Lỗi: Không tìm thấy thông tin người dùng");
+            return result;
+        }
+
+        // Kiểm tra số dư
+        double balance = ((Number) targetUser.getOrDefault("balance", 0.0)).doubleValue();
+        double amount = auction.getCurrentPrice();
+
+        if (balance < amount) {
+            result.put("success", false);
+            result.put("message", "Số dư không đủ. Cần: " + amount + ", Hiện có: " + balance);
+            return result;
+        }
+
+        // Thực hiện thanh toán (Trừ tiền và update status)
+        targetUser.put("balance", balance - amount);
+        auction.setStatus("PAID");
+
+        double newBalance = ((Number) targetUser.get("balance")).doubleValue();
+        result.put("success", true);
+        result.put("message", "Thanh toán thành công!");
+        result.put("balance", newBalance);
+        result.put("amount", amount);
+
+        return result;
+    }
+
+    public Map<String, Object> getUserBalance(int userId) {
+        Map<String, Object> result = new HashMap<>();
+
+        Map<String, Object> targetUser = null;
+        for (Map<String, Object> user : usersDB.values()) {
+            if ((int) user.get("id") == userId) {
+                targetUser = user;
+                break;
+            }
+        }
+
+        if (targetUser != null) {
+            double balance = ((Number) targetUser.getOrDefault("balance", 0.0)).doubleValue();
+            result.put("success", true);
+            result.put("balance", balance);
+            result.put("message", "Số dư: " + balance);
+        } else {
+            result.put("success", false);
+            result.put("message", "Không tìm thấy người dùng");
+        }
+        return result;
     }
 }
