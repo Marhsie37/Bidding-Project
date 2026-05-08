@@ -16,7 +16,7 @@ public class    UserDAO {
     }
     private Connection getConnection() throws SQLException {
         if (this.conn != null) {
-            return this.conn; // Trả về kết nối ảo H2 nếu đang chạy Test
+            return this.conn; // Trả về kết `nối ảo H2 nếu đang chạy Test
         }
         return dbConnection.getConnection(); // Trả về kết nối MySQL thật
     }
@@ -134,6 +134,67 @@ public class    UserDAO {
             System.err.println("Error getting users by role: " + e.getMessage());
         }
         return users;
+    }
+    // Nạp tiền vào tài khoản
+    public boolean addFunds(int userId, double amount) {
+        String sql = "UPDATE users SET balance = balance + ? WHERE id = ?";
+        try {
+            Connection conn = getConnection();
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setDouble(1, amount);
+                stmt.setInt(2, userId);
+                return stmt.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    // Trừ tiền khi thanh toán
+    public boolean deductFunds(int userId, double amount) {
+        String checkSql = "SELECT balance FROM users WHERE id = ?";
+        String deductSql = "UPDATE users SET balance = balance - ? WHERE id = ?";
+
+        try {
+            Connection conn = getConnection();
+
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setInt(1, userId);
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next() && rs.getDouble("balance") >= amount) {
+
+                        try (PreparedStatement deductStmt = conn.prepareStatement(deductSql)) {
+                            deductStmt.setDouble(1, amount);
+                            deductStmt.setInt(2, userId);
+                            return deductStmt.executeUpdate() > 0;
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error deducting funds: " + e.getMessage());
+        }
+        return false;
+    }
+
+    // Lấy số dư
+    public double getBalance(int userId) {
+        String sql = "SELECT balance FROM users WHERE id = ?";
+        try {
+            Connection conn = getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, userId);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getDouble("balance");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error getting balance: " + e.getMessage());
+        }
+        return 0.0;
     }
 
     private User mapResultSetToUser(ResultSet rs) throws SQLException {

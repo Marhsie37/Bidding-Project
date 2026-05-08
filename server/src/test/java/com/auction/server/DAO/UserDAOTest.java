@@ -33,4 +33,45 @@ class UserDAOTest {
         assertTrue(created, "Nên tạo được user mới");
         assertNotNull(dao.findByUsername("testuser"), "Nên tìm thấy user vừa tạo");
     }
+    @Test
+    void testAddFunds() {
+        UserDAO dao = new UserDAO(conn);
+        // Giả sử testuser đã được tạo từ bài test trước (hoặc tạo mới tại đây)
+        dao.createUser("moneyuser", "pass", "money@mail.com", "Money User", "BIDDER");
+        User user = dao.findByUsername("moneyuser");
+
+        // Nạp 500,000đ
+        boolean success = dao.addFunds(user.getId(), 500000.0);
+        assertTrue(success);
+
+        double balance = dao.getBalance(user.getId());
+        assertEquals(500000.0, balance, "Số dư phải là 500,000");
+    }
+
+    @Test
+    void testDeductFunds() {
+        UserDAO dao = new UserDAO(conn);
+        dao.createUser("shopuser", "pass", "shop@mail.com", "Shop User", "BIDDER");
+        User user = dao.findByUsername("shopuser");
+        assertNotNull(user, "User 'shopuser' phải được tạo thành công!");
+        // Nạp 1,000,000đ
+        dao.addFunds(user.getId(), 1000000.0);
+
+        // Trường hợp 1: Trừ số tiền hợp lệ (Mua món đồ 400k)
+        boolean canPay = dao.deductFunds(user.getId(), 400000.0);
+        assertTrue(canPay);
+        assertEquals(600000.0, dao.getBalance(user.getId()), "Số dư còn lại phải là 600,000");
+
+        // Trường hợp 2: Trừ quá số dư (Mua món đồ 2 triệu)
+        boolean canPayOver = dao.deductFunds(user.getId(), 2000000.0);
+        assertFalse(canPayOver, "Không được phép trừ nếu không đủ tiền");
+        assertEquals(600000.0, dao.getBalance(user.getId()), "Số dư không được thay đổi khi giao dịch lỗi");
+    }
+
+    @AfterEach
+    void tearDown() throws SQLException {
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("DELETE FROM users"); // Xóa sạch data sau mỗi lần chạy một @Test
+        }
+    }
 }

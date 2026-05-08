@@ -1,0 +1,38 @@
+name: Java CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ] # Chạy khi bạn push lên nhánh main/master
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest # Chạy trên máy ảo Linux của GitHub
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4 # Tải code của bạn về máy ảo
+
+      - name: Set up JDK 21 # Cài đặt Java (hãy để đúng bản 21 như trong pom.xml)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and Run Tests
+        # Lệnh này sẽ chạy toàn bộ JUnit Test bạn đã viết (bao gồm cả UserDAOTest)
+        run: mvn -B test
+
+      - name: Package Application
+        # Nếu test qua hết, nó sẽ đóng gói thành file .jar
+        if: success()
+        run: mvn -B package -DskipTests
+
+      - name: Archive Artifacts
+        # Đưa file .jar đã đóng gói lên GitHub để thầy cô có thể tải về
+        uses: actions/upload-artifact@v4
+        with:
+          name: auction-system-build
+          path: "**/target/*.jar"

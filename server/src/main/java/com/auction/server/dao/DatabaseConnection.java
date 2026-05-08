@@ -38,7 +38,8 @@ public class DatabaseConnection {
                 email VARCHAR(100) UNIQUE NOT NULL,
                 full_name VARCHAR(100),
                 role ENUM('BIDDER', 'SELLER', 'ADMIN') DEFAULT 'BIDDER',
-                balance DECIMAL(15,2) DEFAULT 0,
+                -- THÊM DÒNG DƯỚI ĐÂY --
+                balance DECIMAL(15,2) DEFAULT 0.00, 
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 active BOOLEAN DEFAULT TRUE
             ) ENGINE=InnoDB
