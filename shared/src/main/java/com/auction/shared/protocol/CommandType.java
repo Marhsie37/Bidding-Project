@@ -42,4 +42,7 @@ public enum CommandType {
     AUCTION_END,
     AUCTION_EXTENDED,
 
+    ADD_FUNDS,        // nap tien vao tai khoan
+    PROCESS_PAYMENT,  // xu ly thanh toan
+    GET_USER_BALANCE  // lay so du
 }

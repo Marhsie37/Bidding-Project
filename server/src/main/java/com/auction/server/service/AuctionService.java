@@ -235,7 +235,7 @@ public class AuctionService {
         result.put("message", "Đặt giá thành công! Bạn đang dẫn đầu với giá " + bidAmount);
         result.put("currentPrice", bidAmount);
         return result;
-    }
+    }   
 
     private void checkAndExtendAuctionIfNeeded(AuctionSession auction) {
         LocalDateTime endTime = auction.getEndTime(); 

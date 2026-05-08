@@ -119,6 +119,15 @@ public class ClientHandler implements Runnable {
             case LOGOUT:
                 handleLogout();
                 break;
+            case ADD_FUNDS:
+                handleAddFunds(data);
+                break;
+            case PROCESS_PAYMENT:
+                handleProcessPayment(data);
+                break;
+            case GET_USER_BALANCE:
+                handleGetUserBalance(data);
+                break;
             default:
                 sendError("Unknown command");
 
@@ -327,5 +336,33 @@ public class ClientHandler implements Runnable {
         sendResponse(CommandType.AUCTION_EXTENDED, true, "Auction extended", data);
     }
 
+    private void handleAddFunds(Map<String, Object> data) {
+        int userId = ((Number) data.get("userId")).intValue();
+        double amount = ((Number) data.get("amount")).doubleValue();
+        Map<String, Object> result = auctionService.addFunds(userId, amount);
+        sendResponse(CommandType.ADD_FUNDS,
+                (boolean) result.get("success"),
+                (String) result.get("message"),
+                result);
+    }
+
+    private void handleProcessPayment(Map<String, Object> data) {
+        int userId = ((Number) data.get("userId")).intValue();
+        int auctionId = ((Number) data.get("auctionId")).intValue();
+        Map<String, Object> result = auctionService.processPayment(userId, auctionId);
+        sendResponse(CommandType.PROCESS_PAYMENT,
+                (boolean) result.get("success"),
+                (String) result.get("message"),
+                result);
+    }
+
+    private void handleGetUserBalance(Map<String, Object> data) {
+        int userId = ((Number) data.get("userId")).intValue();
+        Map<String, Object> result = auctionService.getUserBalance(userId);
+        sendResponse(CommandType.GET_USER_BALANCE,
+                (boolean) result.get("success"),
+                (String) result.get("message"),
+                result);
+    }
 
 }

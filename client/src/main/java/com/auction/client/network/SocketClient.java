@@ -243,4 +243,30 @@ public class SocketClient {
         return authToken;
     }
 
+    // Nạp tiền
+    public void addFunds(int userId, double amount, Consumer<Response> callback) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("userId", userId);
+        data.put("amount", amount);
+        Request request = new Request(CommandType.ADD_FUNDS, data);
+        sendRequestAsync(request, callback);
+    }
+
+    // Thanh toán
+    public void processPayment(int userId, int auctionId, Consumer<Response> callback) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("userId", userId);
+        data.put("auctionId", auctionId);
+        Request request = new Request(CommandType.PROCESS_PAYMENT, data);
+        sendRequestAsync(request, callback);
+    }
+
+    // Lấy số dư
+    public void getBalance(int userId, Consumer<Response> callback) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("userId", userId);
+        Request request = new Request(CommandType.GET_USER_BALANCE, data);
+        sendRequestAsync(request, callback);
+    }
+
 }

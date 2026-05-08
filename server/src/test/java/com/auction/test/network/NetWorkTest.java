@@ -195,6 +195,72 @@ public class NetWorkTest {
         assertTrue(done.await(10, TimeUnit.SECONDS), "Phải hoàn thành trong 10 giây");
         assertEquals(clientCount, successCount.get());
     }
+    // =========================================================
+//  TEST GROUP 2 (bổ sung): FixedThreadPool với 50 client
+// =========================================================
+
+    @Test
+    @DisplayName("TC-037: FixedThreadPool(10) xử lý 50 client - throughput và không bị treo")
+    void testFixedThreadPoolWithFiftyClients() throws InterruptedException {
+        int totalClients  = 50;
+        int poolSize      = 10;
+
+        ExecutorService executor    = Executors.newFixedThreadPool(poolSize);
+        CountDownLatch  startGun    = new CountDownLatch(1);
+        CountDownLatch  done        = new CountDownLatch(totalClients);
+        AtomicInteger   successCount = new AtomicInteger(0);
+        AtomicInteger   errorCount   = new AtomicInteger(0);
+
+        for (int i = 0; i < totalClients; i++) {
+            executor.submit(() -> {
+                try {
+                    startGun.await();
+                    try (Socket s = connectToMock()) {
+                        ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+                        ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+
+                        Map<String, Object> data = new HashMap<>();
+                        out.writeObject(new Request(CommandType.GET_PRODUCTS, data));
+                        out.flush();
+
+                        Object res = in.readObject();
+                        if (res instanceof Response && ((Response) res).isSuccess()) {
+                            successCount.incrementAndGet();
+                        } else {
+                            errorCount.incrementAndGet();
+                        }
+                    }
+                } catch (Exception e) {
+                    errorCount.incrementAndGet();
+                    System.err.println("[TC-06] Thread error: " + e.getMessage());
+                } finally {
+                    done.countDown();
+                }
+            });
+        }
+
+        // Bắn súng cho tất cả thread cùng khởi động
+        startGun.countDown();
+
+        // Chờ tất cả 50 task hoàn thành trong 15 giây
+        boolean allDone = done.await(15, TimeUnit.SECONDS);
+
+        // Shutdown executor gọn gàng
+        executor.shutdown();
+        boolean terminated = executor.awaitTermination(5, TimeUnit.SECONDS);
+
+        assertTrue(allDone,      "Tất cả 50 client phải hoàn thành trong 15 giây");
+        assertTrue(terminated,   "Executor phải shutdown gọn gàng");
+        assertEquals(totalClients, successCount.get() + errorCount.get(),
+                "Tổng success + error phải đúng bằng 50");
+        assertEquals(totalClients, successCount.get(),
+                "Tất cả 50 client phải nhận response thành công");
+        assertEquals(0, errorCount.get(),
+                "Không được có lỗi nào");
+
+        System.out.printf("[TC-06] Pool size: %d | Clients: %d | Success: %d | Error: %d%n",
+                poolSize, totalClients, successCount.get(), errorCount.get());
+    }
 
     // =========================================================
     //  TEST GROUP 3: Request / Response
