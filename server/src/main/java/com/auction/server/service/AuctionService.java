@@ -422,7 +422,7 @@ public class AuctionService {
             return result;
         }
 
-        // Kiểm tra số dư
+        // Ktra số dư
         double balance = ((Number) targetUser.getOrDefault("balance", 0.0)).doubleValue();
         double amount = auction.getCurrentPrice();
 
@@ -432,7 +432,7 @@ public class AuctionService {
             return result;
         }
 
-        // Thực hiện thanh toán (Trừ tiền và update status)
+        // Thực hiện thanh toán 
         targetUser.put("balance", balance - amount);
         auction.setStatus("PAID");
 
