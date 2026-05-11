@@ -4,10 +4,13 @@ import com.auction.shared.model.User;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class    UserDAO {
     private DatabaseConnection dbConnection;
     private Connection conn;
+    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
     public UserDAO(Connection conn) {
         this.conn = conn;
     }
@@ -31,7 +34,7 @@ public class    UserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error finding user: " + e.getMessage());
+            logger.error("Error finding user: " ,e);
         }
         return null;
     }
@@ -46,7 +49,7 @@ public class    UserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error finding user by email: " + e.getMessage());
+            logger.error("Error finding user by email: " ,e);
         }
         return null;
     }
@@ -62,7 +65,7 @@ public class    UserDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error creating user: " + e.getMessage());
+            logger.error("Error creating user: " ,e);
             return false;
         }
     }
@@ -78,7 +81,7 @@ public class    UserDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error updating user: " + e.getMessage());
+            logger.error("Error updating user: " ,e);
             return false;
         }
     }
@@ -90,7 +93,7 @@ public class    UserDAO {
             pstmt.setInt(2, userId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error updating balance: " + e.getMessage());
+            logger.error("Error updating balance: " ,e);
             return false;
         }
     }
@@ -101,7 +104,7 @@ public class    UserDAO {
             pstmt.setInt(1, userId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error deleting user: " + e.getMessage());
+            logger.error("Error deleting user: " ,e);
             return false;
         }
     }
@@ -115,7 +118,7 @@ public class    UserDAO {
                 users.add(mapResultSetToUser(rs));
             }
         } catch (SQLException e) {
-            System.err.println("Error getting all users: " + e.getMessage());
+            logger.error("Error getting all users: " ,e);
         }
         return users;
     }
@@ -131,7 +134,7 @@ public class    UserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error getting users by role: " + e.getMessage());
+            logger.error("Error getting users by role: " ,e);
         }
         return users;
     }
@@ -140,16 +143,22 @@ public class    UserDAO {
         String sql = "UPDATE users SET balance = balance + ? WHERE id = ?";
         try {
             Connection conn = getConnection();
-
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setDouble(1, amount);
                 stmt.setInt(2, userId);
-                return stmt.executeUpdate() > 0;
+
+                int affectedRows = stmt.executeUpdate();
+                if (affectedRows > 0) {
+                    logger.info("GIAO DỊCH: User ID {} nạp thành công {} VNĐ", userId, amount);
+                    return true;
+                } else {
+                    logger.warn("CẢNH BÁO: Thử nạp tiền cho User ID {} không tồn tại", userId);
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            logger.error("LỖI HỆ THỐNG: Không thể thực hiện nạp tiền cho User " + userId, e);
         }
+        return false;
     }
     // Trừ tiền khi thanh toán
     public boolean deductFunds(int userId, double amount) {
@@ -173,7 +182,7 @@ public class    UserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error deducting funds: " + e.getMessage());
+            logger.error("Error deducting funds: " ,e);
         }
         return false;
     }
@@ -192,7 +201,7 @@ public class    UserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error getting balance: " + e.getMessage());
+            logger.error("Error getting balance: " ,e);
         }
         return 0.0;
     }

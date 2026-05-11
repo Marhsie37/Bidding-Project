@@ -15,6 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
@@ -23,7 +25,7 @@ import java.util.ResourceBundle;
 public class SellingController implements Initializable {
     @FXML private VBox vboxDisplay;
     @FXML private TextField txtName, txtPrice, txtImageUrl, txtDuration;
-
+    private static final Logger logger = LoggerFactory.getLogger(SellingController.class);
     // Thêm dòng này để lưu sản phẩm đang được chọn để sửa
     private Product selectedProduct = null;
 
@@ -76,7 +78,7 @@ public class SellingController implements Initializable {
 
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Lỗi: Không tìm thấy file ProductItem.fxml hoặc lỗi ép kiểu!");
+            logger.info("Lỗi: Không tìm thấy file ProductItem.fxml hoặc lỗi ép kiểu!");
         }
     }
     @Override
@@ -127,7 +129,7 @@ public class SellingController implements Initializable {
 
             clearFields();
         } catch (NumberFormatException e) {
-            System.out.println("Lỗi: Thời gian và giá phải là số!");
+            logger.info("Lỗi: Thời gian và giá phải là số!");
         }
     }
 

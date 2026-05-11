@@ -12,6 +12,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,7 +23,7 @@ public class NetWorkTest {
     private static final int MOCK_PORT = 9999;
     private static ServerSocket mockServerSocket;
     private static Thread mockServerThread;
-
+    private static final Logger logger = LoggerFactory.getLogger(NetWorkTest.class);
    //Mock server
     @BeforeAll
     static void startMockServer() throws IOException {
@@ -33,14 +35,14 @@ public class NetWorkTest {
                     new Thread(() -> handleMockClient(client)).start();
                 } catch (IOException e) {
                     if (!mockServerSocket.isClosed()) {
-                        System.err.println("[MockServer] accept error: " + e.getMessage());
+                        logger.error("[MockServer] accept error: " ,e);
                     }
                 }
             }
         });
         mockServerThread.setDaemon(true);
         mockServerThread.start();
-        System.out.println("[MockServer] Started on port " + MOCK_PORT);
+        logger.info("[MockServer] Started on port " + MOCK_PORT);
     }
 
     private static void handleMockClient(Socket client) {
@@ -58,7 +60,7 @@ public class NetWorkTest {
             }
         } catch (EOFException ignored) {
         } catch (Exception e) {
-            System.err.println("[MockServer] client error: " + e.getMessage());
+            logger.error("[MockServer] client error: " ,e);
         }
     }
 
@@ -91,7 +93,7 @@ public class NetWorkTest {
         if (mockServerSocket != null && !mockServerSocket.isClosed()) {
             mockServerSocket.close();
         }
-        System.out.println("[MockServer] Stopped");
+        logger.info("[MockServer] Stopped");
     }
 
     private Socket connectToMock() throws IOException {
@@ -147,7 +149,7 @@ public class NetWorkTest {
                     connected.countDown();
                     connected.await(3, TimeUnit.SECONDS);
                 } catch (Exception e) {
-                    System.err.println("[TC-04] " + e.getMessage());
+                    logger.error("[TC-04] " ,e);
                 } finally {
                     done.countDown();
                 }
@@ -184,7 +186,7 @@ public class NetWorkTest {
                         successCount.incrementAndGet();
                     }
                 } catch (Exception e) {
-                    System.err.println("[TC-05] " + e.getMessage());
+                    logger.error("[TC-05] " ,e);
                 } finally {
                     done.countDown();
                 }
@@ -232,7 +234,7 @@ public class NetWorkTest {
                     }
                 } catch (Exception e) {
                     errorCount.incrementAndGet();
-                    System.err.println("[TC-06] Thread error: " + e.getMessage());
+                    logger.error("[TC-06] Thread error: " ,e);
                 } finally {
                     done.countDown();
                 }

@@ -9,11 +9,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuctionService {
 
     private static AuctionService instance;
-
+    private static final Logger logger = LoggerFactory.getLogger(AuctionService.class);
     private static final int ANTI_SNIPING_WINDOW_SECONDS = 30;
     private static final int ANTI_SNIPING_EXTENSION_SECONDS = 60;
 
@@ -242,7 +244,7 @@ public class AuctionService {
             LocalDateTime newEndTime = endTime.plusSeconds(ANTI_SNIPING_EXTENSION_SECONDS);
             auction.setEndTime(newEndTime);
 
-            System.out.println("Anti-sniping: gia hạn thêm " + ANTI_SNIPING_EXTENSION_SECONDS + "s cho sp " + auction.getProductId());
+            logger.info("Anti-sniping: gia hạn thêm " + ANTI_SNIPING_EXTENSION_SECONDS + "s cho sp " + auction.getProductId());
         }
     }
 
@@ -338,7 +340,7 @@ public class AuctionService {
         AuctionSession session = sessions.get(productId);
         if (session != null && "ACTIVE".equals(session.getStatus())) {
             session.setStatus("FINISHED");
-            System.out.println("Đã chốt phiên thủ công [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
+            logger.info("Đã chốt phiên thủ công [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
         }
     }
 
@@ -348,7 +350,7 @@ public class AuctionService {
             AuctionSession session = entry.getValue();
             if ("ACTIVE".equals(session.getStatus()) && now.isAfter(session.getEndTime())) {
                 session.setStatus("FINISHED");
-                System.out.println("Chốt phiên [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
+                logger.info("Chốt phiên [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
             }
         }
     }

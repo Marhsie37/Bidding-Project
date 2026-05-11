@@ -11,6 +11,8 @@ import java.net.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuctionServer {
     private static final int PORT = 8888;
@@ -21,7 +23,7 @@ public class AuctionServer {
     private AuctionService auctionService;
     private AutoBidService autoBidService;
     private boolean running;
-
+    private static final Logger logger = LoggerFactory.getLogger(AuctionServer.class);
     private AuctionServer(){
         this.threadPool = Executors.newCachedThreadPool();
         this.clients = new ConcurrentHashMap<>();
@@ -39,7 +41,7 @@ public class AuctionServer {
     public void start(){
         try{
             serverSocket = new ServerSocket(PORT);
-            System.out.println("Auction Server started on port " + PORT);
+            logger.info("Auction Server started on port " + PORT);
             autoBidService.start();
             startAuctionMonitor();
             while (running){
@@ -48,7 +50,7 @@ public class AuctionServer {
                 threadPool.execute(handler);
             }
         } catch (IOException e){
-            System.err.println("Server error: " + e.getMessage());
+            logger.error("Server error: " ,e);
 
         }
     }
@@ -67,7 +69,7 @@ public class AuctionServer {
                     Thread.currentThread().interrupt();
                     break;
                 } catch (Exception e) {
-                    System.err.println("Monitor error: " + e.getMessage());
+                    logger.error("Monitor error: " ,e);
                 }
             }
         });
@@ -85,16 +87,16 @@ public class AuctionServer {
         }
         threadPool.shutdown();
         autoBidService.stop();
-        System.out.println("Server stopped");
+        logger.info("Server stopped");
     }
     public void registerClient(String username, ClientHandler handler){
         clients.put(username,handler);
-        System.out.println("Client registered: " + username);
+        logger.info("Client registered: " + username);
 
     }
     public void unregisterClient(String username){
         clients.remove(username);
-        System.out.println("Client unregistered: " + username);
+        logger.info("Client unregistered: " + username);
     }
     public ClientHandler getClient(String username){
         return clients.get(username);

@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.*;
 import java.util.logging.Handler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NotificationService {
     private static NotificationService instance;
@@ -14,6 +16,7 @@ public class NotificationService {
     private NotificationService(){
         this.subscribers = new ConcurrentHashMap<>();
     }
+    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
     public static NotificationService getInstance(){
         if (instance == null){
             instance = new NotificationService();
@@ -23,7 +26,7 @@ public class NotificationService {
     public void subscribe(int auctionId, String username, ClientHandler handler) {
         subscribers.computeIfAbsent(auctionId, k -> new CopyOnWriteArrayList<>())
                 .add(handler); //ktra xem auctionId co trong map chua, neu chua co tao CopyOnWrite.. moi, neu da co tra ve danh sach hien tai
-        System.out.println("User " + username + " subscribed to auction " + auctionId);
+        logger.info("User " + username + " subscribed to auction " + auctionId);
     }
     public void unsubscribe(int auctionId, String username){
         CopyOnWriteArrayList<ClientHandler> handlers = subscribers.get(auctionId);

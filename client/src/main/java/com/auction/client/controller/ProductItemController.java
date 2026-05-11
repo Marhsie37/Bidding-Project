@@ -5,11 +5,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductItemController {
     @FXML private Label lblName, lblPrice, lblTimer;
     @FXML private ImageView imgView;
     @FXML private Button btnEdit, btnDelete; // Thêm fx:id cho các nút này trong FXML
+    private static final Logger logger = LoggerFactory.getLogger(ProductItemController.class);
 
     public void setData(Product p) {
         lblName.setText(p.getName());
@@ -28,13 +31,13 @@ public class ProductItemController {
 
 
                 img.errorProperty().addListener((obs, oldVal, newVal) -> {
-                    if (newVal) System.out.println("Lỗi không thể tải ảnh tại: " + p.getImageUrl());
+                    if (newVal) logger.info("Lỗi không thể tải ảnh tại: " + p.getImageUrl());
                 });
 
                 imgView.setImage(img);
 
             } catch (Exception e) {
-                System.out.println("Sai định dạng URL ảnh: " + e.getMessage());
+                logger.info("Sai định dạng URL ảnh: " ,e);
             }
         }
     }

@@ -20,9 +20,11 @@ import javafx.util.Duration;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductListController implements Initializable {
-
+    private static final Logger logger = LoggerFactory.getLogger(ProductListController.class);
     @FXML private VBox vboxGallery;
     @FXML private HBox imageHBox;
     @FXML private Pane sliderContainer; // Khung chứa cố định
@@ -124,7 +126,7 @@ public class ProductListController implements Initializable {
                     vboxGallery.getChildren().add(productCard);
 
                 } catch (IOException e) {
-                    System.err.println("Lỗi khi nạp mẫu sản phẩm FXML");
+                    logger.error("Lỗi khi nạp mẫu sản phẩm FXML",e);
                     e.printStackTrace();
                 }
             }

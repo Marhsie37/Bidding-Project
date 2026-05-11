@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SocketClient {
     private static SocketClient instance;
     private Socket socket;
@@ -17,6 +20,7 @@ public class SocketClient {
     private boolean connected;
     private Map<CommandType,Consumer<Response>> responseHandlers;
     private Thread listenerThread;
+    private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
 
     private SocketClient(){
         this.serverHost = "localhost";
@@ -37,7 +41,7 @@ public class SocketClient {
         connected = true;
 
         startListener();
-        System.out.println("Connected to server");
+        logger.info("Connected to server");
 
     }
     private void startListener(){
@@ -54,10 +58,10 @@ public class SocketClient {
                     }
                 }
             } catch (EOFException e){
-                System.out.println("Connection closed by server");
+                logger.info("Connection closed by server");
             } catch (IOException | ClassNotFoundException e){
                 if (connected){
-                    System.err.println("Error receiving response: " + e.getMessage());
+                    logger.error("Error receiving response: " ,e);
                 }
             }
         });
@@ -83,7 +87,7 @@ public class SocketClient {
             try{
                 sendRequest(request);
             } catch (IOException e){
-                System.err.println("Error sending request: " + e.getMessage());
+                logger.error("Error sending request: ",e);
                 if (callback != null){
                     Response errorResponse = new Response(request.getCommand(), false, e.getMessage());
                     callback.accept(errorResponse);
@@ -227,7 +231,7 @@ public class SocketClient {
             if (outputStream != null) outputStream.close();
             if (socket != null && !socket.isClosed()) socket.close();
         } catch (IOException e) {
-            System.err.println("Error disconnecting: " + e.getMessage());
+            logger.error("Error disconnecting: ",e);
         }
     }
 

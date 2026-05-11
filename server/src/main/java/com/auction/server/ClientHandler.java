@@ -9,6 +9,9 @@ import java.io.*;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ClientHandler implements Runnable {
     private  Socket socket;
     private ObjectInputStream inputStream;
@@ -18,7 +21,7 @@ public class ClientHandler implements Runnable {
     private boolean connected;
     private AuctionService auctionService;
     private NotificationService notificationService;
-
+    private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -31,7 +34,7 @@ public class ClientHandler implements Runnable {
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
             this.inputStream = new ObjectInputStream((socket.getInputStream()));
         } catch (IOException e) {
-            System.err.println("Error creating streams: " + e.getMessage());
+            logger.error("Error creating streams: ",e);
 
         }
     }
@@ -46,10 +49,10 @@ public class ClientHandler implements Runnable {
                 }
             }
         } catch (EOFException e){
-            System.out.println("Client disconnected: " + username);
+            logger.info("Client disconnected: " + username);
 
         } catch (IOException | ClassNotFoundException e){
-            System.err.println("Error handling client: " + e.getMessage());
+            logger.error("Error handling client: " ,e);
 
         } finally {
             disconnect();
@@ -304,7 +307,7 @@ public class ClientHandler implements Runnable {
             outputStream.flush();
 
         }catch (IOException e){
-            System.err.println("Error sending response: " + e.getMessage());
+            logger.error("Error sending response: " ,e);
         }
     }
     private void sendError(String message) {
@@ -321,7 +324,7 @@ public class ClientHandler implements Runnable {
             if (socket != null && !socket.isClosed()) socket.close();
 
         } catch (IOException e){
-            System.err.println("Error disconnecting: " + e.getMessage());
+            logger.error("Error disconnecting: " ,e);
         }
     }
     public String getUsername(){

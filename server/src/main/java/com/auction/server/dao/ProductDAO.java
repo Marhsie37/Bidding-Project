@@ -6,10 +6,12 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductDAO {
     private DatabaseConnection dbConnection;
-
+    private static final Logger logger = LoggerFactory.getLogger(ProductDAO.class);
     public ProductDAO() {
         this.dbConnection = DatabaseConnection.getInstance();
     }
@@ -26,7 +28,7 @@ public class ProductDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error finding product: " + e.getMessage());
+            logger.error("Error finding product: ",e);
         }
         return null;
     }
@@ -45,7 +47,7 @@ public class ProductDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error getting active products: " + e.getMessage());
+            logger.error("Error getting active products: " ,e);
         }
         return products;
     }
@@ -63,7 +65,7 @@ public class ProductDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error getting products by seller: " + e.getMessage());
+            logger.error("Error getting products by seller: " ,e);
         }
         return products;
     }
@@ -100,7 +102,7 @@ public class ProductDAO {
                 return true;
             }
         } catch (SQLException e) {
-            System.err.println("Error creating product: " + e.getMessage());
+            logger.error("Error creating product: ",e);
         }
         return false;
     }
@@ -117,7 +119,7 @@ public class ProductDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error updating product: " + e.getMessage());
+            logger.error("Error updating product: ",e);
             return false;
         }
     }
@@ -129,7 +131,7 @@ public class ProductDAO {
             pstmt.setInt(2, productId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error updating current price: " + e.getMessage());
+            logger.error("Error updating current price: ",e);
             return false;
         }
     }
@@ -145,7 +147,7 @@ public class ProductDAO {
             pstmt.setInt(2, productId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error updating winner: " + e.getMessage());
+            logger.error("Error updating winner: ",e);
             return false;
         }
     }
@@ -157,7 +159,7 @@ public class ProductDAO {
             pstmt.setInt(2, productId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error updating status: " + e.getMessage());
+            logger.error("Error updating status: ",e);
             return false;
         }
     }
@@ -169,7 +171,7 @@ public class ProductDAO {
             pstmt.setInt(2, productId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error activating product: " + e.getMessage());
+            logger.error("Error activating product: ",e);
             return false;
         }
     }
@@ -181,7 +183,7 @@ public class ProductDAO {
             pstmt.setInt(2, sellerId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error deleting product: " + e.getMessage());
+            logger.error("Error deleting product: " ,e);
             return false;
         }
     }
@@ -192,7 +194,7 @@ public class ProductDAO {
             pstmt.setInt(1, productId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error admin deleting product: " + e.getMessage());
+            logger.error("Error admin deleting product: " ,e);
             return false;
         }
     }
@@ -208,7 +210,7 @@ public class ProductDAO {
                 products.add(mapResultSetToProduct(rs));
             }
         } catch (SQLException e) {
-            System.err.println("Error getting all products: " + e.getMessage());
+            logger.error("Error getting all products: " ,e);
         }
         return products;
     }
