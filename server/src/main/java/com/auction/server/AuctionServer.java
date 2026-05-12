@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class AuctionServer {
     private static final int PORT = 8888;
-    private static AuctionServer instance;
+    private static volatile AuctionServer instance;
     private ServerSocket serverSocket;
     private ExecutorService threadPool;
     private ConcurrentHashMap<String,ClientHandler> clients;
@@ -32,11 +32,15 @@ public class AuctionServer {
         this.running = true;
 
     }
-    public static AuctionServer getInstance(){
-        if (instance == null){
-            instance = new AuctionServer();
+    public static AuctionServer getInstance() {
+        if (instance == null) {
+            synchronized (AuctionServer.class) {
+                if (instance == null) {
+                    instance = new AuctionServer();
+                }
+            }
         }
-        return  instance;
+        return instance;
     }
     public void start(){
         try{

@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 public class AuctionService {
 
-    private static AuctionService instance;
+    private static volatile AuctionService instance;
     private static final Logger logger = LoggerFactory.getLogger(AuctionService.class);
     private static final int ANTI_SNIPING_WINDOW_SECONDS = 30;
     private static final int ANTI_SNIPING_EXTENSION_SECONDS = 60;
@@ -38,9 +38,13 @@ public class AuctionService {
         usersDB.put("admin", adminData);
     }
 
-    public static synchronized AuctionService getInstance() {
+    public static AuctionService getInstance() {
         if (instance == null) {
-            instance = new AuctionService();
+            synchronized (AuctionService.class) {
+                if (instance == null) {
+                    instance = new AuctionService();
+                }
+            }
         }
         return instance;
     }
