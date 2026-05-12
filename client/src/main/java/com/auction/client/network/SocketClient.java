@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SocketClient {
-    private static SocketClient instance;
+    private static volatile SocketClient instance;
     private Socket socket;
     private ObjectOutputStream outputStream;
     private ObjectInputStream inputStream;
@@ -27,9 +27,13 @@ public class SocketClient {
         this.serverPort = 8888;
         this.responseHandlers = new ConcurrentHashMap<>();
     }
-    public static SocketClient getInstance(){
-        if (instance == null){
-            instance = new SocketClient();
+    public static SocketClient getInstance() {
+        if (instance == null) {
+            synchronized (SocketClient.class) {
+                if (instance == null) {
+                    instance = new SocketClient();
+                }
+            }
         }
         return instance;
     }
