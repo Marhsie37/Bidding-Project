@@ -40,7 +40,6 @@ public class DatabaseConnection {
                 email VARCHAR(100) UNIQUE NOT NULL,
                 full_name VARCHAR(100),
                 role ENUM('BIDDER', 'SELLER', 'ADMIN') DEFAULT 'BIDDER',
-                -- THÊM DÒNG DƯỚI ĐÂY --
                 balance DECIMAL(15,2) DEFAULT 0.00, 
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 active BOOLEAN DEFAULT TRUE
@@ -54,6 +53,7 @@ public class DatabaseConnection {
                 description TEXT,
                 starting_price DECIMAL(15,2) NOT NULL,
                 current_price DECIMAL(15,2),
+                current_winner_id INT, 
                 seller_id INT NOT NULL,
                 category VARCHAR(50),
                 image_url VARCHAR(500),
@@ -64,7 +64,8 @@ public class DatabaseConnection {
                 winner_id INT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 CONSTRAINT fk_product_seller FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE,
-                CONSTRAINT fk_product_winner FOREIGN KEY (winner_id) REFERENCES users(id) ON DELETE SET NULL
+                CONSTRAINT fk_product_winner FOREIGN KEY (winner_id) REFERENCES users(id) ON DELETE SET NULL,
+                CONSTRAINT fk_product_current_winner FOREIGN KEY (current_winner_id) REFERENCES users(id) ON DELETE SET NULL 
             ) ENGINE=InnoDB
         """;
 
@@ -96,11 +97,24 @@ public class DatabaseConnection {
             ) ENGINE=InnoDB
         """;
 
+        String createTransactionsTable = """
+            CREATE TABLE IF NOT EXISTS transactions (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                user_id INT NOT NULL,
+                amount DECIMAL(15,2) NOT NULL,
+                type ENUM('DEPOSIT', 'WITHDRAW', 'BID_HOLD', 'BID_REFUND', 'WIN_PAYMENT') NOT NULL,
+                description VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT fk_trans_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB
+        """;
+
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(createUsersTable);
             stmt.execute(createProductsTable);
             stmt.execute(createBidsTable);
             stmt.execute(createAutoBidsTable);
+            stmt.execute(createTransactionsTable);
 
             String checkAdmin = "SELECT COUNT(*) FROM users WHERE username = 'admin'";
             try (ResultSet rs = stmt.executeQuery(checkAdmin)) {
@@ -111,13 +125,11 @@ public class DatabaseConnection {
                     logger.info("Default admin created: username='admin', password='admin123'");
                 }
             }
-
             logger.info("Database tables created/verified successfully.");
         } catch (SQLException e) {
-            logger.error("Error creating tables: ",e);
+            logger.error("Error creating tables: ", e);
         }
     }
-
     public Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) {

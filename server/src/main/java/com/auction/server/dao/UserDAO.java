@@ -160,6 +160,14 @@ public class    UserDAO {
         }
         return false;
     }
+    // Lịch sử nạp tiền thành công
+    public boolean depositMoney(int userId, double amount) {
+
+        TransactionDAO transDAO = new TransactionDAO();
+        transDAO.logTransaction(userId, amount, "DEPOSIT", "Người dùng nạp tiền qua ngân hàng");
+
+        return true;
+    }
     // Trừ tiền khi thanh toán
     public boolean deductFunds(int userId, double amount) {
         String checkSql = "SELECT balance FROM users WHERE id = ?";
