@@ -11,15 +11,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NotificationService {
-    private static NotificationService instance;
+    private static volatile NotificationService instance;
     private ConcurrentHashMap<Integer,CopyOnWriteArrayList<ClientHandler>> subscribers;
     private NotificationService(){
         this.subscribers = new ConcurrentHashMap<>();
     }
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
-    public static NotificationService getInstance(){
-        if (instance == null){
-            instance = new NotificationService();
+    public static NotificationService getInstance() {
+        if (instance == null) {
+            synchronized (NotificationService.class) {
+                if (instance == null) {
+                    instance = new NotificationService();
+                }
+            }
         }
         return instance;
     }

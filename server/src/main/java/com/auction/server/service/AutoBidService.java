@@ -11,17 +11,20 @@ import java.util.concurrent.TimeUnit;
 
 public class AutoBidService {
 
-    // SINGLETON
-    private static AutoBidService instance;
+    private static volatile AutoBidService instance;
 
     // Bộ chạy ngầm đa luồng
     private ScheduledExecutorService scheduler;
 
     private AutoBidService() {}
 
-    public static synchronized AutoBidService getInstance() {
+    public static AutoBidService getInstance() {
         if (instance == null) {
-            instance = new AutoBidService();
+            synchronized (AutoBidService.class) {
+                if (instance == null) {
+                    instance = new AutoBidService();
+                }
+            }
         }
         return instance;
     }
