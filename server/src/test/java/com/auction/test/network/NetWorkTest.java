@@ -492,14 +492,29 @@ public class NetWorkTest {
     //  TEST GROUP 6: Observer Pattern
     // =========================================================
 
+    // =========================================================
+//  TEST GROUP 6: Observer Pattern (SỬA LẠI)
+// =========================================================
+
+    // =========================================================
+    //  TEST GROUP 6: Observer Pattern (SỬA LẠI HOÀN TOÀN)
+    // =========================================================
+
     @Test
     @DisplayName("TC-14: Subscribe thêm handler - notifyBidUpdate không crash")
     void testSubscribeAddsHandlerToList() {
+        // Reset NotificationService trước mỗi test
         NotificationService service = NotificationService.getInstance();
-        int auctionId = 100;
-        ClientHandler mockHandler = createMockClientHandler("userA");
+
+        int auctionId = 999; // Dùng ID riêng để tránh conflict
+        MockClientHandler mockHandler = new MockClientHandler("userA");
+
         service.subscribe(auctionId, "userA", mockHandler);
+
+        // Gọi notify, không throw exception là pass
         assertDoesNotThrow(() -> service.notifyBidUpdate(auctionId, "userB", 500.0));
+
+        // Dọn dẹp
         service.unsubscribe(auctionId, "userA");
     }
 
@@ -507,72 +522,91 @@ public class NetWorkTest {
     @DisplayName("TC-15: Unsubscribe - handler không nhận notification sau khi hủy")
     void testUnsubscribeRemovesHandler() {
         NotificationService service = NotificationService.getInstance();
-        int auctionId = 200;
-        AtomicInteger notifyCount = new AtomicInteger(0);
-
-        ClientHandler mockHandler = new ClientHandler(null) {
-            @Override public void sendBidUpdate(int pid, String bidder, double amount) {
-                notifyCount.incrementAndGet();
-            }
-        };
+        int auctionId = 888;
+        MockClientHandler mockHandler = new MockClientHandler("userB");
 
         service.subscribe(auctionId, "userB", mockHandler);
-        service.notifyBidUpdate(auctionId, "someone", 100.0); // nhận được
+        service.notifyBidUpdate(auctionId, "someone", 100.0);
 
+        // Kiểm tra đã nhận được 1 notification
+        assertEquals(1, mockHandler.getBidUpdateCallCount(), "Sau lần notify đầu, handler phải nhận được 1 update");
+
+        // Unsubscribe và notify lại
         service.unsubscribe(auctionId, "userB");
-        service.notifyBidUpdate(auctionId, "someone", 200.0); // không nhận nữa
+        service.notifyBidUpdate(auctionId, "someone", 200.0);
 
-        assertEquals(1, notifyCount.get());
+        // Không tăng thêm
+        assertEquals(1, mockHandler.getBidUpdateCallCount(), "Sau khi unsubscribe, handler không được nhận thêm update nào");
+
+        // Dọn dẹp
+        service.unsubscribe(auctionId, "userB");
     }
 
     @Test
     @DisplayName("TC-16: Tất cả subscriber nhận được notification")
     void testMultipleSubscribersAllReceiveNotification() throws InterruptedException {
         NotificationService service = NotificationService.getInstance();
-        int auctionId = 300;
+        int auctionId = 777;
         int subscriberCount = 5;
-        AtomicInteger totalNotified = new AtomicInteger(0);
+
+        List<MockClientHandler> handlers = new ArrayList<>();
         CountDownLatch latch = new CountDownLatch(subscriberCount);
 
         for (int i = 0; i < subscriberCount; i++) {
             final String user = "user_" + i;
-            ClientHandler handler = new ClientHandler(null) {
-                @Override public void sendBidUpdate(int pid, String bidder, double amount) {
-                    totalNotified.incrementAndGet();
+            MockClientHandler handler = new MockClientHandler(user) {
+                @Override
+                public void sendBidUpdate(int pid, String bidder, double amount) {
+                    super.sendBidUpdate(pid, bidder, amount);
                     latch.countDown();
                 }
             };
+            handlers.add(handler);
             service.subscribe(auctionId, user, handler);
         }
 
         service.notifyBidUpdate(auctionId, "bigBidder", 9999.0);
-        assertTrue(latch.await(3, TimeUnit.SECONDS), "Tất cả subscriber phải nhận notification");
-        assertEquals(subscriberCount, totalNotified.get());
 
-        for (int i = 0; i < subscriberCount; i++) service.unsubscribe(auctionId, "user_" + i);
+        // Chờ tất cả nhận được notification
+        boolean allReceived = latch.await(3, TimeUnit.SECONDS);
+        assertTrue(allReceived, "Tất cả subscriber phải nhận notification trong 3 giây");
+
+        // Kiểm tra mỗi handler nhận đúng 1 notification
+        for (MockClientHandler handler : handlers) {
+            assertEquals(1, handler.getBidUpdateCallCount(), "Mỗi subscriber phải nhận đúng 1 notification");
+        }
+
+        // Dọn dẹp
+        for (int i = 0; i < subscriberCount; i++) {
+            service.unsubscribe(auctionId, "user_" + i);
+        }
     }
 
     @Test
     @DisplayName("TC-17: Subscribers bị xóa sau AUCTION_END")
     void testSubscribersRemovedAfterAuctionEnd() {
         NotificationService service = NotificationService.getInstance();
-        int auctionId = 400;
-        AtomicInteger notifyCount = new AtomicInteger(0);
-
-        ClientHandler handler = new ClientHandler(null) {
-            @Override public void sendBidUpdate(int pid, String bidder, double amount) {
-                notifyCount.incrementAndGet();
-            }
-            @Override public void sendAuctionEnd(int pid, int wId, String wName, double price) {}
-        };
+        int auctionId = 666;
+        MockClientHandler handler = new MockClientHandler("buyer");
 
         service.subscribe(auctionId, "buyer", handler);
-        service.notifyAuctionEnd(auctionId, 1, "buyer", 5000.0); // xóa subscriber
-        service.notifyBidUpdate(auctionId, "late", 6000.0);      // không ai nhận
+        service.notifyBidUpdate(auctionId, "someone", 1000.0);
 
-        assertEquals(0, notifyCount.get());
+        // Kiểm tra nhận được update
+        assertEquals(1, handler.getBidUpdateCallCount(), "Trước khi auction end, vẫn nhận được update");
+
+        // Gửi auction end (sẽ xóa subscriber)
+        service.notifyAuctionEnd(auctionId, 1, "buyer", 5000.0);
+
+        // Gửi thêm bid update
+        service.notifyBidUpdate(auctionId, "late", 6000.0);
+
+        // Số lần nhận vẫn là 1 (không tăng)
+        assertEquals(1, handler.getBidUpdateCallCount(), "Sau auction end, handler không được nhận thêm bid update");
+
+        // Dọn dẹp
+        service.unsubscribe(auctionId, "buyer");
     }
-
     // =========================================================
     //  TEST GROUP 7: Thread Safety
     // =========================================================
@@ -666,11 +700,72 @@ public class NetWorkTest {
     //  UTILITY
     // =========================================================
 
-    private ClientHandler createMockClientHandler(String username) {
-        return new ClientHandler(null) {
-            @Override public String getUsername() { return username; }
-            @Override public void sendBidUpdate(int pid, String b, double a) {}
-            @Override public void sendAuctionEnd(int pid, int wId, String wName, double p) {}
-        };
+    // =========================================================
+    //  MOCK CLIENT HANDLER (KHÔNG CẦN SOCKET)
+    // =========================================================
+
+    // =========================================================
+//  MOCK CLIENT HANDLER (KHÔNG CẦN SOCKET)
+// =========================================================
+
+    static class MockClientHandler extends ClientHandler {
+        private final String mockUsername;
+        private int bidUpdateCallCount = 0;
+        private int auctionEndCallCount = 0;
+        private int auctionExtendedCallCount = 0;
+        private double lastBidAmount = 0;
+
+        public MockClientHandler(String username) {
+            super(null);
+            this.mockUsername = username;
+        }
+
+        @Override
+        public void sendBidUpdate(int productId, String bidderName, double bidAmount) {
+            bidUpdateCallCount++;
+            lastBidAmount = bidAmount;
+        }
+
+        @Override
+        public void sendAuctionEnd(int productId, int winnerId, String winnerName, double finalPrice) {
+            auctionEndCallCount++;
+        }
+
+        @Override
+        public void sendAuctionExtended(int productId, java.time.LocalDateTime newEndTime) {
+            auctionExtendedCallCount++;
+        }
+
+        @Override
+        public String getUsername() {
+            return mockUsername;
+        }
+
+        // Các method getter
+        public int getBidUpdateCallCount() {
+            return bidUpdateCallCount;
+        }
+
+        public int getAuctionEndCallCount() {
+            return auctionEndCallCount;
+        }
+
+        public int getAuctionExtendedCallCount() {
+            return auctionExtendedCallCount;
+        }
+
+        public double getLastBidAmount() {
+            return lastBidAmount;
+        }
+
+        public void resetCounts() {
+            bidUpdateCallCount = 0;
+            auctionEndCallCount = 0;
+            auctionExtendedCallCount = 0;
+            lastBidAmount = 0;
+        }
     }
 }
+
+
+
