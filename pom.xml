@@ -23,6 +23,7 @@
     </properties>
 
     <dependencies>
+        <!-- ===== CÁC DEPENDENCY CŨ - GIỮ NGUYÊN ===== -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -46,7 +47,6 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>21</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -65,10 +65,25 @@
             <version>2.2.224</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- ===== THÊM MỚI: LOGGING ===== -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.14</version>
+        </dependency>
+
     </dependencies>
 
     <build>
         <plugins>
+            <!-- JaCoCo Plugin for Test Coverage -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
