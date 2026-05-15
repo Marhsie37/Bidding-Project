@@ -30,13 +30,13 @@ public class ClientHandler implements Runnable {
         this.notificationService = NotificationService.getInstance();
 
 
-        try {
+        /*try {
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
             this.inputStream = new ObjectInputStream((socket.getInputStream()));
         } catch (IOException e) {
             logger.error("Error creating streams: ",e);
 
-        }
+        }*/
     }
 
     public void run(){
