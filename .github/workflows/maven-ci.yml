@@ -23,15 +23,17 @@ jobs:
           java-package: jdk+fx
           cache: maven
 
-      - name: Build and Run Tests
-        run: mvn -B test
+      - name: Install xvfb
+        run: sudo apt-get install -y xvfb
 
-      - name: Package Application
-        if: success()
-        run: mvn -B package -DskipTests
+      - name: Build and Run Tests
+        run: xvfb-run mvn -B clean install
 
       - name: Archive Artifacts
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: auction-system-build
-          path: "**/target/*.jar"
+          path: |
+            server/target/*.jar
+            client/target/*.jar

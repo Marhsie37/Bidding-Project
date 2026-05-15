@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AutoBidServiceTest {
+public class  AutoBidServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(AutoBidServiceTest.class);
     @Test
     public void testSingletonInstance() {
