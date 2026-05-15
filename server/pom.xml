@@ -21,11 +21,11 @@
         </dependency>
 
         <!-- Thêm dependency client để dùng AuctionSession -->
-        <dependency>
+        <!--<dependency>
             <groupId>com.auction</groupId>
             <artifactId>client</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
+        </dependency> -->
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
