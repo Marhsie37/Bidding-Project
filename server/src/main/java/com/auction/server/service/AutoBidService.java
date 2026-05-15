@@ -11,28 +11,29 @@ import java.util.concurrent.TimeUnit;
 
 public class AutoBidService {
 
-    private static volatile AutoBidService instance;
+    // SINGLETON
+    private static AutoBidService instance;
 
     // Bộ chạy ngầm đa luồng
     private ScheduledExecutorService scheduler;
 
     private AutoBidService() {}
 
-    public static AutoBidService getInstance() {
+    public static synchronized AutoBidService getInstance() {
         if (instance == null) {
-            synchronized (AutoBidService.class) {
-                if (instance == null) {
-                    instance = new AutoBidService();
-                }
-            }
+            instance = new AutoBidService();
         }
         return instance;
     }
 
     public void start() {
-        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler = Executors.newScheduledThreadPool(2);
+
         scheduler.scheduleAtFixedRate(this::processAllAutoBids, 0, 3, TimeUnit.SECONDS);
-        System.out.println("AutoBidService: Hệ thống luồng tự động đặt giá đã khởi chạy!");
+
+        scheduler.scheduleAtFixedRate(this::checkAndCloseExpiredAuctions, 0, 1, TimeUnit.SECONDS);
+
+        System.out.println("AutoBidService: Hệ thống tự động đặt giá & Quản lý vòng đời đấu giá đã khởi chạy!");
     }
 
     public void stop() {
@@ -40,6 +41,10 @@ public class AutoBidService {
             scheduler.shutdown();
             System.out.println("AutoBidService: Đã tắt.");
         }
+    }
+
+    private void checkAndCloseExpiredAuctions() {
+        AuctionService.getInstance().checkAndEndAuctions();
     }
 
     // Lõi thuật toán Auto-Bid
