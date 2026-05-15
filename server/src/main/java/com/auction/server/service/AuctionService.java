@@ -34,7 +34,7 @@ public class AuctionService {
         adminData.put("id", 0);
         adminData.put("password", "admin123");
         adminData.put("role", "ADMIN");
-        adminData.put("balance", 0.0); // Thêm số dư khởi tạo cho admin
+        adminData.put("balance", 0.0);
         usersDB.put("admin", adminData);
     }
 
@@ -81,7 +81,7 @@ public class AuctionService {
         newUser.put("id", userIdGenerator.getAndIncrement());
         newUser.put("password", password);
         newUser.put("role", "USER");
-        newUser.put("balance", 0.0); // Khởi tạo số dư = 0 cho user mới
+        newUser.put("balance", 0.0);
 
         usersDB.put(username, newUser);
 
@@ -232,6 +232,10 @@ public class AuctionService {
 
         checkAndExtendAuctionIfNeeded(session);
 
+        if (notificationService != null) {
+            notificationService.notifyBidUpdate(productId, username, bidAmount);
+        }
+
         result.put("success", true);
         result.put("message", "Đặt giá thành công! Bạn đang dẫn đầu với giá " + bidAmount);
         result.put("currentPrice", bidAmount);
@@ -249,6 +253,10 @@ public class AuctionService {
             auction.setEndTime(newEndTime);
 
             logger.info("Anti-sniping: gia hạn thêm " + ANTI_SNIPING_EXTENSION_SECONDS + "s cho sp " + auction.getProductId());
+
+            if (notificationService != null) {
+                notificationService.notifyAuctionExtended(auction.getProductId(), newEndTime);
+            }
         }
     }
 
@@ -345,6 +353,10 @@ public class AuctionService {
         if (session != null && "ACTIVE".equals(session.getStatus())) {
             session.setStatus("FINISHED");
             logger.info("Đã chốt phiên thủ công [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
+
+            if (notificationService != null) {
+                notificationService.notifyAuctionEnd(productId, session.getCurrentWinnerId(), session.getCurrentWinnerName(), session.getCurrentPrice());
+            }
         }
     }
 
@@ -355,6 +367,10 @@ public class AuctionService {
             if ("ACTIVE".equals(session.getStatus()) && now.isAfter(session.getEndTime())) {
                 session.setStatus("FINISHED");
                 logger.info("Chốt phiên [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
+
+                if (notificationService != null) {
+                    notificationService.notifyAuctionEnd(session.getProductId(), session.getCurrentWinnerId(), session.getCurrentWinnerName(), session.getCurrentPrice());
+                }
             }
         }
     }
@@ -393,7 +409,6 @@ public class AuctionService {
     public synchronized Map<String, Object> processPayment(int userId, int auctionId) {
         Map<String, Object> result = new HashMap<>();
 
-        // Kiểm tra auction đã xong chưa
         AuctionSession auction = sessions.get(auctionId);
         if (auction == null || !"FINISHED".equals(auction.getStatus())) {
             result.put("success", false);
@@ -413,7 +428,6 @@ public class AuctionService {
             return result;
         }
 
-        // Tìm thông tin user
         Map<String, Object> targetUser = null;
         for (Map<String, Object> user : usersDB.values()) {
             if ((int) user.get("id") == userId) {
@@ -428,7 +442,6 @@ public class AuctionService {
             return result;
         }
 
-        // Ktra số dư
         double balance = ((Number) targetUser.getOrDefault("balance", 0.0)).doubleValue();
         double amount = auction.getCurrentPrice();
 
@@ -438,7 +451,6 @@ public class AuctionService {
             return result;
         }
 
-        // Thực hiện thanh toán 
         targetUser.put("balance", balance - amount);
         auction.setStatus("PAID");
 
