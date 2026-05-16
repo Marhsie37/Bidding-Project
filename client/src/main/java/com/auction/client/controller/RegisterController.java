@@ -1,5 +1,9 @@
 package com.auction.client.controller;
 
+import com.auction.client.network.SocketClient;
+import com.auction.shared.protocol.CommandType;
+import com.auction.shared.protocol.Request;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,6 +16,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegisterController {
 
@@ -28,100 +34,105 @@ public class RegisterController {
     public void initialize() {
         MenuItem bidderItem = new MenuItem("Bidder");
         MenuItem sellerItem = new MenuItem("Seller");
-        //Tạo 2 MenuItem có tên Bidder và Seller nếu thay Bidder bằng tên khác thì nó sẽ hiện thì cái tên khác và Seller
 
         bidderItem.setOnAction(e -> {
             selectedRole = "Bidder";
             roleMenuButton.setText("Bidder");
         });
-        //Thiết lập hành động khi bấm vào bidder thì sẽ gán tên cho selectedRole để đổi tên cho MenuButton ,đổi tên cho
-        //roleMenuButton nhưng lúc này nó chưa chạy luôn
 
         sellerItem.setOnAction(e -> {
             selectedRole = "Seller";
             roleMenuButton.setText("Seller");
         });
 
-        roleMenuButton.getItems().setAll(bidderItem, sellerItem);
-        //getItem() sẽ láy danh sách các lựa chọn bên trong MenuButton lúc này đang trống không
-        //và setAll sẽ xóa hết danh sách sẵn có, bỏ bidderItem ,sellerItem vào bên trong
+        roleMenuButton.getItems().addAll(bidderItem, sellerItem);
     }
 
     @FXML
     public void handleCreateAccount(ActionEvent event) {
-        String username = usernameField.getText().trim();
-        String fullname = fullnameField.getText().trim();
-        String email = emailField.getText().trim();
-        String password = passwordField.getText();
-        String confirmPassword = confirmPasswordField.getText();
-        //Các biến đọc văn bản đuọc nhập từ TextFile và bỏ khoảng trắng đầu cuối bằng trim()
-
-
-        if (username.isEmpty() || fullname.isEmpty() || email.isEmpty() ||
-                password.isEmpty() || confirmPassword.isEmpty() || selectedRole.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Lỗi", "Vui lòng nhập đầy đủ thông tin!");
-            return;
-        }
-        //Không bỏ trống thông tin
-
-        if (!email.endsWith("@gmail.com")) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi Email", "Chỉ chấp nhận tài khoản @gmail.com!");
-            return;
-        }
-        //Tạo tài khoản email gì cũng được nhưng phải kết thúc bằng @gmail.com (!email.endsWith("@gmail.com"))
-
-
-        if (password.length() < 8 || !password.matches(".*[a-zA-Z].*") || !password.matches(".*\\d.*")) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi mật khẩu", "Mật khẩu phải >= 8 ký tự, bao gồm cả chữ và số!");
-            return;
-        }
-
-
-        if (!password.equals(confirmPassword)) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Mật khẩu xác nhận không khớp!");
-            return;
-        }
-
-        for (User u : DataManager.allUsers) {
-            if (u.getEmail().equalsIgnoreCase(email)) {
-                showAlert(Alert.AlertType.ERROR, "Lỗi", "Email này đã được đăng ký!");
+        System.out.println("--- Bắt đầu xử lý Đăng ký ---");
+        try {
+            // 1. Kiểm tra null từng biến trước khi lấy text (Tránh bực mình vì NullPointerException)
+            if (usernameField == null || passwordField == null || confirmPasswordField == null) {
+                System.err.println("LỖI: FXML chưa kết nối đúng với Controller! Kiểm tra fx:id");
                 return;
             }
+
+            String user = usernameField.getText();
+            String pass = passwordField.getText();
+            String confirm = confirmPasswordField.getText();
+            String email = emailField.getText();
+            String full = fullnameField.getText();
+
+            // 2. Validate dữ liệu
+            if (user.isEmpty() || pass.isEmpty() || selectedRole.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Lỗi", "Vui lòng nhập đủ User, Pass và chọn Role!");
+                return;
+            }
+
+            if (!pass.equals(confirm)) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Mật khẩu xác nhận không khớp!");
+                return;
+            }
+
+            // 3. Gửi dữ liệu
+            Map<String, Object> data = new HashMap<>();
+            data.put("username", user);
+            data.put("password", pass);
+            data.put("email", email);
+            data.put("fullName", full);
+            data.put("role", selectedRole.toUpperCase());
+
+            System.out.println("Gửi request REGISTER lên Server cho: " + user);
+            Request request = new Request(CommandType.REGISTER, data);
+
+            SocketClient.getInstance().sendRequestAsync(request, response -> {
+                // QUAN TRỌNG: Mọi lệnh hiển thị giao diện phải nằm trong Platform.runLater
+                Platform.runLater(() -> {
+                    if (response.isSuccess()) {
+                        System.out.println("Server báo thành công!");
+                        showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo tài khoản thành công!");
+                        goToLoginScreen(event);
+                    } else {
+                        System.out.println("Server báo thất bại: " + response.getMessage());
+                        showAlert(Alert.AlertType.ERROR, "Thất bại", response.getMessage());
+                    }
+                });
+            });
+
+        } catch (Exception e) {
+            e.printStackTrace(); // In lỗi ra console nếu có crash
         }
-        /* Vì allUsers của DataManager là static nên ta có thể khai báo DataManager.allUsers
-        Duyệt từng phần tử bên trong danh sách User của DataManager lấy email bằng getEmail
-        và check thử với email vừa nhập vào có trùng mà không phân biệt chữ hoa với chữ thường không
-        */
-
-
-        User newUser = new User(username, fullname, email, password, selectedRole);
-        DataManager.allUsers.add(newUser);
-
-        showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tài khoản " + username + " đã được tạo!");
-        goToLoginScreen(event);
-        /*Nếu thỏa mãn các điều kiện trên thì sẽ tạo ra User mới và thêm vào biến allUser chung nằm ở DataManager và
-        chuyển sang màn hình đăng nhập
-        */
     }
 
+    @FXML
+    public void goToLoginScreen(ActionEvent event) {
+        try {
+            Parent loginRoot = FXMLLoader.load(getClass().getResource("/com/auction/client/view/LoginController.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(loginRoot));
+            stage.show();
+        } catch (IOException e) {
+            System.err.println("Không tìm thấy file LoginController.fxml!");
+            e.printStackTrace();
+        }
+    }
+
+
+
+
+
+
     private void showAlert(Alert.AlertType alertType, String title, String message) {
+        // Đảm bảo Alert luôn chạy trên UI Thread để không bị treo
+        if (!Platform.isFxApplicationThread()) {
+            Platform.runLater(() -> showAlert(alertType, title, message));
+            return;
+        }
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }
-
-    public void goToLoginScreen(ActionEvent event) {
-        try {
-            Parent loginRoot = FXMLLoader.load(getClass().getResource("/Part1/LoginController.fxml"));
-            Scene loginScene = new Scene(loginRoot);
-            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            window.setScene(loginScene);
-            window.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    //Đoạn code giúp gán onAction cho một vật thể trong Scene để chuyển từ trang Register sang Login
 }

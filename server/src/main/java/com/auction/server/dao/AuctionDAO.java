@@ -7,12 +7,10 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AuctionDAO {
     private DatabaseConnection dbConnection;
-    private static final Logger logger = LoggerFactory.getLogger(AuctionDAO.class);
+
     public AuctionDAO() {
         this.dbConnection = DatabaseConnection.getInstance();
     }
@@ -49,7 +47,7 @@ public class AuctionDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error getting auction session: ", e);
+            System.err.println("Error getting auction session: " + e.getMessage());
         }
         return null;
     }
@@ -72,7 +70,7 @@ public class AuctionDAO {
                 return true;
             }
         } catch (SQLException e) {
-            logger.error("Error saving bid: ",e );
+            System.err.println("Error saving bid: " + e.getMessage());
         }
         return false;
     }
@@ -104,7 +102,7 @@ public class AuctionDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error getting bid history: ",e);
+            System.err.println("Error getting bid history: " + e.getMessage());
         }
         return bids;
     }
@@ -119,7 +117,7 @@ public class AuctionDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error getting highest bid: " ,e);
+            System.err.println("Error getting highest bid: " + e.getMessage());
         }
         return 0;
     }
@@ -134,7 +132,7 @@ public class AuctionDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error getting highest bidder: ",e);
+            System.err.println("Error getting highest bidder: " + e.getMessage());
         }
         return 0;
     }
@@ -151,7 +149,7 @@ public class AuctionDAO {
             pstmt.setInt(3, productId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            logger.error("Error ending auction: ",e);
+            System.err.println("Error ending auction: " + e.getMessage());
             return false;
         }
     }
@@ -183,20 +181,8 @@ public class AuctionDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error getting bids after time: ",e);
+            System.err.println("Error getting bids after time: " + e.getMessage());
         }
         return bids;
-    }
-    public boolean updateAuctionStatus(int auctionId, String status) {
-        String sql = "UPDATE auctions SET status = ? WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, status);
-            stmt.setInt(2, auctionId);
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 }

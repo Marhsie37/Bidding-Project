@@ -4,13 +4,10 @@ import com.auction.shared.model.User;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class    UserDAO {
+public class UserDAO {
     private DatabaseConnection dbConnection;
     private Connection conn;
-    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
     public UserDAO(Connection conn) {
         this.conn = conn;
     }
@@ -19,7 +16,7 @@ public class    UserDAO {
     }
     private Connection getConnection() throws SQLException {
         if (this.conn != null) {
-            return this.conn; // Trả về kết `nối ảo H2 nếu đang chạy Test
+            return this.conn; // Trả về kết nối ảo H2 nếu đang chạy Test
         }
         return dbConnection.getConnection(); // Trả về kết nối MySQL thật
     }
@@ -34,7 +31,7 @@ public class    UserDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error finding user: " ,e);
+            System.err.println("Error finding user: " + e.getMessage());
         }
         return null;
     }
@@ -49,7 +46,7 @@ public class    UserDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error finding user by email: " ,e);
+            System.err.println("Error finding user by email: " + e.getMessage());
         }
         return null;
     }
@@ -65,7 +62,7 @@ public class    UserDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            logger.error("Error creating user: " ,e);
+            System.err.println("Error creating user: " + e.getMessage());
             return false;
         }
     }
@@ -81,19 +78,25 @@ public class    UserDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            logger.error("Error updating user: " ,e);
+            System.err.println("Error updating user: " + e.getMessage());
             return false;
         }
     }
 
     public boolean updateBalance(int userId, double newBalance) {
-        String sql = "UPDATE users SET balance = ? WHERE id = ?";
-        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
-            pstmt.setDouble(1, newBalance);
-            pstmt.setInt(2, userId);
-            return pstmt.executeUpdate() > 0;
+        try {
+            System.out.println("🔍 updateBalance: userId=" + userId + ", newBalance=" + newBalance);
+            String sql = "UPDATE users SET balance = ? WHERE id = ?";
+            try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+                pstmt.setDouble(1, newBalance);
+                pstmt.setInt(2, userId);
+                int affected = pstmt.executeUpdate();
+                System.out.println("✅ updateBalance affected: " + affected);
+                return affected > 0;
+            }
         } catch (SQLException e) {
-            logger.error("Error updating balance: " ,e);
+            System.err.println("❌ SQL Error in updateBalance: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -104,7 +107,7 @@ public class    UserDAO {
             pstmt.setInt(1, userId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            logger.error("Error deleting user: " ,e);
+            System.err.println("Error deleting user: " + e.getMessage());
             return false;
         }
     }
@@ -118,7 +121,7 @@ public class    UserDAO {
                 users.add(mapResultSetToUser(rs));
             }
         } catch (SQLException e) {
-            logger.error("Error getting all users: " ,e);
+            System.err.println("Error getting all users: " + e.getMessage());
         }
         return users;
     }
@@ -134,84 +137,9 @@ public class    UserDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error getting users by role: " ,e);
+            System.err.println("Error getting users by role: " + e.getMessage());
         }
         return users;
-    }
-    // Nạp tiền vào tài khoản
-    public boolean addFunds(int userId, double amount) {
-        String sql = "UPDATE users SET balance = balance + ? WHERE id = ?";
-        try {
-            Connection conn = getConnection();
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setDouble(1, amount);
-                stmt.setInt(2, userId);
-
-                int affectedRows = stmt.executeUpdate();
-                if (affectedRows > 0) {
-                    logger.info("GIAO DỊCH: User ID {} nạp thành công {} VNĐ", userId, amount);
-                    return true;
-                } else {
-                    logger.warn("CẢNH BÁO: Thử nạp tiền cho User ID {} không tồn tại", userId);
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("LỖI HỆ THỐNG: Không thể thực hiện nạp tiền cho User " + userId, e);
-        }
-        return false;
-    }
-    // Lịch sử nạp tiền thành công
-    public boolean depositMoney(int userId, double amount) {
-
-        TransactionDAO transDAO = new TransactionDAO();
-        transDAO.logTransaction(userId, amount, "DEPOSIT", "Người dùng nạp tiền qua ngân hàng");
-
-        return true;
-    }
-    // Trừ tiền khi thanh toán
-    public boolean deductFunds(int userId, double amount) {
-        String checkSql = "SELECT balance FROM users WHERE id = ?";
-        String deductSql = "UPDATE users SET balance = balance - ? WHERE id = ?";
-
-        try {
-            Connection conn = getConnection();
-
-            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
-                checkStmt.setInt(1, userId);
-                try (ResultSet rs = checkStmt.executeQuery()) {
-                    if (rs.next() && rs.getDouble("balance") >= amount) {
-
-                        try (PreparedStatement deductStmt = conn.prepareStatement(deductSql)) {
-                            deductStmt.setDouble(1, amount);
-                            deductStmt.setInt(2, userId);
-                            return deductStmt.executeUpdate() > 0;
-                        }
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("Error deducting funds: " ,e);
-        }
-        return false;
-    }
-
-    // Lấy số dư
-    public double getBalance(int userId) {
-        String sql = "SELECT balance FROM users WHERE id = ?";
-        try {
-            Connection conn = getConnection();
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, userId);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        return rs.getDouble("balance");
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("Error getting balance: " ,e);
-        }
-        return 0.0;
     }
 
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
@@ -230,6 +158,78 @@ public class    UserDAO {
         }
 
         user.setActive(rs.getBoolean("active"));
+
+        // ✅ THÊM DÒNG NÀY
+        try {
+            user.setStatus(rs.getString("status"));
+        } catch (SQLException e) {
+            user.setStatus("ACTIVE"); // Nếu cột chưa có, set mặc định
+        }
+
         return user;
     }
+
+    public boolean banUser(int userId) {
+        String sql = "UPDATE users SET status = 'BANNED' WHERE id = ? AND role != 'ADMIN'";
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error banning user: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean unbanUser(int userId) {
+        String sql = "UPDATE users SET status = 'ACTIVE' WHERE id = ?";
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error unbanning user: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean addFunds(int userId, double amount) {
+        return updateBalance(userId, getBalance(userId) + amount);
+    }
+
+    public boolean deductFunds(int userId, double amount) {
+        double currentBalance = getBalance(userId);
+        if (currentBalance >= amount) {
+            return updateBalance(userId, currentBalance - amount);
+        }
+        return false;
+    }
+
+    public double getBalance(int userId) {
+        String sql = "SELECT balance FROM users WHERE id = ?";
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble("balance");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public User findById(int userId) {
+        String sql = "SELECT * FROM users WHERE id = ?";
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return mapResultSetToUser(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
 }

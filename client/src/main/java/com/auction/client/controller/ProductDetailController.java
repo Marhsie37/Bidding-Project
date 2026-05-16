@@ -1,7 +1,13 @@
 package com.auction.client.controller;
 
+import com.auction.client.network.SocketClient;
+import com.auction.shared.model.BidTransaction;
+import com.auction.shared.model.Product;
+import com.auction.shared.protocol.CommandType;
+import com.auction.shared.protocol.Request;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,195 +21,213 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ProductDetailController {
+
     @FXML private ImageView imgDetail;
     @FXML private Label lblDetailPrice;
     @FXML private Label lblDetailTimer;
     @FXML private TextField txtBidAmount;
-
-    @FXML private TextField txtMaxAutoBid;
+    @FXML private Label lblDescription;
+    @FXML private TextField txtMaxAutoPrice;
     @FXML private TextField txtIncrement;
     @FXML private CheckBox chkSubscribe;
-    @FXML private Button btnStartAuto;
-
-    @FXML private Label lblDescription;
     @FXML private ListView<String> lvBidHistory;
 
     private Product product;
-    private Runnable onPriceChangeCallback;
-    private Product prod;
-    private String currentUserName = "Người dùng hiện tại";
-
-
-
-    public void setOnPriceChange(Runnable callback) {
-        this.onPriceChangeCallback = callback;
-    }
-
-    private void updateBidHistoryUI() {
-        if (lvBidHistory != null) {
-            lvBidHistory.getItems().clear();
-            lvBidHistory.getItems().addAll(product.getBidHistory());
-        }
-    }
+    private Timeline timerTimeline;
 
     public void setProductData(Product p) {
         this.product = p;
-        lblDetailPrice.setText(p.getPrice() + " VNĐ");
-        if (lblDescription != null) {
-            lblDescription.setText(p.getDescription());
-        }
-
-        updateBidHistoryUI();
-        try {
-            imgDetail.setImage(new Image(p.getImageUrl(), true));
-        } catch (Exception e) {}
+        updateDisplay();
         startTimer();
+        loadBidHistory();
     }
 
-    @FXML
-    void handleSubscribeAction() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("productId", product.getName());
-        data.put("username", currentUserName);
-
-        if (chkSubscribe.isSelected()) {
-
-            hienThongBao("Thông báo", "Bạn sẽ nhận được tin nhắn khi có người đặt giá mới cho: " + product.getName());
-        } else {
-
-            hienThongBao("Thông báo", "Đã hủy nhận thông báo cho sản phẩm này.");
+    private void startTimer() {
+        if (timerTimeline != null) {
+            timerTimeline.stop();
         }
-    }
 
-    @FXML
-    void handleStartAutoBid() {
-        try {
-
-            String maxPriceStr = txtMaxAutoBid.getText().trim();
-            String incrementStr = txtIncrement.getText().trim();
-
-            if (maxPriceStr.isEmpty() || incrementStr.isEmpty()) {
-                hienThongBao("Lỗi", "Vui lòng nhập đầy đủ Giá trần và Bước nhảy!");
-                return;
-            }
-
-            double maxPrice = Double.parseDouble(maxPriceStr);
-            double userIncrement = Double.parseDouble(incrementStr);
-            double giaHienTai = Double.parseDouble(product.getPrice());
-
-            if (maxPrice <= giaHienTai) {
-                hienThongBao("Lỗi", "Giá tối đa phải lớn hơn giá hiện tại!");
-                return;
-            }
-            if (userIncrement <= 0) {
-                hienThongBao("Lỗi", "Bước nhảy phải lớn hơn 0!");
-                return;
-            }
-
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("productId", product.getName()); // Hoặc ID sản phẩm nếu có
-            data.put("maxBid", maxPrice);
-            data.put("increment", userIncrement);
-            data.put("bidder", currentUserName);
-
-
-
-
-            product.setIncrement(userIncrement);
-            hienThongBao("Thành công", "Đã bật Auto Bid.\nGiá trần: " + maxPrice + " VNĐ\nBước nhảy: " + userIncrement + " VNĐ");
-
-        } catch (NumberFormatException e) {
-            hienThongBao("Lỗi", "Vui lòng nhập số hợp lệ!");
-        }
-    }
-
-
-    public void updateFromRemote(double newPrice, String winnerName) {
-        javafx.application.Platform.runLater(() -> {
-            lblDetailPrice.setText(newPrice + " VNĐ");
-            product.setPrice(String.valueOf(newPrice));
-            product.addBid(winnerName, newPrice);
-            updateBidHistoryUI();
-
-
-            if (winnerName.equals(currentUserName)) {
-                lblDetailPrice.setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
+        timerTimeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            int remaining = product.getRemainingSeconds();
+            if (remaining <= 0) {
+                lblDetailTimer.setText("HẾT HẠN!");
+                timerTimeline.stop();
             } else {
-                lblDetailPrice.setStyle("-fx-text-fill: red;");
+                lblDetailTimer.setText(formatTime(remaining));
             }
+        }));
+        timerTimeline.setCycleCount(Timeline.INDEFINITE);
+        timerTimeline.play();
+    }
+
+    private void loadBidHistory() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("productId", product.getId());
+
+        Request request = new Request(CommandType.GET_AUCTION_HISTORY, data);
+        SocketClient.getInstance().sendRequestAsync(request, response -> {
+            Platform.runLater(() -> {
+                if (response.isSuccess() && response.getData() != null) {
+                    Map<String, Object> resData = response.getData();
+                    List<BidTransaction> history = (List<BidTransaction>) resData.get("history");
+
+                    lvBidHistory.getItems().clear();
+                    if (history != null) {
+                        for (BidTransaction bid : history) {
+                            String bidder = bid.getBidderName();
+                            double amount = bid.getBidAmount();
+                            String time = bid.getBidTime().toString();
+                            lvBidHistory.getItems().add(String.format("%s: %,.0f VNĐ - %s", bidder, amount, time));
+                        }
+                    }
+                }
+            });
         });
     }
 
     @FXML
     public void handlePlaceBid() {
         try {
-            double giaMoi = Double.parseDouble(txtBidAmount.getText().trim());
-            double giaHienTai = Double.parseDouble(product.getPrice());
+            double amount = Double.parseDouble(txtBidAmount.getText().trim());
 
-            if (giaMoi > giaHienTai) {
-
-                product.setPrice(String.valueOf(giaMoi));
-
-
-                product.addBid(currentUserName, giaMoi);
-
-
-                lblDetailPrice.setText(giaMoi + " VNĐ");
-                updateBidHistoryUI(); // Làm mới danh sách hiển thị
-
-                txtBidAmount.clear();
-
-                if (onPriceChangeCallback != null) {
-                    onPriceChangeCallback.run();
-                }
-            } else {
-                hienThongBao("Lỗi", "Giá mới phải lớn hơn " + giaHienTai + " VNĐ");
+            if (amount <= product.getCurrentPrice()) {
+                showAlert("Lỗi", "Giá đặt phải cao hơn giá hiện tại (" + product.getCurrentPrice() + ")!");
+                return;
             }
-        } catch (Exception e) {
-            hienThongBao("Lỗi", "Vui lòng nhập số hợp lệ");
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("productId", product.getId());
+            data.put("bidAmount", amount);
+
+            Request req = new Request(CommandType.PLACE_BID, data);
+            SocketClient.getInstance().sendRequestAsync(req, response -> {
+                Platform.runLater(() -> {
+                    if (response.isSuccess()) {
+                        Map<String, Object> resData = response.getData();
+                        double newPrice = (double) resData.get("currentPrice");
+                        product.setCurrentPrice(newPrice);
+
+                        // ✅ CẬP NHẬT ENDTIME NẾU CÓ GIA HẠN
+                        if (resData.containsKey("newEndTime")) {
+                            String newEndTimeStr = (String) resData.get("newEndTime");
+                            LocalDateTime newEndTime = LocalDateTime.parse(newEndTimeStr);
+                            product.setEndTime(newEndTime);
+                            startTimer(); // Refresh đồng hồ ngay lập tức
+                        }
+
+                        updateDisplay();
+                        loadBidHistory();
+                        showAlert("Thành công", "Đặt giá thành công!");
+                        txtBidAmount.clear();
+                    } else {
+                        showAlert("Lỗi", response.getMessage());
+                    }
+                });
+            });
+
+        } catch (NumberFormatException e) {
+            showAlert("Lỗi", "Vui lòng nhập số tiền hợp lệ!");
         }
     }
 
-    private void startTimer() {
-        Timeline t = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            lblDetailTimer.setText("Còn lại: " + product.getRemainingSeconds() + " giây");
-        }));
-        t.setCycleCount(Timeline.INDEFINITE);
-        t.play();
+    @FXML
+    public void goToMain(ActionEvent event) {
+        if (timerTimeline != null) {
+            timerTimeline.stop();
+        }
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/com/auction/client/view/ProductListController.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void openWindow(Parent root) {
-        Stage stage = new Stage();
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-        stage.sizeToScene();
-        stage.setResizable(true);
-        stage.show();
-    }
-
-    private void hienThongBao(String title, String content) {
-        Alert.AlertType type = title.contains("Lỗi") ? Alert.AlertType.ERROR : Alert.AlertType.INFORMATION;
-        Alert alert = new Alert(type);
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(title.equals("Lỗi") ? Alert.AlertType.ERROR : Alert.AlertType.INFORMATION);
         alert.setTitle(title);
-        alert.setHeaderText(null); // Bỏ tiêu đề phụ cho gọn
+        alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
     }
 
-    public void goToMain(ActionEvent event) {
+    @FXML
+    public void handleStartAutoBid(ActionEvent event) {
         try {
-            Parent loginRoot = FXMLLoader.load(getClass().getResource("/Part1/ProductListController.fxml"));
-            Scene loginScene = new Scene(loginRoot);
-            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            window.setScene(loginScene);
-            window.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+            double maxPrice = Double.parseDouble(txtMaxAutoPrice.getText().trim());
+            double increment = Double.parseDouble(txtIncrement.getText().trim());
+
+            if (maxPrice <= product.getCurrentPrice()) {
+                showAlert("Lỗi", "Max Bid phải lớn hơn giá hiện tại!");
+                return;
+            }
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("productId", product.getId());
+            data.put("maxBid", maxPrice);
+            data.put("increment", increment);
+
+            Request req = new Request(CommandType.SET_AUTO_BID, data);
+            SocketClient.getInstance().sendRequestAsync(req, response -> {
+                Platform.runLater(() -> {
+                    if (response.isSuccess()) {
+                        showAlert("Thành công", response.getMessage());
+                    } else {
+                        showAlert("Lỗi", response.getMessage());
+                    }
+                });
+            });
+        } catch (NumberFormatException e) {
+            showAlert("Lỗi", "Vui lòng nhập số hợp lệ!");
+        }
+    }
+
+    @FXML
+    public void handleSubscribeAction(ActionEvent event) {
+        boolean isSubscribed = chkSubscribe.isSelected();
+        System.out.println("Theo dõi sản phẩm: " + isSubscribed);
+    }
+
+    private String formatTime(int totalSeconds) {
+        if (totalSeconds <= 0) return "HẾT HẠN!";
+        int days = totalSeconds / 86400;
+        int hours = (totalSeconds % 86400) / 3600;
+        int minutes = (totalSeconds % 3600) / 60;
+        int seconds = totalSeconds % 60;
+        String result = "";
+        if (days > 0) result += days + " ngày ";
+        if (hours > 0 || days > 0) result += hours + " giờ ";
+        if (minutes > 0 || hours > 0 || days > 0) result += minutes + " phút ";
+        result += seconds + " giây";
+        return result;
+    }
+
+    private void showNotification(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.show();
+    }
+
+    private void updateDisplay() {
+        lblDetailPrice.setText(String.format("%,.0f VNĐ", product.getCurrentPrice()));
+        lblDescription.setText(product.getDescription() != null ? product.getDescription() : "Không có mô tả.");
+
+        if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
+            try {
+                imgDetail.setImage(new Image(product.getImageUrl(), true));
+            } catch (Exception e) {
+                System.err.println("Lỗi tải ảnh: " + e.getMessage());
+            }
         }
     }
 }

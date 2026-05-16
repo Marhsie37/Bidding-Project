@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="725.0" prefWidth="772.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Part1.Selling">
+<AnchorPane prefHeight="725.0" prefWidth="772.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.SellingController">
    <children>
       <ScrollPane layoutY="1.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="724.0" prefWidth="845.0">
         <content>
@@ -67,7 +67,7 @@
                   </VBox>
                   <AnchorPane prefHeight="114.0" prefWidth="888.0" style="-fx-background-color: #87CEEB;">
                      <children>
-                        <Button alignment="TOP_CENTER" layoutX="579.0" layoutY="11.0" mnemonicParsing="false" onAction="#toProductListController" prefHeight="30.0" prefWidth="93.0" styleClass="menu-button" stylesheets="@Colour.css" text="      Profile" />
+                        <Button alignment="TOP_CENTER" layoutX="579.0" layoutY="11.0" mnemonicParsing="false" onAction="#toProfile" prefHeight="30.0" prefWidth="93.0" styleClass="menu-button" stylesheets="@Colour.css" text="      Profile" />
                         <Button alignment="CENTER" layoutX="679.0" layoutY="11.0" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#goToLoginScreen" prefHeight="30.0" prefWidth="90.0" styleClass="menu-button" stylesheets="@Colour.css" text="    Log out" textAlignment="CENTER" wrapText="true" AnchorPane.leftAnchor="679.0" />
                         <TextField fx:id="searchField" layoutX="298.0" layoutY="44.0" prefHeight="38.0" prefWidth="261.0" promptText="Tìm kiếm " stylesheets="@Colour.css">
                            <styleClass>

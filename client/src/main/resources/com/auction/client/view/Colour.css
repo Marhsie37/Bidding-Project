@@ -1,0 +1,327 @@
+.text1 {
+    -fx-text-fill: white;
+    -fx-font-family: "Impact";
+    -fx-font-size: 60px;
+    -fx-font-weight: bold;
+    -fx-stroke: rgba(255, 255, 255, 0.3);
+    -fx-stroke-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 0, 255, 0.8), 15, 0, 0, 0);
+}
+
+.text3 {
+    -fx-font-family: "Segoe UI Black";
+    -fx-font-size: 48px;
+    -fx-text-fill: linear-gradient(purple, blue, pink, white);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 0);
+}
+
+.textPage {
+    -fx-font-family: "Segoe UI Black";
+    -fx-font-size: 30px;
+    -fx-text-fill: linear-gradient(purple, blue, pink, white);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 0);
+}
+
+.text2 {
+    -fx-font-family: "System";
+    -fx-font-size: 25px;
+    -fx-text-fill: white;
+    -fx-alignment: center;
+    -fx-padding: 10px 0px;
+}
+
+.frame1 {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+}
+
+.button-custom {
+    -fx-background-color: linear-gradient(to right, #6a11cb, #2575fc);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 25;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 2);
+}
+
+.button-custom:hover {
+    -fx-background-color: linear-gradient(to right, #8e44ad, #3498db);
+}
+
+.textField {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 20;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 20;
+    -fx-padding: 8 15 8 15;
+}
+
+.menu-button-custom {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-font-size: 14px;
+    -fx-padding: 5 15 5 15;
+    -fx-cursor: hand;
+}
+
+.menu-button-custom .label {
+    -fx-text-fill: #2f3640;
+}
+
+.menu-button-custom .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.menu-button-custom .arrow {
+    -fx-background-color: #6a11cb;
+}
+
+.hBox1 {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 20;
+    -fx-border-color: #b0b0b0;
+    -fx-border-radius: 20;
+    -fx-padding: 5 15 5 15;
+
+}
+
+
+
+.button {
+    -fx-font-family: "Segoe UI", Arial;
+    -fx-font-size: 14px;
+    -fx-transition: 0.3s; /* Hiệu ứng mượt mà */
+}
+
+
+.menu-button {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+
+    -fx-font-family: "Segoe UI Semibold", "Arial";
+
+    -fx-background-color: transparent;
+    -fx-alignment: center-left;
+    -fx-padding: 5 10 5 10;
+}
+
+/* Hiệu ứng khi di chuột vào (Hover) */
+.menu-button:hover {
+    /* Khi trỏ vào thì chữ đổi sang màu xanh sáng hoặc vàng để biết là đang chọn */
+    -fx-text-fill: #00a2ff;
+    -fx-background-color: #3d3d3d;
+    -fx-cursor: hand;
+}
+
+/* Kiểu nút khi đang được chọn (Active) */
+.menu-button:focused {
+    -fx-background-color: #4f4f4f;
+    -fx-border-color: #00a2ff;    /* Thêm một vạch xanh bên cạnh */
+    -fx-border-width: 0 0 0 4;
+}
+
+/* Tăng kích thước của toàn bộ vùng chứa nút ở hai đầu */
+/* Tùy chỉnh thanh cuộn tổng thể */
+.scroll-pane .scroll-bar:vertical,
+.scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: transparent; /* Nền thanh cuộn trong suốt */
+    -fx-pref-width: 8;  /* Độ rộng thanh cuộn dọc (nhỏ lại) */
+    -fx-pref-height: 8; /* Độ cao thanh cuộn ngang */
+}
+
+/* Phần cục lăn (Thumb) */
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-color: #bdc3c7; /* Màu xám nhạt giống Google */
+    -fx-background-radius: 10;    /* Bo tròn hai đầu */
+}
+
+/* Khi di chuột vào cục lăn */
+.scroll-pane .scroll-bar .thumb:hover {
+    -fx-background-color: #95a5a6; /* Đậm hơn một chút khi hover */
+}
+
+/* Ẩn các nút mũi tên ở hai đầu thanh cuộn cho gọn */
+.scroll-pane .scroll-bar .increment-button,
+.scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
+.scroll-pane .scroll-bar .thumb {
+    -fx-background-color: #ccc;
+    -fx-background-radius: 20;
+}
+
+/* Bo góc cho các ô nhập liệu */
+.text-field, .text-area {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #E0E0E0;
+    -fx-background-color: white;
+    -fx-padding: 8 12;
+}
+
+/* Hiệu ứng khi click vào ô nhập */
+.text-field:focused {
+    -fx-border-color: #4A90E2; /* Màu xanh giống logo */
+    -fx-border-width: 2;
+}
+
+/* Nút bấm chuyên nghiệp */
+.button-add {
+    -fx-background-color: #4A90E2;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+
+/* Card bao quanh form */
+.form-container {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+}
+
+/* Nút bấm hiện đại */
+.btn-primary {
+    -fx-background-color: linear-gradient(to right, #4facfe 0%, #00f2fe 100%); /* Hiệu ứng gradient */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 30;
+    -fx-padding: 10 30;
+}
+
+.btn-primary:hover {
+    -fx-opacity: 0.8;
+}
+
+.button-bid {
+    -fx-background-color: #2196F3; /* Màu xanh chuẩn */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+.button-bid:hover {
+    -fx-background-color: #1976D2; /* Đậm hơn khi hover */
+}
+
+/* --- TỔNG THỂ --- */
+.root {
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-background-color: #F4F7F9; /* Màu nền xám xanh nhạt cực sang */
+}
+
+/* --- TEXT & NHÃN --- */
+.label {
+    -fx-text-fill: #2C3E50;
+}
+
+.title-label {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1976D2; /* Màu xanh chủ đạo */
+}
+
+.price-label {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #E67E22; /* Màu cam nhấn mạnh cho giá tiền */
+}
+
+/* --- CÁC Ô NHẬP LIỆU (TextField) --- */
+.text-field {
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+    -fx-border-color: #DCDDE1;
+    -fx-padding: 8 12;
+    -fx-background-color: white;
+}
+
+.text-field:focused {
+    -fx-border-color: #1976D2;
+    -fx-border-width: 1.5;
+}
+
+/* --- NÚT BẤM (Buttons) --- */
+.button {
+    -fx-cursor: hand;
+    -fx-padding: 2 2;
+    -fx-background-radius: 5;
+    -fx-font-weight: bold;
+}
+
+/* Nút màu xanh chủ đạo (Dùng cho Bid, Add, Search) */
+.button-primary {
+    -fx-background-color: #1976D2;
+    -fx-text-fill: white;
+
+}
+
+.button-primary:hover {
+    -fx-background-color: #1565C0;
+}
+
+/* Nút phụ (Dùng cho AutoBid hoặc Cancel) */
+.button-secondary {
+    -fx-text-fill: #1976D2;
+    -fx-border-color: #1976D2;
+    -fx-border-radius: 5;
+}
+
+/* --- KHỐI NỘI DUNG (Card Style) --- */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+    -fx-padding: 15;
+}
+
+/* --- DANH SÁCH (ListView) --- */
+.list-view {
+    -fx-background-radius: 8;
+    -fx-background-color: white;
+    -fx-border-color: #E0E0E0;
+}
+
+.list-cell:filled:selected {
+    -fx-background-color: #E3F2FD;
+    -fx-text-fill: #1976D2;
+}
+
+/* Tạo khối Card chuyên nghiệp */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 10, 0, 0, 4);
+}
+
+/* Chỉnh lại Label tiêu đề cho sang */
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2C3E50;
+    -fx-border-color: transparent transparent #1976D2 transparent; /* Gạch chân xanh mỏng */
+    -fx-border-width: 2;
+}
+
+.item-card {
+    -fx-background-color: white;
+    -fx-background-radius: 20;   /* Bo góc cho nền */
+    -fx-border-radius: 20;       /* Bo góc cho viền */
+    -fx-border-color: #ddd;      /* Màu viền nhẹ */
+    -fx-border-width: 1;
+    -fx-padding: 10;
+}
+
+/* Hiệu ứng khi di chuột vào cho nó xịn */
+.item-card:hover {
+    -fx-background-color: #f0f8ff;
+    -fx-cursor: hand;
+}
