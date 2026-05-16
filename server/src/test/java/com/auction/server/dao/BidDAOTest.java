@@ -26,12 +26,15 @@ public class BidDAOTest {
         userDAO = new UserDAO();
         productDAO = new ProductDAO();
 
-        String username = "bidder_" + System.currentTimeMillis();
-        userDAO.createUser(username, "123", "bid@test.com", "Bidder Test", "BIDDER");
-        testUserId = userDAO.findByUsername(username).getId();
+        String uniqueKey = String.valueOf(System.currentTimeMillis());
+        String testEmail = "bid_" + uniqueKey + "@test.com";
+        String testUsername = "bidder_" + uniqueKey;
+
+        userDAO.createUser(testUsername, "123", testEmail, "Bidder Test", "BIDDER");
+        testUserId = userDAO.findByUsername(testUsername).getId();
 
         Product p = new Product();
-        p.setName("Sản phẩm đấu giá Test");
+        p.setName("Sản phẩm Test " + uniqueKey);
         p.setStartingPrice(1000.0);
         p.setSellerId(1);
         p.setCategory("Test");
@@ -40,10 +43,7 @@ public class BidDAOTest {
 
         productDAO.createProduct(p);
         testProductId = p.getId();
-
-        System.out.println("--- SETUP: UserID=" + testUserId + ", ProductID=" + testProductId + " ---");
     }
-
     @Test
     @Order(1)
     @DisplayName("Test tạo lượt đặt giá mới")
