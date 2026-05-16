@@ -15,7 +15,6 @@ public class User implements Serializable {
     private double balance;
     private LocalDateTime createdAt;
     private boolean active = true;
-    private String status;  // ✅ THÊM DÒNG NÀY - ACTIVE, BANNED
 
     public User() {}
 
@@ -28,7 +27,6 @@ public class User implements Serializable {
         this.balance = balance;
     }
 
-    // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
@@ -59,8 +57,4 @@ public class User implements Serializable {
     public boolean isBidder() { return "BIDDER".equalsIgnoreCase(role); }
     public boolean isSeller() { return "SELLER".equalsIgnoreCase(role); }
     public boolean isAdmin() { return "ADMIN".equalsIgnoreCase(role); }
-
-    // ✅ THÊM 2 METHOD NÀY
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
 }

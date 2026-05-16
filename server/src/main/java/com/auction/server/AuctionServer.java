@@ -4,25 +4,26 @@ import com.auction.server.service.AuctionService;
 import com.auction.server.service.AutoBidService;
 import com.auction.shared.model.AuctionSession;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+
+
+import java.io.*;
+import java.net.*;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AuctionServer {
-    private static final int PORT = 9999;
-    private static AuctionServer instance;
+    private static final int PORT = 8888;
+    private static volatile AuctionServer instance;
     private ServerSocket serverSocket;
     private ExecutorService threadPool;
     private ConcurrentHashMap<String,ClientHandler> clients;
     private AuctionService auctionService;
     private AutoBidService autoBidService;
     private boolean running;
-
+    private static final Logger logger = LoggerFactory.getLogger(AuctionServer.class);
     private AuctionServer(){
         this.threadPool = Executors.newCachedThreadPool();
         this.clients = new ConcurrentHashMap<>();
@@ -31,16 +32,20 @@ public class AuctionServer {
         this.running = true;
 
     }
-    public static AuctionServer getInstance(){
-        if (instance == null){
-            instance = new AuctionServer();
+    public static AuctionServer getInstance() {
+        if (instance == null) {
+            synchronized (AuctionServer.class) {
+                if (instance == null) {
+                    instance = new AuctionServer();
+                }
+            }
         }
-        return  instance;
+        return instance;
     }
     public void start(){
         try{
             serverSocket = new ServerSocket(PORT);
-            System.out.println("Auction Server started on port " + PORT);
+            logger.info("Auction Server started on port " + PORT);
             autoBidService.start();
             startAuctionMonitor();
             while (running){
@@ -49,7 +54,7 @@ public class AuctionServer {
                 threadPool.execute(handler);
             }
         } catch (IOException e){
-            System.err.println("Server error: " + e.getMessage());
+            logger.error("Server error: " ,e);
 
         }
     }
@@ -68,7 +73,7 @@ public class AuctionServer {
                     Thread.currentThread().interrupt();
                     break;
                 } catch (Exception e) {
-                    System.err.println("Monitor error: " + e.getMessage());
+                    logger.error("Monitor error: " ,e);
                 }
             }
         });
@@ -86,25 +91,16 @@ public class AuctionServer {
         }
         threadPool.shutdown();
         autoBidService.stop();
-        System.out.println("Server stopped");
+        logger.info("Server stopped");
     }
-    public void registerClient(String username, ClientHandler handler) {
-        // ✅ Xóa client cũ nếu tồn tại
-        if (clients.containsKey(username)) {
-            ClientHandler old = clients.remove(username);
-            try {
-                old.disconnect();
-            } catch (Exception e) {
-                System.err.println("Lỗi đóng client cũ: " + e.getMessage());
-            }
-            System.out.println("Đã xóa client cũ: " + username);
-        }
-        clients.put(username, handler);
-        System.out.println("Client registered: " + username);
+    public void registerClient(String username, ClientHandler handler){
+        clients.put(username,handler);
+        logger.info("Client registered: " + username);
+
     }
     public void unregisterClient(String username){
         clients.remove(username);
-        System.out.println("Client unregistered: " + username);
+        logger.info("Client unregistered: " + username);
     }
     public ClientHandler getClient(String username){
         return clients.get(username);
@@ -121,6 +117,5 @@ public class AuctionServer {
         server.start();
 
     }
-
 
 }

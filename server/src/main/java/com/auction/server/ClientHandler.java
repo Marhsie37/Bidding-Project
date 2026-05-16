@@ -1,23 +1,19 @@
 package com.auction.server;
 
+import com.auction.shared.protocol.*;
 import com.auction.server.service.AuctionService;
-import com.auction.server.service.AutoBidService;
 import com.auction.server.service.NotificationService;
-import com.auction.shared.protocol.CommandType;
-import com.auction.shared.protocol.Request;
-import com.auction.shared.protocol.Response;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
+
+import java.io.*;
+import java.net.*;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientHandler implements Runnable {
-    private Socket socket;
+    private  Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private String username;
@@ -25,6 +21,7 @@ public class ClientHandler implements Runnable {
     private boolean connected;
     private AuctionService auctionService;
     private NotificationService notificationService;
+    private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -32,160 +29,138 @@ public class ClientHandler implements Runnable {
         this.auctionService = AuctionService.getInstance();
         this.notificationService = NotificationService.getInstance();
 
-        try {
+
+        /*try {
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
-            this.inputStream = new ObjectInputStream(socket.getInputStream());
+            this.inputStream = new ObjectInputStream((socket.getInputStream()));
         } catch (IOException e) {
-            System.err.println("Error creating streams: " + e.getMessage());
-            connected = false;
-        }
+            logger.error("Error creating streams: ",e);
+
+        }*/
     }
 
-    public void run() {
-        try {
-            while (connected) {
+    public void run(){
+        try{
+            while (connected){
                 Object obj = inputStream.readObject();
-                if (obj instanceof Request) {
-                    handleRequest((Request) obj);
+                if (obj instanceof Request){
+                    Request request = (Request) obj;
+                    handleRequest(request);
                 }
             }
-        } catch (EOFException e) {
-            System.out.println("Client disconnected: " + username);
-        } catch (IOException | ClassNotFoundException e) {
-            if (connected) {
-                System.err.println("Error handling client: " + e.getMessage());
-            }
+        } catch (EOFException e){
+            logger.info("Client disconnected: " + username);
+
+        } catch (IOException | ClassNotFoundException e){
+            logger.error("Error handling client: " ,e);
+
         } finally {
             disconnect();
         }
     }
-
-    private void handleRequest(Request request) {
-        if (request == null) {
-            System.err.println("SERVER LỖI: Nhận được Request rỗng (null)!");
-            return;
-        }
-
+    public void handleRequest(Request request){
         CommandType command = request.getCommand();
-        Map<String, Object> payload = (Map<String, Object>) request.getData();
-        System.out.println(">>> SERVER NHẬN LỆNH: " + command);
-
-        switch (command) {
-            case LOGIN:
-                handleLogin(payload);
+        Map<String,Object> data = request.getData();
+        switch (command){
+            case LOGIN :
+                handleLogin(data);
+                break;
+            case REGISTER:
+                handleRegister(data);
+                break;
+            case GET_PRODUCTS:
+                handleGetProducts(data);
+                break;
+            case GET_PRODUCT_DETAILS:
+                handleGetProductDetails(data);
+                break;
+            case ADD_PRODUCT:
+                handleAddProduct(data);
+                break;
+            case UPDATE_PRODUCT:
+                handleUpdateProduct(data);
+                break;
+            case DELETE_PRODUCT:
+                handleDeleteProduct(data);
+                break;
+            case PLACE_BID:
+                handlePlaceBid(data);
+                break;
+            case GET_AUCTION_DETAILS:
+                handleGetAuctionDetails(data);
+                break;
+            case SUBSCRIBE_AUCTION:
+                handleSubscribeAuction(data);
+                break;
+            case UNSUBSCRIBE_AUCTION:
+                handleUnsubscribeAuction(data);
+                break;
+            case SET_AUTO_BID:
+                handleSetAutoBid(data);
+                break;
+            case REMOVE_AUTO_BID:
+                handleRemoveAutoBid(data);
+                break;
+            case GET_MY_PRODUCTS:
+                handleGetMyProducts(data);
+                break;
+            case ADMIN_GET_ALL_USERS:
+                handleAdminGetAllUsers(data);
+                break;
+            case ADMIN_UPDATE_USER:
+                handleAdminUpdateUser(data);
+                break;
+            case ADMIN_DELETE_USER:
+                handleAdminDeleteUser(data);
+                break;
+            case ADMIN_GET_ALL_PRODUCTS:
+                handleAdminGetAllProducts(data);
+                break;
+            case ADMIN_DELETE_PRODUCT:
+                handleAdminDeleteProduct(data);
                 break;
             case LOGOUT:
                 handleLogout();
                 break;
-            case REGISTER:
-                handleRegister(payload);
+            case ADD_FUNDS:
+                handleAddFunds(data);
                 break;
-            case GET_PRODUCTS:
-                handleGetProducts(payload);
+            case PROCESS_PAYMENT:
+                handleProcessPayment(data);
                 break;
-            case GET_PRODUCT_DETAILS:
-                handleGetProductDetails(payload);
-                break;
-            case PLACE_BID:
-                handlePlaceBid(payload);
-                break;
-            case ADD_PRODUCT:
-                handleAddProduct(payload);
-                break;
-            case GET_AUCTION_HISTORY:
-                handleGetAuctionHistory(payload);
-                break;
-            case UPDATE_PRODUCT:
-                handleUpdateProduct(payload);
-                break;
-            case DELETE_PRODUCT:
-                handleDeleteProduct(payload);
-                break;
-            case GET_MY_PRODUCTS:
-                handleGetMyProducts(payload);
-                break;
-            case SUBSCRIBE_AUCTION:
-                handleSubscribeAuction(payload);
-                break;
-            case UNSUBSCRIBE_AUCTION:
-                handleUnsubscribeAuction(payload);
-                break;
-            case ADMIN_BAN_USER:
-                handleAdminBanUser(payload);
-                break;
-            case ADMIN_UNBAN_USER:
-                handleAdminUnbanUser(payload);
-                break;
-            case SET_AUTO_BID:
-                handleSetAutoBid(payload);
-                break;
-            case REMOVE_AUTO_BID:
-                handleRemoveAutoBid(payload);
-                break;
-            case ADMIN_GET_ALL_USERS:
-                handleAdminGetAllUsers(payload);
-                break;
-            case ADMIN_UPDATE_USER:
-                handleAdminUpdateUser(payload);
-                break;
-            case ADMIN_DELETE_USER:
-                handleAdminDeleteUser(payload);
-                break;
-            case ADMIN_GET_ALL_PRODUCTS:
-                handleAdminGetAllProducts(payload);
-                break;
-            case ADMIN_DELETE_PRODUCT:
-                handleAdminDeleteProduct(payload);
-                break;
-            case RECHARGE_BALANCE:
-                handleRechargeBalance(payload);
-                break;
-            case GET_USER_INFO:
-                handleGetUserInfo(payload);
-                break;
-            case UPDATE_USER:
-                handleUpdateUser(payload);
-                break;
-            case GET_PURCHASED_PRODUCTS:
-                handleGetPurchasedProducts(payload);
+            case GET_USER_BALANCE:
+                handleGetUserBalance(data);
                 break;
             default:
-                sendError("Lệnh không được hỗ trợ: " + command);
-                break;
+                sendError("Unknown command");
+
         }
     }
+    public void handleLogin(Map<String,Object> data){
+        String username = (String) data.get("username");
+        String password = (String) data.get("password");
+        Map<String,Object> result = auctionService.login(username,password);
 
-    private void handleLogin(Map<String, Object> data) {
-        String user = (String) data.get("username");
-        String pass = (String) data.get("password");
-
-        Map<String, Object> result = auctionService.login(user, pass);
-        boolean success = (boolean) result.getOrDefault("success", false);
-
-        if (success) {
-            this.username = user;
+        if ((boolean) result.get("success")){
+            this.username = username;
             this.role = (String) result.get("role");
             AuctionServer.getInstance().registerClient(username, this);
+
+            Map<String,Object> responseData = new HashMap<>();
+            responseData.put("user",result.get("user"));
+            responseData.put("role",role);
+
+            sendResponse(CommandType.LOGIN,true,(String) result.get("message"),responseData);
+
+        } else {
+            sendError((String) result.get("message"));
         }
-
-        sendResponse(CommandType.LOGIN, success, (String) result.get("message"), result);
     }
+    private void handleRegister(Map<String,Object> data){
+        Map<String, Object> result = auctionService.register(data);
+        sendResponse(CommandType.REGISTER, (boolean) result.get("success"), (String) result.get("message"), null);
 
-    private void handleLogout() {
-        System.out.println("📤 Client logout: " + username);
-        if (username != null) {
-            AuctionServer.getInstance().unregisterClient(username);
-        }
-        sendResponse(CommandType.LOGOUT, true, "Logged out", null);
-        disconnect();
     }
-
-    private void handleRegister(Map<String, Object> payload) {
-        Map<String, Object> result = auctionService.register(payload);
-        sendResponse(CommandType.REGISTER, (boolean) result.get("success"),
-                (String) result.get("message"), result);
-    }
-
     private void handleGetProducts(Map<String, Object> data) {
         Map<String, Object> result = auctionService.getActiveProducts();
         sendResponse(CommandType.GET_PRODUCTS, true, "Success", result);
@@ -196,7 +171,6 @@ public class ClientHandler implements Runnable {
         Map<String, Object> result = auctionService.getProductDetails(productId);
         sendResponse(CommandType.GET_PRODUCT_DETAILS, true, "Success", result);
     }
-
     private void handleAddProduct(Map<String, Object> data) {
         data.put("sellerId", username);
         Map<String, Object> result = auctionService.addProduct(data);
@@ -217,38 +191,17 @@ public class ClientHandler implements Runnable {
         sendResponse(CommandType.DELETE_PRODUCT, (boolean) result.get("success"),
                 (String) result.get("message"), null);
     }
-
-    private void handlePlaceBid(Map<String, Object> data) {
-        try {
-            int productId = ((Number) data.get("productId")).intValue();
-            double bidAmount = ((Number) data.get("bidAmount")).doubleValue();
-
-            System.out.println("💰 ĐẶT GIÁ: sản phẩm " + productId + ", người dùng " + username + ", giá " + bidAmount);
-
-            Map<String, Object> result = auctionService.placeBid(productId, username, bidAmount);
-            boolean success = result != null && result.containsKey("success") && (boolean) result.get("success");
-
-            if (success) {
-                notificationService.notifyBidUpdate(productId, username, bidAmount);
-            }
-
-            sendResponse(CommandType.PLACE_BID, success,
-                    success ? (String) result.get("message") : "Đặt giá thất bại",
-                    success ? result : null);
-
-        } catch (Exception e) {
-            System.err.println("❌ Lỗi trong handlePlaceBid: " + e.getMessage());
-            e.printStackTrace();
-            sendResponse(CommandType.PLACE_BID, false, "Lỗi: " + e.getMessage(), null);
-        }
-    }
-
-    private void handleGetAuctionHistory(Map<String, Object> data) {
+    private void handlePlaceBid(Map<String,Object> data){
         int productId = ((Number) data.get("productId")).intValue();
-        Map<String, Object> result = auctionService.getBidHistory(productId);
-        sendResponse(CommandType.GET_AUCTION_HISTORY, true, "Success", result);
-    }
+        double bidAmount = ((Number) data.get("bidAmount")).doubleValue();
+        Map<String, Object> result = auctionService.placeBid(productId, username, bidAmount);
+        if ((boolean) result.get("success")){
+            //notify all subscibers
+            notificationService.notifyBidUpdate(productId, username, bidAmount);
+        }
+        sendResponse(CommandType.PLACE_BID, (boolean) result.get("success"), (String) result.get("message"), result);
 
+    }
     private void handleGetAuctionDetails(Map<String, Object> data) {
         int productId = ((Number) data.get("productId")).intValue();
         Map<String, Object> result = auctionService.getAuctionDetails(productId);
@@ -257,79 +210,43 @@ public class ClientHandler implements Runnable {
 
     private void handleSubscribeAuction(Map<String, Object> data) {
         int productId = ((Number) data.get("productId")).intValue();
-        if (username != null) {
-            notificationService.subscribe(productId, username, this);
-            sendResponse(CommandType.SUBSCRIBE_AUCTION, true, "Subscribed", null);
-            System.out.println("✅ User " + username + " subscribed to auction " + productId);
-        } else {
-            sendResponse(CommandType.SUBSCRIBE_AUCTION, false, "User not logged in", null);
-        }
+        notificationService.subscribe(productId, username, this); // this la clienthandler
+        sendResponse(CommandType.SUBSCRIBE_AUCTION, true, "Subscribed", null);
     }
-
     private void handleUnsubscribeAuction(Map<String, Object> data) {
         int productId = ((Number) data.get("productId")).intValue();
         notificationService.unsubscribe(productId, username);
         sendResponse(CommandType.UNSUBSCRIBE_AUCTION, true, "Unsubscribed", null);
     }
-
-    private void handleSetAutoBid(Map<String, Object> data) {
+    private void handleSetAutoBid(Map<String,Object> data){
         int productId = ((Number) data.get("productId")).intValue();
         double maxBid = ((Number) data.get("maxBid")).doubleValue();
         double increment = ((Number) data.get("increment")).doubleValue();
+        Map<String,Object> result = auctionService.setAutoBid(productId, username, maxBid, increment);
+        sendResponse(CommandType.SET_AUTO_BID, (boolean) result.get("success"), (String) result.get("message"), result);
 
-        AutoBidService.getInstance().registerAutoBid(productId, username, maxBid);
-
-        Map<String, Object> result = auctionService.setAutoBid(productId, username, maxBid, increment);
-        sendResponse(CommandType.SET_AUTO_BID, (boolean) result.get("success"),
-                (String) result.get("message"), result);
     }
-
     private void handleRemoveAutoBid(Map<String, Object> data) {
         int productId = ((Number) data.get("productId")).intValue();
         Map<String, Object> result = auctionService.removeAutoBid(productId, username);
         sendResponse(CommandType.REMOVE_AUTO_BID, (boolean) result.get("success"), (String) result.get("message"), null);
     }
-
     private void handleGetMyProducts(Map<String, Object> data) {
         Map<String, Object> result = auctionService.getSellerProducts(username);
         sendResponse(CommandType.GET_MY_PRODUCTS, true, "Success", result);
     }
 
-    private void handleAdminBanUser(Map<String, Object> data) {
-        if (!isAdmin()) return;
-        int userId = ((Number) data.get("userId")).intValue();
-        Map<String, Object> result = auctionService.banUser(userId);
-        sendResponse(CommandType.ADMIN_BAN_USER, (boolean) result.get("success"),
-                (String) result.get("message"), null);
-    }
-
-    private void handleAdminUnbanUser(Map<String, Object> data) {
-        if (!isAdmin()) return;
-        int userId = ((Number) data.get("userId")).intValue();
-        Map<String, Object> result = auctionService.unbanUser(userId);
-        sendResponse(CommandType.ADMIN_UNBAN_USER, (boolean) result.get("success"),
-                (String) result.get("message"), null);
-    }
-
     private void handleAdminGetAllUsers(Map<String, Object> data) {
         if (!isAdmin()) return;
-        try {
-            System.out.println("📦 Admin lấy users");
-            Map<String, Object> result = auctionService.getAllUsers();
-            sendResponse(CommandType.ADMIN_GET_ALL_USERS, true, "Success", result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(CommandType.ADMIN_GET_ALL_USERS, false, e.getMessage(), null);
-        }
+        Map<String, Object> result = auctionService.getAllUsers();
+        sendResponse(CommandType.ADMIN_GET_ALL_USERS, true, "Success", result);
     }
-
     private void handleAdminUpdateUser(Map<String, Object> data) {
         if (!isAdmin()) return;
         Map<String, Object> result = auctionService.adminUpdateUser(data);
         sendResponse(CommandType.ADMIN_UPDATE_USER, (boolean) result.get("success"),
                 (String) result.get("message"), result);
     }
-
     private void handleAdminDeleteUser(Map<String, Object> data) {
         if (!isAdmin()) return;
         int userId = ((Number) data.get("userId")).intValue();
@@ -337,17 +254,10 @@ public class ClientHandler implements Runnable {
         sendResponse(CommandType.ADMIN_DELETE_USER, (boolean) result.get("success"),
                 (String) result.get("message"), null);
     }
-
     private void handleAdminGetAllProducts(Map<String, Object> data) {
         if (!isAdmin()) return;
-        try {
-            System.out.println("📦 Admin lấy products");
-            Map<String, Object> result = auctionService.getAllProducts();
-            sendResponse(CommandType.ADMIN_GET_ALL_PRODUCTS, true, "Success", result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(CommandType.ADMIN_GET_ALL_PRODUCTS, false, e.getMessage(), null);
-        }
+        Map<String, Object> result = auctionService.getAllProducts();
+        sendResponse(CommandType.ADMIN_GET_ALL_PRODUCTS, true, "Success", result);
     }
 
     private void handleAdminDeleteProduct(Map<String, Object> data) {
@@ -357,102 +267,105 @@ public class ClientHandler implements Runnable {
         sendResponse(CommandType.ADMIN_DELETE_PRODUCT, (boolean) result.get("success"),
                 (String) result.get("message"), null);
     }
-
-    private void handleRechargeBalance(Map<String, Object> data) {
-        double amount = ((Number) data.get("amount")).doubleValue();
-        Map<String, Object> result = auctionService.rechargeBalance(username, amount);
-        sendResponse(CommandType.RECHARGE_BALANCE, (boolean) result.get("success"),
-                (String) result.get("message"), result);
-    }
-
-    private void handleGetUserInfo(Map<String, Object> data) {
-        try {
-            System.out.println("📊 handleGetUserInfo() - username: " + username);
-            Map<String, Object> result = auctionService.getUserInfo(username);
-            sendResponse(CommandType.GET_USER_INFO, true, "Success", result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(CommandType.GET_USER_INFO, false, "Error: " + e.getMessage(), null);
+    private void handleLogout() {
+        if (username != null) {
+            AuctionServer.getInstance().unregisterClient(username);
         }
+        sendResponse(CommandType.LOGOUT, true, "Logged out", null);
+        disconnect();
     }
-
-    private void handleUpdateUser(Map<String, Object> data) {
-        data.put("username", username);
-        Map<String, Object> result = auctionService.updateUserInfo(data);
-        sendResponse(CommandType.UPDATE_USER, (boolean) result.get("success"),
-                (String) result.get("message"), result);
-    }
-
-    private void handleGetPurchasedProducts(Map<String, Object> data) {
-        try {
-            System.out.println("🔍 handleGetPurchasedProducts - username: " + username);
-            Map<String, Object> result = auctionService.getPurchasedProducts(username);
-            sendResponse(CommandType.GET_PURCHASED_PRODUCTS, true, "Success", result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(CommandType.GET_PURCHASED_PRODUCTS, false, "Error: " + e.getMessage(), null);
-        }
-    }
-
-    private void sendResponse(CommandType command, boolean success, String message, Map<String, Object> data) {
-        if (!connected || outputStream == null) {
-            System.err.println("❌ Không gửi response: socket đã đóng");
-            return;
-        }
-        try {
-            Response response = new Response(command, success, message, data);
-            outputStream.writeObject(response);
-            outputStream.flush();
-        } catch (IOException e) {
-            System.err.println("❌ Lỗi gửi response: " + e.getMessage());
-        }
-    }
-
-    private void sendError(String message) {
-        sendResponse(CommandType.ERROR, false, message, null);
-    }
-
     private boolean isAdmin() {
-        return "ADMIN".equals(role);
-    }
-
-    public void disconnect() {
-        if (!connected) return;
-        connected = false;
-        try {
-            if (inputStream != null) inputStream.close();
-            if (outputStream != null) outputStream.close();
-            if (socket != null && !socket.isClosed()) socket.close();
-        } catch (IOException e) {
-            System.err.println("Error disconnecting: " + e.getMessage());
+        if (!"ADMIN".equals(role)) {
+            sendError("Access denied: Admin role required");
+            return false;
         }
+        return true;
     }
-
-    public String getUsername() {
-        return username;
-    }
-
     public void sendBidUpdate(int productId, String bidderName, double bidAmount) {
         Map<String, Object> data = new HashMap<>();
         data.put("productId", productId);
         data.put("bidderName", bidderName);
         data.put("bidAmount", bidAmount);
+        data.put("timestamp", java.time.LocalDateTime.now().toString());
+
         sendResponse(CommandType.BID_UPDATE, true, "New bid placed", data);
     }
-
     public void sendAuctionEnd(int productId, int winnerId, String winnerName, double finalPrice) {
         Map<String, Object> data = new HashMap<>();
         data.put("productId", productId);
         data.put("winnerId", winnerId);
         data.put("winnerName", winnerName);
         data.put("finalPrice", finalPrice);
+
         sendResponse(CommandType.AUCTION_END, true, "Auction ended", data);
+    }
+
+    private void sendResponse(CommandType command, boolean success, String message, Map<String,Object> data){
+        try{
+            Response response = new Response(command,success,message,data);
+            outputStream.writeObject(response);
+            outputStream.flush();
+
+        }catch (IOException e){
+            logger.error("Error sending response: " ,e);
+        }
+    }
+    private void sendError(String message) {
+        sendResponse(CommandType.ERROR, false, message, null);
+    }
+    private void disconnect(){
+        connected = false;
+        try{
+            if (username != null){
+                AuctionServer.getInstance().unregisterClient(username);
+            }
+            if (inputStream != null) inputStream.close();
+            if (outputStream != null) outputStream.close();
+            if (socket != null && !socket.isClosed()) socket.close();
+
+        } catch (IOException e){
+            logger.error("Error disconnecting: " ,e);
+        }
+    }
+    public String getUsername(){
+        return username;
     }
 
     public void sendAuctionExtended(int productId, LocalDateTime newEndTime) {
         Map<String, Object> data = new HashMap<>();
         data.put("productId", productId);
         data.put("newEndTime", newEndTime.toString());
+
         sendResponse(CommandType.AUCTION_EXTENDED, true, "Auction extended", data);
     }
+
+    private void handleAddFunds(Map<String, Object> data) {
+        int userId = ((Number) data.get("userId")).intValue();
+        double amount = ((Number) data.get("amount")).doubleValue();
+        Map<String, Object> result = auctionService.addFunds(userId, amount);
+        sendResponse(CommandType.ADD_FUNDS,
+                (boolean) result.get("success"),
+                (String) result.get("message"),
+                result);
+    }
+
+    private void handleProcessPayment(Map<String, Object> data) {
+        int userId = ((Number) data.get("userId")).intValue();
+        int auctionId = ((Number) data.get("auctionId")).intValue();
+        Map<String, Object> result = auctionService.processPayment(userId, auctionId);
+        sendResponse(CommandType.PROCESS_PAYMENT,
+                (boolean) result.get("success"),
+                (String) result.get("message"),
+                result);
+    }
+
+    private void handleGetUserBalance(Map<String, Object> data) {
+        int userId = ((Number) data.get("userId")).intValue();
+        Map<String, Object> result = auctionService.getUserBalance(userId);
+        sendResponse(CommandType.GET_USER_BALANCE,
+                (boolean) result.get("success"),
+                (String) result.get("message"),
+                result);
+    }
+
 }
