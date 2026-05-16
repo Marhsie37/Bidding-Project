@@ -13,7 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class SocketClient {
     private static SocketClient instance;
     private Socket socket;
@@ -25,7 +26,7 @@ public class SocketClient {
     private boolean connected;
     private Map<CommandType, Consumer<Response>> responseHandlers;
     private Thread listenerThread;
-
+    private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
     private SocketClient() {
         this.serverHost = "localhost";
         this.serverPort = 9999;
@@ -46,7 +47,7 @@ public class SocketClient {
         inputStream = new ObjectInputStream(socket.getInputStream());
         connected = true;
         startListener();
-        System.out.println("Connected to server");
+        logger.info("Connected to server");
     }
 
 
@@ -65,10 +66,10 @@ public class SocketClient {
                     }
                 }
             } catch (EOFException e) {
-                System.out.println("Connection closed by server");
+                logger.info("Connection closed by server");
             } catch (IOException | ClassNotFoundException e) {
                 if (connected) {
-                    System.err.println("Error receiving response: " + e.getMessage());
+                    logger.error("Error receiving response: " ,e);
                 }
             }
         });
@@ -96,7 +97,7 @@ public class SocketClient {
             try {
                 sendRequest(request);
             } catch (IOException e) {
-                System.err.println("LỖI GỬI SOCKET: " + e.getMessage());
+                logger.error("LỖI GỬI SOCKET: " ,e);
                 if (callback != null) {
                     callback.accept(new Response(request.getCommand(), false, e.getMessage()));
                 }
@@ -226,7 +227,7 @@ public class SocketClient {
             if (outputStream != null) outputStream.close();
             if (socket != null && !socket.isClosed()) socket.close();
         } catch (IOException e) {
-            System.err.println("Error disconnecting: " + e.getMessage());
+            logger.error("Error disconnecting: " ,e);
         }
     }
 
@@ -236,6 +237,6 @@ public class SocketClient {
 
     public void clearHandlers() {
         responseHandlers.clear();
-        System.out.println("✅ Đã xóa toàn bộ response handlers");
+        logger.info("✅ Đã xóa toàn bộ response handlers");
     }
 }

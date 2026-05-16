@@ -4,10 +4,13 @@ import com.auction.shared.model.User;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserDAO {
     private DatabaseConnection dbConnection;
     private Connection conn;
+    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
     public UserDAO(Connection conn) {
         this.conn = conn;
     }
@@ -31,7 +34,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error finding user: " + e.getMessage());
+            logger.error("Error finding user: " ,e);
         }
         return null;
     }
@@ -46,7 +49,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error finding user by email: " + e.getMessage());
+            logger.error("Error finding user by email: " ,e);
         }
         return null;
     }
@@ -62,7 +65,7 @@ public class UserDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error creating user: " + e.getMessage());
+            logger.error("Error creating user: " ,e);
             return false;
         }
     }
@@ -78,24 +81,24 @@ public class UserDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error updating user: " + e.getMessage());
+            logger.error("Error updating user: " ,e);
             return false;
         }
     }
 
     public boolean updateBalance(int userId, double newBalance) {
         try {
-            System.out.println("🔍 updateBalance: userId=" + userId + ", newBalance=" + newBalance);
+            logger.info("🔍 updateBalance: userId=" + userId + ", newBalance=" + newBalance);
             String sql = "UPDATE users SET balance = ? WHERE id = ?";
             try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
                 pstmt.setDouble(1, newBalance);
                 pstmt.setInt(2, userId);
                 int affected = pstmt.executeUpdate();
-                System.out.println("✅ updateBalance affected: " + affected);
+                logger.info("✅ updateBalance affected: " + affected);
                 return affected > 0;
             }
         } catch (SQLException e) {
-            System.err.println("❌ SQL Error in updateBalance: " + e.getMessage());
+            logger.error("❌ SQL Error in updateBalance: " ,e);
             e.printStackTrace();
             return false;
         }
@@ -107,7 +110,7 @@ public class UserDAO {
             pstmt.setInt(1, userId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error deleting user: " + e.getMessage());
+            logger.error("Error deleting user: " ,e);
             return false;
         }
     }
@@ -121,7 +124,7 @@ public class UserDAO {
                 users.add(mapResultSetToUser(rs));
             }
         } catch (SQLException e) {
-            System.err.println("Error getting all users: " + e.getMessage());
+            logger.error("Error getting all users: " ,e);
         }
         return users;
     }
@@ -137,7 +140,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error getting users by role: " + e.getMessage());
+            logger.error("Error getting users by role: " ,e);
         }
         return users;
     }
@@ -175,7 +178,7 @@ public class UserDAO {
             pstmt.setInt(1, userId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error banning user: " + e.getMessage());
+            logger.error("Error banning user: " ,e);
             return false;
         }
     }
@@ -186,7 +189,7 @@ public class UserDAO {
             pstmt.setInt(1, userId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error unbanning user: " + e.getMessage());
+            logger.error("Error unbanning user: " ,e);
             return false;
         }
     }

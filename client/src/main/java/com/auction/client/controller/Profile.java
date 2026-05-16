@@ -23,7 +23,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class Profile {
 
     @FXML private TextField txtUsername;
@@ -35,14 +36,14 @@ public class Profile {
     @FXML private VBox vboxPurchasedProducts;
 
     private User currentUser;
-
+    private static final Logger logger = LoggerFactory.getLogger(Profile.class);
     @FXML
     public void initialize() {
         loadUserInfo();
     }
 
     private void loadUserInfo() {
-        System.out.println("🔍 Gửi request GET_USER_INFO...");
+        logger.info("🔍 Gửi request GET_USER_INFO...");
         Request request = new Request(CommandType.GET_USER_INFO, new HashMap<>());
         SocketClient.getInstance().sendRequestAsync(request, response -> {
             Platform.runLater(() -> {
@@ -70,7 +71,7 @@ public class Profile {
     }
 
     private void loadPurchasedProducts() {
-        System.out.println("🔍 Gọi GET_PURCHASED_PRODUCTS...");
+        logger.info("🔍 Gọi GET_PURCHASED_PRODUCTS...");
         Request request = new Request(CommandType.GET_PURCHASED_PRODUCTS, new HashMap<>());
         SocketClient.getInstance().sendRequestAsync(request, response -> {
             Platform.runLater(() -> {

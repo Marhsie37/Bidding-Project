@@ -18,7 +18,8 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class RegisterController {
 
     @FXML private TextField usernameField;
@@ -29,7 +30,7 @@ public class RegisterController {
     @FXML private MenuButton roleMenuButton;
 
     private String selectedRole = "";
-
+    private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
     @FXML
     public void initialize() {
         MenuItem bidderItem = new MenuItem("Bidder");
@@ -50,11 +51,11 @@ public class RegisterController {
 
     @FXML
     public void handleCreateAccount(ActionEvent event) {
-        System.out.println("--- Bắt đầu xử lý Đăng ký ---");
+        logger.info("--- Bắt đầu xử lý Đăng ký ---");
         try {
             // 1. Kiểm tra null từng biến trước khi lấy text (Tránh bực mình vì NullPointerException)
             if (usernameField == null || passwordField == null || confirmPasswordField == null) {
-                System.err.println("LỖI: FXML chưa kết nối đúng với Controller! Kiểm tra fx:id");
+                logger.error("LỖI: FXML chưa kết nối đúng với Controller! Kiểm tra fx:id");
                 return;
             }
 
@@ -83,18 +84,18 @@ public class RegisterController {
             data.put("fullName", full);
             data.put("role", selectedRole.toUpperCase());
 
-            System.out.println("Gửi request REGISTER lên Server cho: " + user);
+            logger.info("Gửi request REGISTER lên Server cho: {}" , user);
             Request request = new Request(CommandType.REGISTER, data);
 
             SocketClient.getInstance().sendRequestAsync(request, response -> {
                 // QUAN TRỌNG: Mọi lệnh hiển thị giao diện phải nằm trong Platform.runLater
                 Platform.runLater(() -> {
                     if (response.isSuccess()) {
-                        System.out.println("Server báo thành công!");
+                        logger.info("Server báo thành công!");
                         showAlert(Alert.AlertType.INFORMATION, "Thành công", "Tạo tài khoản thành công!");
                         goToLoginScreen(event);
                     } else {
-                        System.out.println("Server báo thất bại: " + response.getMessage());
+                        logger.info("Server báo thất bại: {}" , response.getMessage());
                         showAlert(Alert.AlertType.ERROR, "Thất bại", response.getMessage());
                     }
                 });
@@ -113,7 +114,7 @@ public class RegisterController {
             stage.setScene(new Scene(loginRoot));
             stage.show();
         } catch (IOException e) {
-            System.err.println("Không tìm thấy file LoginController.fxml!");
+            logger.error("Không tìm thấy file LoginController.fxml!");
             e.printStackTrace();
         }
     }

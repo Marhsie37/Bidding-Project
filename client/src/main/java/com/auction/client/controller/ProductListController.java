@@ -30,7 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class ProductListController implements Initializable {
 
     @FXML private VBox vboxGallery;
@@ -43,7 +44,7 @@ public class ProductListController implements Initializable {
     private final int totalSlides = 3;
     private final double slideWidth = 612.0;
     private Timeline autoSlideTimer;
-
+    private static final Logger logger = LoggerFactory.getLogger(ProductListController.class);
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupImageSlider();
@@ -161,13 +162,13 @@ public class ProductListController implements Initializable {
                                 vboxGallery.getChildren().add(productCard);
 
                             } catch (IOException e) {
-                                System.err.println("Lỗi khi nạp mẫu sản phẩm FXML");
+                                logger.error("Lỗi khi nạp mẫu sản phẩm FXML");
                                 e.printStackTrace();
                             }
                         }
                     }
                 } else {
-                    System.err.println("Lỗi lấy danh sách sản phẩm: " + response.getMessage());
+                    logger.error("Lỗi lấy danh sách sản phẩm: " + response.getMessage());
                 }
             });
         });

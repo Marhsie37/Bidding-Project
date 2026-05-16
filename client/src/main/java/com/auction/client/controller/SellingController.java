@@ -28,7 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class SellingController implements Initializable {
 
     @FXML private VBox vboxDisplay;
@@ -40,10 +41,10 @@ public class SellingController implements Initializable {
 
     private Product selectedProduct = null;
     private Map<Integer, Timeline> timelines = new HashMap<>();
-
+    private static final Logger logger = LoggerFactory.getLogger(SellingController.class);
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        System.out.println("SellingController initialized");
+        logger.info("SellingController initialized");
         loadMyProducts();
     }
 
@@ -114,10 +115,10 @@ public class SellingController implements Initializable {
         SocketClient.getInstance().sendRequestAsync(request, response -> {
             Platform.runLater(() -> {
                 if (response.isSuccess()) {
-                    System.out.println("✅ Đã xóa sản phẩm!");
+                    logger.info("✅ Đã xóa sản phẩm!");
                     loadMyProducts();
                 } else {
-                    System.err.println("❌ Lỗi xóa: " + response.getMessage());
+                    logger.error("❌ Lỗi xóa: " + response.getMessage());
                 }
             });
         });
@@ -133,7 +134,7 @@ public class SellingController implements Initializable {
             String description = txtDescription.getText().trim();
 
             if (name.isEmpty()) {
-                System.out.println("Tên sản phẩm không được để trống!");
+                logger.info("Tên sản phẩm không được để trống!");
                 return;
             }
 
@@ -150,11 +151,11 @@ public class SellingController implements Initializable {
                 SocketClient.getInstance().sendRequestAsync(request, response -> {
                     Platform.runLater(() -> {
                         if (response.isSuccess()) {
-                            System.out.println("✅ Thêm sản phẩm thành công!");
+                            logger.info("✅ Thêm sản phẩm thành công!");
                             clearFields();
                             loadMyProducts();
                         } else {
-                            System.err.println("❌ Lỗi thêm: " + response.getMessage());
+                            logger.error("❌ Lỗi thêm: " + response.getMessage());
                         }
                     });
                 });
@@ -164,18 +165,18 @@ public class SellingController implements Initializable {
                 SocketClient.getInstance().sendRequestAsync(request, response -> {
                     Platform.runLater(() -> {
                         if (response.isSuccess()) {
-                            System.out.println("✅ Cập nhật sản phẩm thành công!");
+                            logger.info("✅ Cập nhật sản phẩm thành công!");
                             clearFields();
                             selectedProduct = null;
                             loadMyProducts();
                         } else {
-                            System.err.println("❌ Lỗi cập nhật: " + response.getMessage());
+                            logger.error("❌ Lỗi cập nhật: " + response.getMessage());
                         }
                     });
                 });
             }
         } catch (NumberFormatException e) {
-            System.out.println("Lỗi: Giá và thời gian phải là số!");
+            logger.info("Lỗi: Giá và thời gian phải là số!");
         }
     }
 

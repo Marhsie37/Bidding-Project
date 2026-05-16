@@ -8,9 +8,10 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import java.io.IOException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class WindowManager {
-
+    private static final Logger logger = LoggerFactory.getLogger(WindowManager.class);
     public static Stage openUndecoratedWindow(String fxmlPath, Object caller) {
         try {
             FXMLLoader loader = new FXMLLoader(caller.getClass().getResource(fxmlPath));
@@ -38,11 +39,11 @@ public class WindowManager {
 
             // ✅ THÊM SỰ KIỆN ĐÓNG CỬA SỔ
             stage.setOnCloseRequest(event -> {
-                System.out.println("🔄 Đóng cửa sổ, gửi logout lên server...");
+                logger.info("🔄 Đóng cửa sổ, gửi logout lên server...");
                 SocketClient socketClient = SocketClient.getInstance();
                 if (socketClient.isConnected()) {
                     socketClient.logout(response -> {
-                        System.out.println("✅ Đã logout, đóng kết nối.");
+                        logger.info("✅ Đã logout, đóng kết nối.");
                         socketClient.disconnect();
                         Platform.exit();
                         System.exit(0);

@@ -15,9 +15,10 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.util.Map;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class LoginController {
-
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
     @FXML private TextField userNameField;
     @FXML private TextField passwordField;
 
@@ -35,14 +36,14 @@ public class LoginController {
 
         // ✅ QUAN TRỌNG: Ngắt kết nối cũ trước khi tạo kết nối mới
         if (socketClient.isConnected()) {
-            System.out.println("🔌 Đang ngắt kết nối cũ...");
+            logger.info("🔌 Đang ngắt kết nối cũ...");
             socketClient.disconnect();
         }
 
         try {
-            System.out.println("🔌 Đang kết nối đến server...");
+            logger.info("🔌 Đang kết nối đến server...");
             socketClient.connect();
-            System.out.println("✅ Đã kết nối server");
+            logger.info("✅ Đã kết nối server");
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Lỗi kết nối", "Không thể kết nối đến server: " + e.getMessage());
             return;
@@ -70,7 +71,7 @@ public class LoginController {
                 }
             }
 
-            System.out.println("Role xác định được: [" + role + "]");
+            logger.info("Role xác định được: [ {} ]",role);
 
             String fxmlPath;
             String windowTitle;

@@ -6,8 +6,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProductItemController {
+    private static final Logger logger = LoggerFactory.getLogger(ProductDetailController.class);
 
     @FXML private Label lblName, lblPrice, lblTimer;
     @FXML private ImageView imgView;
@@ -28,7 +31,7 @@ public class ProductItemController {
                 Image img = new Image(url, true);
                 imgView.setImage(img);
             } catch (Exception e) {
-                System.out.println("Lỗi tải ảnh: " + e.getMessage());
+                logger.error("Lỗi tải ảnh: ",e);
             }
         }
     }

@@ -7,13 +7,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AutoBidService {
 
     private static AutoBidService instance;
     private ScheduledExecutorService scheduler;
     private AuctionService auctionService;
-
+    private static final Logger logger = LoggerFactory.getLogger(AutoBidService.class);
     // Lưu auto bid: productId -> (username -> maxBid)
     private Map<Integer, Map<String, Double>> autoBidConfigs = new ConcurrentHashMap<>();
 
@@ -30,13 +32,13 @@ public class AutoBidService {
         auctionService = AuctionService.getInstance();
         scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(this::processAllAutoBids, 0, 2, TimeUnit.SECONDS);
-        System.out.println("AutoBidService: Hệ thống tự động đặt giá đã khởi chạy!");
+        logger.info("AutoBidService: Hệ thống tự động đặt giá đã khởi chạy!");
     }
 
     public void stop() {
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdown();
-            System.out.println("AutoBidService: Đã tắt.");
+            logger.info("AutoBidService: Đã tắt.");
         }
     }
 
@@ -44,7 +46,7 @@ public class AutoBidService {
     public void registerAutoBid(int productId, String username, double maxBid) {
         autoBidConfigs.computeIfAbsent(productId, k -> new ConcurrentHashMap<>())
                 .put(username, maxBid);
-        System.out.println("✅ AutoBid đăng ký: user=" + username + ", product=" + productId + ", max=" + maxBid);
+        logger.info("✅ AutoBid đăng ký: user=" + username + ", product=" + productId + ", max=" + maxBid);
     }
 
     // Hủy auto bid của user
@@ -91,7 +93,7 @@ public class AutoBidService {
                 double nextBid = currentPrice + 1000; // Bước nhảy mặc định
 
                 if (nextBid <= topMaxBid && nextBid > currentPrice) {
-                    System.out.println("[AUTO-BID] " + topBidder + " tự động đặt giá " + nextBid + " cho sản phẩm " + productId);
+                    logger.info("[AUTO-BID] " + topBidder + " tự động đặt giá " + nextBid + " cho sản phẩm " + productId);
                     auctionService.placeBid(productId, topBidder, nextBid);
                 }
             }

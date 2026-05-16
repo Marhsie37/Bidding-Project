@@ -25,7 +25,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class ProductDetailController {
 
     @FXML private ImageView imgDetail;
@@ -40,7 +41,7 @@ public class ProductDetailController {
 
     private Product product;
     private Timeline timerTimeline;
-
+    private static final Logger logger = LoggerFactory.getLogger(ProductDetailController.class);
     public void setProductData(Product p) {
         this.product = p;
         updateDisplay();
@@ -193,7 +194,7 @@ public class ProductDetailController {
     @FXML
     public void handleSubscribeAction(ActionEvent event) {
         boolean isSubscribed = chkSubscribe.isSelected();
-        System.out.println("Theo dõi sản phẩm: " + isSubscribed);
+        logger.info("Theo dõi sản phẩm: {}" , isSubscribed);
     }
 
     private String formatTime(int totalSeconds) {
@@ -226,7 +227,7 @@ public class ProductDetailController {
             try {
                 imgDetail.setImage(new Image(product.getImageUrl(), true));
             } catch (Exception e) {
-                System.err.println("Lỗi tải ảnh: " + e.getMessage());
+                logger.error("Lỗi tải ảnh: " , e);
             }
         }
     }

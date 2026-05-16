@@ -22,9 +22,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class Admin {
-
+    private static final Logger logger = LoggerFactory.getLogger(Admin.class);
     @FXML private VBox vBoxDisplay;
     @FXML private VBox vBoxProducts;
     @FXML private TextField searchField;
@@ -32,19 +33,18 @@ public class Admin {
 
     @FXML
     public void initialize() {
-        System.out.println("✅ Admin.initialize() - BẮT ĐẦU");
+        logger.info("✅ Admin.initialize() - BẮT ĐẦU");
         loadUsers();
         loadProducts();
     }
 
     // ==================== USER MANAGEMENT ====================\n
     private void loadUsers() {
-        System.out.println("🚀 loadUsers() - GỬI REQUEST");
+        logger.info("🚀 loadUsers() - GỬI REQUEST");
         Request request = new Request(CommandType.ADMIN_GET_ALL_USERS, new HashMap<>());
         SocketClient.getInstance().sendRequestAsync(request, response -> {
             Platform.runLater(() -> {
-                System.out.println("📥 loadUsers() nhận response: success=" + response.isSuccess());
-                if (response.isSuccess() && response.getData() != null) {
+                logger.info("📥 loadUsers() nhận response: success={}", response.isSuccess());                if (response.isSuccess() && response.getData() != null) {
                     vBoxDisplay.getChildren().clear();
                     Object usersData = response.getData().get("users");
 
@@ -75,7 +75,7 @@ public class Admin {
 
                                     vBoxDisplay.getChildren().add(row);
                                 } catch (IOException e) {
-                                    System.err.println("❌ Lỗi load User FXML: " + e.getMessage());
+                                    logger.error("❌ Lỗi load User FXML: " , e);
                                 }
                             }
                         }
@@ -87,11 +87,11 @@ public class Admin {
 
     // ==================== PRODUCT MANAGEMENT ====================\n
     private void loadProducts() {
-        System.out.println("📦 loadProducts() - GỬI REQUEST");
+        logger.info("📦 loadProducts() - GỬI REQUEST");
         Request request = new Request(CommandType.ADMIN_GET_ALL_PRODUCTS, new HashMap<>());
         SocketClient.getInstance().sendRequestAsync(request, response -> {
             Platform.runLater(() -> {
-                System.out.println("📥 loadProducts() nhận response: success=" + response.isSuccess());
+                logger.info("📥 loadProducts() nhận response: success={}" , response.isSuccess());
                 if (response.isSuccess() && response.getData() != null) {
                     vBoxProducts.getChildren().clear();
                     Object productsData = response.getData().get("products");
@@ -206,7 +206,7 @@ public class Admin {
     // ==================== NAVIGATION (SỬA LỖI ĐĂNG XUẤT SẬP SERVER) ====================\n
     @FXML
     public void toLogin(ActionEvent event) {
-        System.out.println("🔄 Đang gửi yêu cầu đăng xuất an toàn lên Server...");
+        logger.info("🔄 Đang gửi yêu cầu đăng xuất an toàn lên Server...");
         // Gọi hàm logout gửi request lên Server xóa session trước khi đổi màn hình
         SocketClient.getInstance().logout(response -> {
             Platform.runLater(() -> {
@@ -216,7 +216,7 @@ public class Admin {
                     window.setScene(new Scene(root));
                     window.centerOnScreen();
                     window.show();
-                    System.out.println("✅ Đã quay về màn hình Đăng nhập an toàn.");
+                    logger.info("✅ Đã quay về màn hình Đăng nhập an toàn.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
