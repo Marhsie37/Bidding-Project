@@ -1,43 +1,34 @@
 package com.auction.client.controller;
 
+import com.auction.shared.model.Product;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ProductItemController {
+
     @FXML private Label lblName, lblPrice, lblTimer;
     @FXML private ImageView imgView;
-    @FXML private Button btnEdit, btnDelete; // Thêm fx:id cho các nút này trong FXML
-    private static final Logger logger = LoggerFactory.getLogger(ProductItemController.class);
+    @FXML private Button btnEdit, btnDelete;
 
     public void setData(Product p) {
+        if (p == null) return;
+
         lblName.setText(p.getName());
-        lblPrice.setText(p.getPrice() + " VNĐ");
+        lblPrice.setText(p.getCurrentPrice() + " VNĐ");
 
         String url = p.getImageUrl();
         if (url != null && !url.isEmpty()) {
             try {
-
                 if (!url.startsWith("http") && !url.startsWith("file:")) {
                     url = "file:" + url;
                 }
-
-
-                Image img = new Image(url, true); //
-
-
-                img.errorProperty().addListener((obs, oldVal, newVal) -> {
-                    if (newVal) logger.info("Lỗi không thể tải ảnh tại: " + p.getImageUrl());
-                });
-
+                Image img = new Image(url, true);
                 imgView.setImage(img);
-
             } catch (Exception e) {
-                logger.info("Sai định dạng URL ảnh: " ,e);
+                System.out.println("Lỗi tải ảnh: " + e.getMessage());
             }
         }
     }

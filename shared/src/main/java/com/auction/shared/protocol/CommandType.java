@@ -34,6 +34,8 @@ public enum CommandType {
     ADMIN_GET_ALL_PRODUCTS,
     ADMIN_DELETE_PRODUCT,
     ADMIN_GET_ALL_AUCTIONS,
+    ADMIN_BAN_USER,
+    ADMIN_UNBAN_USER,
 
     // Response
     SUCCESS,
@@ -42,8 +44,9 @@ public enum CommandType {
     AUCTION_END,
     AUCTION_EXTENDED,
 
-    ADD_FUNDS,        // nap tien vao tai khoan
-    PROCESS_PAYMENT,  // xu ly thanh toan
-    GET_USER_BALANCE  // lay so du
-
+    RECHARGE_BALANCE,
+    GET_PURCHASED_PRODUCTS,
+    EXTEND_AUCTION_TIME,
+    ADD_FUNDS,
+    GET_USER_BALANCE,
 }

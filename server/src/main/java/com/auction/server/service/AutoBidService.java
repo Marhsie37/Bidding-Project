@@ -2,20 +2,20 @@ package com.auction.server.service;
 
 import com.auction.shared.model.AuctionSession;
 
-import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class AutoBidService {
 
-    // SINGLETON
     private static AutoBidService instance;
-
-    // Bộ chạy ngầm đa luồng
     private ScheduledExecutorService scheduler;
+    private AuctionService auctionService;
+
+    // Lưu auto bid: productId -> (username -> maxBid)
+    private Map<Integer, Map<String, Double>> autoBidConfigs = new ConcurrentHashMap<>();
 
     private AutoBidService() {}
 
@@ -27,13 +27,10 @@ public class AutoBidService {
     }
 
     public void start() {
-        scheduler = Executors.newScheduledThreadPool(2);
-
-        scheduler.scheduleAtFixedRate(this::processAllAutoBids, 0, 3, TimeUnit.SECONDS);
-
-        scheduler.scheduleAtFixedRate(this::checkAndCloseExpiredAuctions, 0, 1, TimeUnit.SECONDS);
-
-        System.out.println("AutoBidService: Hệ thống tự động đặt giá & Quản lý vòng đời đấu giá đã khởi chạy!");
+        auctionService = AuctionService.getInstance();
+        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(this::processAllAutoBids, 0, 2, TimeUnit.SECONDS);
+        System.out.println("AutoBidService: Hệ thống tự động đặt giá đã khởi chạy!");
     }
 
     public void stop() {
@@ -43,50 +40,66 @@ public class AutoBidService {
         }
     }
 
-    private void checkAndCloseExpiredAuctions() {
-        AuctionService.getInstance().checkAndEndAuctions();
+    // Đăng ký auto bid cho user
+    public void registerAutoBid(int productId, String username, double maxBid) {
+        autoBidConfigs.computeIfAbsent(productId, k -> new ConcurrentHashMap<>())
+                .put(username, maxBid);
+        System.out.println("✅ AutoBid đăng ký: user=" + username + ", product=" + productId + ", max=" + maxBid);
     }
 
-    // Lõi thuật toán Auto-Bid
-    @SuppressWarnings("unchecked")
+    // Hủy auto bid của user
+    public void unregisterAutoBid(int productId, String username) {
+        Map<String, Double> bids = autoBidConfigs.get(productId);
+        if (bids != null) {
+            bids.remove(username);
+            if (bids.isEmpty()) {
+                autoBidConfigs.remove(productId);
+            }
+        }
+    }
+
+    // Xử lý tất cả auto bid
     private void processAllAutoBids() {
-        AuctionService auctionService = AuctionService.getInstance();
-        Map<String, Object> activeData = auctionService.getActiveProducts();
+        if (auctionService == null) return;
 
-        if (!activeData.containsKey("products")) return;
-        List<AuctionSession> activeSessions = (List<AuctionSession>) activeData.get("products");
+        for (Map.Entry<Integer, Map<String, Double>> entry : autoBidConfigs.entrySet()) {
+            int productId = entry.getKey();
+            Map<String, Double> bidders = entry.getValue();
 
-        for (AuctionSession session : activeSessions) {
-            Map<String, Double> autoBids = session.getAutoBids();
-            if (autoBids == null || autoBids.isEmpty()) continue;
+            // Lấy thông tin session hiện tại
+            AuctionSession session = auctionService.getSession(productId);
+            if (session == null) continue;
+            if (!"ACTIVE".equals(session.getStatus())) continue;
 
-            PriorityQueue<AutoBidTask> queue = new PriorityQueue<>((a, b) -> Double.compare(b.maxBid, a.maxBid));
+            double currentPrice = session.getCurrentPrice();
+            String currentWinner = session.getCurrentWinnerName();
 
-            for (Map.Entry<String, Double> entry : autoBids.entrySet()) {
-                queue.add(new AutoBidTask(entry.getKey(), entry.getValue()));
+            // Tìm người có maxBid cao nhất
+            String topBidder = null;
+            double topMaxBid = 0;
+
+            for (Map.Entry<String, Double> bidder : bidders.entrySet()) {
+                if (bidder.getValue() > topMaxBid) {
+                    topMaxBid = bidder.getValue();
+                    topBidder = bidder.getKey();
+                }
             }
 
-            AutoBidTask topBidder = queue.poll();
+            // Nếu người đang dẫn đầu không phải là người có maxBid cao nhất
+            if (topBidder != null && !topBidder.equals(currentWinner)) {
+                // Tính giá tiếp theo
+                double nextBid = currentPrice + 1000; // Bước nhảy mặc định
 
-            if (topBidder != null && !topBidder.username.equals(session.getCurrentWinnerName())) {
-
-                double nextBid = session.getCurrentPrice() + 10.0;
-
-                if (topBidder.maxBid >= nextBid) {
-                    System.out.println("[AUTO-BID] Tự động nâng giá cho user [" + topBidder.username + "] lên mức " + nextBid);
-                    auctionService.placeBid(session.getProductId(), topBidder.username, nextBid);
+                if (nextBid <= topMaxBid && nextBid > currentPrice) {
+                    System.out.println("[AUTO-BID] " + topBidder + " tự động đặt giá " + nextBid + " cho sản phẩm " + productId);
+                    auctionService.placeBid(productId, topBidder, nextBid);
                 }
             }
         }
     }
 
-    private static class AutoBidTask {
-        String username;
-        double maxBid;
-
-        AutoBidTask(String username, double maxBid) {
-            this.username = username;
-            this.maxBid = maxBid;
-        }
+    // Lấy danh sách auto bid của sản phẩm
+    public Map<String, Double> getAutoBids(int productId) {
+        return autoBidConfigs.getOrDefault(productId, new ConcurrentHashMap<>());
     }
 }
