@@ -25,6 +25,7 @@ public class ClientHandler implements Runnable {
     private boolean connected;
     private AuctionService auctionService;
     private NotificationService notificationService;
+    private String currentRequestId; // ✅ THÊM MỚI - thêm cùng chỗ với các field khác
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
@@ -65,6 +66,8 @@ public class ClientHandler implements Runnable {
             System.err.println("SERVER LỖI: Nhận được Request rỗng (null)!");
             return;
         }
+
+        this.currentRequestId = request.getRequestId(); // ✅ THÊM DÒNG NÀY
 
         CommandType command = request.getCommand();
         Map<String, Object> payload = (Map<String, Object>) request.getData();
@@ -123,8 +126,10 @@ public class ClientHandler implements Runnable {
                 handleRemoveAutoBid(payload);
                 break;
             case ADMIN_GET_ALL_USERS:
-                handleAdminGetAllUsers(payload);
+                Map<String, Object> usersResult = auctionService.getAllUsers();
+                sendResponse(CommandType.ADMIN_GET_ALL_USERS, true, "Success", usersResult);
                 break;
+
             case ADMIN_UPDATE_USER:
                 handleAdminUpdateUser(payload);
                 break;
@@ -132,7 +137,8 @@ public class ClientHandler implements Runnable {
                 handleAdminDeleteUser(payload);
                 break;
             case ADMIN_GET_ALL_PRODUCTS:
-                handleAdminGetAllProducts(payload);
+                Map<String, Object> productsResult = auctionService.getAllProducts();
+                sendResponse(CommandType.ADMIN_GET_ALL_PRODUCTS, true, "Success", productsResult);
                 break;
             case ADMIN_DELETE_PRODUCT:
                 handleAdminDeleteProduct(payload);
@@ -164,7 +170,10 @@ public class ClientHandler implements Runnable {
 
         if (success) {
             this.username = user;
-            this.role = (String) result.get("role");
+            Map<String, Object> userData = (Map<String, Object>) result.get("userData");
+            if (userData != null) {
+                this.role = (String) userData.get("role"); // ← ĐÚNG
+            }
             AuctionServer.getInstance().registerClient(username, this);
         }
 
@@ -313,14 +322,16 @@ public class ClientHandler implements Runnable {
 
     private void handleAdminGetAllUsers(Map<String, Object> data) {
         if (!isAdmin()) return;
-        try {
-            System.out.println("📦 Admin lấy users");
-            Map<String, Object> result = auctionService.getAllUsers();
-            sendResponse(CommandType.ADMIN_GET_ALL_USERS, true, "Success", result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(CommandType.ADMIN_GET_ALL_USERS, false, e.getMessage(), null);
-        }
+        Map<String, Object> result = auctionService.getAllUsers();
+        sendResponse(CommandType.ADMIN_GET_ALL_USERS, true, "Success", result);
+        // KHÔNG disconnect ở đây
+    }
+
+    private void handleAdminGetAllProducts(Map<String, Object> data) {
+        if (!isAdmin()) return;
+        Map<String, Object> result = auctionService.getAllProducts();
+        sendResponse(CommandType.ADMIN_GET_ALL_PRODUCTS, true, "Success", result);
+        // KHÔNG disconnect ở đây
     }
 
     private void handleAdminUpdateUser(Map<String, Object> data) {
@@ -338,17 +349,7 @@ public class ClientHandler implements Runnable {
                 (String) result.get("message"), null);
     }
 
-    private void handleAdminGetAllProducts(Map<String, Object> data) {
-        if (!isAdmin()) return;
-        try {
-            System.out.println("📦 Admin lấy products");
-            Map<String, Object> result = auctionService.getAllProducts();
-            sendResponse(CommandType.ADMIN_GET_ALL_PRODUCTS, true, "Success", result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            sendResponse(CommandType.ADMIN_GET_ALL_PRODUCTS, false, e.getMessage(), null);
-        }
-    }
+
 
     private void handleAdminDeleteProduct(Map<String, Object> data) {
         if (!isAdmin()) return;
@@ -401,6 +402,7 @@ public class ClientHandler implements Runnable {
         }
         try {
             Response response = new Response(command, success, message, data);
+            response.setRequestId(currentRequestId); // ✅ THÊM MỚI - echo requestId về client
             outputStream.writeObject(response);
             outputStream.flush();
         } catch (IOException e) {

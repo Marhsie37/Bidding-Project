@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -23,13 +24,18 @@ public class SocketClient {
     private int serverPort;
     private String authToken;
     private boolean connected;
-    private Map<CommandType, Consumer<Response>> responseHandlers;
+
+    // ✅ pendingCallbacks theo requestId - tránh ghi đè lẫn nhau
+    private Map<String, Consumer<Response>> pendingCallbacks = new ConcurrentHashMap<>();
+    // ✅ persistentHandlers theo CommandType - dùng cho BID_UPDATE, AUCTION_END...
+    private Map<CommandType, Consumer<Response>> persistentHandlers = new ConcurrentHashMap<>();
+
     private Thread listenerThread;
+    private final Object writeLock = new Object(); // ✅ lock ghi socket
 
     private SocketClient() {
         this.serverHost = "localhost";
         this.serverPort = 9999;
-        this.responseHandlers = new ConcurrentHashMap<>();
     }
 
     public static SocketClient getInstance() {
@@ -39,18 +45,6 @@ public class SocketClient {
         return instance;
     }
 
-    public void connect() throws IOException {
-        if (connected) return;
-        socket = new Socket(serverHost, serverPort);
-        outputStream = new ObjectOutputStream(socket.getOutputStream());
-        inputStream = new ObjectInputStream(socket.getInputStream());
-        connected = true;
-        startListener();
-        System.out.println("Connected to server");
-    }
-
-
-
     private void startListener() {
         listenerThread = new Thread(() -> {
             try {
@@ -58,9 +52,24 @@ public class SocketClient {
                     Object obj = inputStream.readObject();
                     if (obj instanceof Response) {
                         Response response = (Response) obj;
-                        Consumer<Response> handler = responseHandlers.get(response.getCommand());
+
+                        // ✅ Ưu tiên tìm theo requestId
+                        String requestId = response.getRequestId();
+                        Consumer<Response> handler = null;
+
+                        if (requestId != null) {
+                            handler = pendingCallbacks.remove(requestId); // remove sau khi dùng
+                        }
+
+                        // ✅ Fallback: tìm theo CommandType (BID_UPDATE, AUCTION_END, AUCTION_EXTENDED)
+                        if (handler == null) {
+                            handler = persistentHandlers.get(response.getCommand());
+                        }
+
                         if (handler != null) {
                             handler.accept(response);
+                        } else {
+                            System.err.println("⚠️ Không có handler cho: " + response.getCommand() + " (requestId=" + requestId + ")");
                         }
                     }
                 }
@@ -83,25 +92,31 @@ public class SocketClient {
         if (authToken != null) {
             request.setToken(authToken);
         }
-        // Đồng bộ luồng đầu ra
-        outputStream.writeObject(request);
-        outputStream.flush();
+        // ✅ Đồng bộ hóa - chỉ 1 thread ghi tại một thời điểm
+        synchronized (writeLock) {
+            outputStream.writeObject(request);
+            outputStream.flush();
+        }
     }
 
     public void sendRequestAsync(Request request, Consumer<Response> callback) {
+        // ✅ Gán requestId duy nhất cho mỗi request
+        String requestId = UUID.randomUUID().toString();
+        request.setRequestId(requestId);
+
         if (callback != null) {
-            responseHandlers.put(request.getCommand(), callback);
+            pendingCallbacks.put(requestId, callback);
         }
+
         new Thread(() -> {
             try {
                 sendRequest(request);
             } catch (IOException e) {
                 System.err.println("LỖI GỬI SOCKET: " + e.getMessage());
+                pendingCallbacks.remove(requestId);
                 if (callback != null) {
                     callback.accept(new Response(request.getCommand(), false, e.getMessage()));
                 }
-                // ✅ Xóa handler sau khi có lỗi
-                responseHandlers.remove(request.getCommand());
             }
         }).start();
     }
@@ -130,7 +145,7 @@ public class SocketClient {
 
     public void placeBid(int productId, double bidAmount, Consumer<Response> callback) {
         Map<String, Object> data = new HashMap<>();
-        data.put("producstId", productId);
+        data.put("productId", productId);
         data.put("bidAmount", bidAmount);
         sendRequestAsync(new Request(CommandType.PLACE_BID, data), callback);
     }
@@ -207,20 +222,22 @@ public class SocketClient {
         sendRequestAsync(new Request(CommandType.LOGOUT, new HashMap<>()), callback);
     }
 
+    // ✅ Persistent handlers cho server-push events
     public void setBidUpdateHandler(Consumer<Response> handler) {
-        responseHandlers.put(CommandType.BID_UPDATE, handler);
+        persistentHandlers.put(CommandType.BID_UPDATE, handler);
     }
 
     public void setAuctionEndHandler(Consumer<Response> handler) {
-        responseHandlers.put(CommandType.AUCTION_END, handler);
+        persistentHandlers.put(CommandType.AUCTION_END, handler);
     }
 
     public void setAuctionExtendedHandler(Consumer<Response> handler) {
-        responseHandlers.put(CommandType.AUCTION_EXTENDED, handler);
+        persistentHandlers.put(CommandType.AUCTION_EXTENDED, handler);
     }
 
     public void disconnect() {
         connected = false;
+        pendingCallbacks.clear(); // ✅ Xóa callbacks cũ khi disconnect
         try {
             if (inputStream != null) inputStream.close();
             if (outputStream != null) outputStream.close();
@@ -228,6 +245,20 @@ public class SocketClient {
         } catch (IOException e) {
             System.err.println("Error disconnecting: " + e.getMessage());
         }
+        // ✅ Reset streams về null
+        inputStream = null;
+        outputStream = null;
+        socket = null;
+    }
+
+    public void connect() throws IOException {
+        // ✅ Bỏ guard "if connected return" - phải cho phép reconnect
+        socket = new Socket(serverHost, serverPort);
+        outputStream = new ObjectOutputStream(socket.getOutputStream());
+        inputStream = new ObjectInputStream(socket.getInputStream());
+        connected = true;
+        startListener();
+        System.out.println("Connected to server");
     }
 
     public boolean isConnected() { return connected; }
@@ -235,7 +266,7 @@ public class SocketClient {
     public String getAuthToken() { return authToken; }
 
     public void clearHandlers() {
-        responseHandlers.clear();
-        System.out.println("✅ Đã xóa toàn bộ response handlers");
+        pendingCallbacks.clear();
+        System.out.println("✅ Đã xóa toàn bộ pending callbacks");
     }
 }

@@ -9,6 +9,7 @@ public class Request implements Serializable {
     private CommandType command;
     private Map<String, Object> data;
     private String token;
+    private String requestId; // ✅ THÊM MỚI
 
     public Request() {}
 
@@ -23,7 +24,6 @@ public class Request implements Serializable {
         this.token = token;
     }
 
-    // Getters and Setters
     public CommandType getCommand() { return command; }
     public void setCommand(CommandType command) { this.command = command; }
 
@@ -33,4 +33,6 @@ public class Request implements Serializable {
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
 
+    public String getRequestId() { return requestId; } // ✅ THÊM MỚI
+    public void setRequestId(String requestId) { this.requestId = requestId; } // ✅ THÊM MỚI
 }

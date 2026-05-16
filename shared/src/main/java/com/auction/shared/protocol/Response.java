@@ -10,6 +10,7 @@ public class Response implements Serializable {
     private boolean success;
     private String message;
     private Map<String, Object> data;
+    private String requestId; // ✅ THÊM MỚI
 
     public Response() {}
 
@@ -26,7 +27,6 @@ public class Response implements Serializable {
         this.data = data;
     }
 
-    // Getters and Setters
     public CommandType getCommand() { return command; }
     public void setCommand(CommandType command) { this.command = command; }
 
@@ -39,4 +39,6 @@ public class Response implements Serializable {
     public Map<String, Object> getData() { return data; }
     public void setData(Map<String, Object> data) { this.data = data; }
 
+    public String getRequestId() { return requestId; } // ✅ THÊM MỚI
+    public void setRequestId(String requestId) { this.requestId = requestId; } // ✅ THÊM MỚI
 }

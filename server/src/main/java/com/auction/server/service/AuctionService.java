@@ -65,10 +65,17 @@ public class AuctionService {
     public Map<String, Object> login(String username, String password) {
         Map<String, Object> result = new HashMap<>();
 
-        // Tìm user trong DATABASE
         User user = userDAO.findByUsername(username);
 
         if (user != null && user.getPassword().equals(password)) {
+            System.out.println("🔍 DEBUG login - username: " + username + " | status: " + user.getStatus()); // THÊM DÒNG NÀY
+            // ✅ THÊM: Kiểm tra bị ban
+            if ("BANNED".equalsIgnoreCase(user.getStatus())) {
+                result.put("success", false);
+                result.put("message", "Tài khoản của bạn đã bị khóa!");
+                return result;
+            }
+
             Map<String, Object> userData = new HashMap<>();
             userData.put("id", user.getId());
             userData.put("username", user.getUsername());
@@ -494,16 +501,23 @@ public class AuctionService {
     // admin functions
     public Map<String, Object> getAllUsers() {
         Map<String, Object> result = new HashMap<>();
-        List<User> users = userDAO.getAllUsers();
+        List<User> allUsers = userDAO.getAllUsers();
 
-        // ✅ THÊM LOG NÀY
-        System.out.println("📊 getAllUsers() - Số users trong database: " + users.size());
-        for (User u : users) {
+        // ✅ Lọc bỏ ADMIN trước khi gửi về client
+        List<User> filteredUsers = new ArrayList<>();
+        for (User u : allUsers) {
+            if (!"ADMIN".equalsIgnoreCase(u.getRole())) {
+                filteredUsers.add(u);
+            }
+        }
+
+        System.out.println("📊 getAllUsers() - Số users trong database: " + filteredUsers.size());
+        for (User u : filteredUsers) {
             System.out.println("   User: " + u.getUsername() + " | Role: " + u.getRole() + " | Status: " + u.getStatus());
         }
 
         result.put("success", true);
-        result.put("users", users);
+        result.put("users", filteredUsers);
         return result;
     }
 
@@ -516,8 +530,9 @@ public class AuctionService {
 
     public Map<String, Object> adminDeleteUser(int userId) {
         Map<String, Object> result = new HashMap<>();
-        result.put("success", true);
-        result.put("message", "Admin: Xóa User thành công");
+        boolean success = userDAO.deleteUser(userId); // ✅ Gọi DAO thật
+        result.put("success", success);
+        result.put("message", success ? "Đã xóa người dùng!" : "Xóa thất bại! (Có thể là ADMIN hoặc không tồn tại)");
         return result;
     }
 
@@ -537,13 +552,15 @@ public class AuctionService {
 
     public Map<String, Object> adminDeleteProduct(int productId) {
         Map<String, Object> result = new HashMap<>();
-        if (productsDB.remove(productId) != null) {
+        boolean success = productDAO.adminDeleteProduct(productId); // ✅ Gọi DAO thật
+        if (success) {
+            productsDB.remove(productId);
             sessions.remove(productId);
             result.put("success", true);
-            result.put("message", "Admin: Đã xóa sổ sản phẩm!");
+            result.put("message", "Đã xóa sản phẩm!");
         } else {
             result.put("success", false);
-            result.put("message", "Admin: Sản phẩm không tồn tại!");
+            result.put("message", "Xóa thất bại!");
         }
         return result;
     }

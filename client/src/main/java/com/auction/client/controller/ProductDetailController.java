@@ -46,6 +46,7 @@ public class ProductDetailController {
         updateDisplay();
         startTimer();
         loadBidHistory();
+        registerRealtimeHandlers();
     }
 
     private void startTimer() {
@@ -110,15 +111,19 @@ public class ProductDetailController {
                 Platform.runLater(() -> {
                     if (response.isSuccess()) {
                         Map<String, Object> resData = response.getData();
-                        double newPrice = (double) resData.get("currentPrice");
-                        product.setCurrentPrice(newPrice);
 
-                        // ✅ CẬP NHẬT ENDTIME NẾU CÓ GIA HẠN
+                        // ✅ SỬA AN TOÀN
+                        Object priceObj = resData.get("currentPrice");
+                        if (priceObj instanceof Number) {
+                            double newPrice = ((Number) priceObj).doubleValue();
+                            product.setCurrentPrice(newPrice);
+                        }
+
                         if (resData.containsKey("newEndTime")) {
                             String newEndTimeStr = (String) resData.get("newEndTime");
                             LocalDateTime newEndTime = LocalDateTime.parse(newEndTimeStr);
                             product.setEndTime(newEndTime);
-                            startTimer(); // Refresh đồng hồ ngay lập tức
+                            startTimer();
                         }
 
                         updateDisplay();
@@ -133,21 +138,6 @@ public class ProductDetailController {
 
         } catch (NumberFormatException e) {
             showAlert("Lỗi", "Vui lòng nhập số tiền hợp lệ!");
-        }
-    }
-
-    @FXML
-    public void goToMain(ActionEvent event) {
-        if (timerTimeline != null) {
-            timerTimeline.stop();
-        }
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("/com/auction/client/view/ProductListController.fxml"));
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -228,6 +218,100 @@ public class ProductDetailController {
             } catch (Exception e) {
                 System.err.println("Lỗi tải ảnh: " + e.getMessage());
             }
+        }
+    }
+    private void registerRealtimeHandlers() {
+        int productId = product.getId();
+
+        // ✅ BID_UPDATE: Có người đặt giá mới
+        SocketClient.getInstance().setBidUpdateHandler(response -> {
+            if (response.getData() == null) return;
+            Map<String, Object> data = response.getData();
+
+            int updatedProductId = ((Number) data.get("productId")).intValue();
+            if (updatedProductId != productId) return; // Không phải sản phẩm này
+
+            double newPrice = ((Number) data.get("bidAmount")).doubleValue();
+            String bidderName = (String) data.get("bidderName");
+
+            Platform.runLater(() -> {
+                product.setCurrentPrice(newPrice);
+                updateDisplay();
+                loadBidHistory();
+                // Hiện thông báo nhỏ không chặn UI
+                lblDetailPrice.setStyle("-fx-text-fill: red; -fx-font-size: 20px;");
+                showNotification("Có giá mới!", bidderName + " vừa đặt " + String.format("%,.0f VNĐ", newPrice));
+            });
+        });
+
+        // ✅ AUCTION_END: Phiên kết thúc
+        SocketClient.getInstance().setAuctionEndHandler(response -> {
+            if (response.getData() == null) return;
+            Map<String, Object> data = response.getData();
+
+            int endedProductId = ((Number) data.get("productId")).intValue();
+            if (endedProductId != productId) return;
+
+            String winnerName = (String) data.get("winnerName");
+            double finalPrice = ((Number) data.get("finalPrice")).doubleValue();
+
+            Platform.runLater(() -> {
+                if (timerTimeline != null) timerTimeline.stop();
+                lblDetailTimer.setText("ĐÃ KẾT THÚC");
+                lblDetailTimer.setStyle("-fx-text-fill: red;");
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Phiên đấu giá kết thúc");
+                alert.setHeaderText("🏆 Kết quả đấu giá");
+                alert.setContentText("Người thắng: " + winnerName + "\nGiá cuối: " + String.format("%,.0f VNĐ", finalPrice));
+                alert.show();
+            });
+        });
+
+        // ✅ AUCTION_EXTENDED: Phiên được gia hạn (anti-sniping)
+        SocketClient.getInstance().setAuctionExtendedHandler(response -> {
+            if (response.getData() == null) return;
+            Map<String, Object> data = response.getData();
+
+            int extendedProductId = ((Number) data.get("productId")).intValue();
+            if (extendedProductId != productId) return;
+
+            String newEndTimeStr = (String) data.get("newEndTime");
+            LocalDateTime newEndTime = LocalDateTime.parse(newEndTimeStr);
+
+            Platform.runLater(() -> {
+                product.setEndTime(newEndTime);
+                startTimer(); // Cập nhật đồng hồ
+                showNotification("Gia hạn!", "Phiên đấu giá được gia hạn thêm 60 giây!");
+            });
+        });
+
+        // ✅ Đăng ký subscribe với server
+        Map<String, Object> data = new HashMap<>();
+        data.put("productId", productId);
+        Request req = new Request(CommandType.SUBSCRIBE_AUCTION, data);
+        SocketClient.getInstance().sendRequestAsync(req, response -> {
+            System.out.println("✅ Subscribe auction: " + response.isSuccess());
+        });
+    }
+
+    @FXML
+    public void goToMain(ActionEvent event) {
+        if (timerTimeline != null) timerTimeline.stop();
+
+        // ✅ Hủy đăng ký nhận thông báo
+        Map<String, Object> data = new HashMap<>();
+        data.put("productId", product.getId());
+        Request req = new Request(CommandType.UNSUBSCRIBE_AUCTION, data);
+        SocketClient.getInstance().sendRequestAsync(req, response -> {});
+
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/com/auction/client/view/ProductListController.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

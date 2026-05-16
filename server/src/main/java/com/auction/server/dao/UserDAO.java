@@ -151,19 +151,12 @@ public class UserDAO {
         user.setFullName(rs.getString("full_name"));
         user.setRole(rs.getString("role"));
         user.setBalance(rs.getDouble("balance"));
+        user.setActive(rs.getBoolean("active"));
+        user.setStatus(rs.getString("status")); // ✅ Bỏ try-catch, đọc thẳng
 
         Timestamp createdAt = rs.getTimestamp("created_at");
         if (createdAt != null) {
             user.setCreatedAt(createdAt.toLocalDateTime());
-        }
-
-        user.setActive(rs.getBoolean("active"));
-
-        // ✅ THÊM DÒNG NÀY
-        try {
-            user.setStatus(rs.getString("status"));
-        } catch (SQLException e) {
-            user.setStatus("ACTIVE"); // Nếu cột chưa có, set mặc định
         }
 
         return user;

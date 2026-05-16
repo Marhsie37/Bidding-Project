@@ -212,8 +212,10 @@ public class ProductDAO {
 
     public List<Product> getAllProducts() {
         List<Product> products = new ArrayList<>();
+        // ✅ Chỉ lấy sản phẩm còn hạn (ACTIVE hoặc PENDING và chưa hết end_time)
         String sql = "SELECT p.*, u.username as seller_name " +
                 "FROM products p LEFT JOIN users u ON p.seller_id = u.id " +
+                "WHERE p.status IN ('ACTIVE', 'PENDING') AND p.end_time > NOW() " +
                 "ORDER BY p.created_at DESC";
         try (Statement stmt = dbConnection.getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {

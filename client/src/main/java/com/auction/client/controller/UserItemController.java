@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import java.util.Map;
 
 public class UserItemController {
+    public Label getLblInfo() { return lblInfo; }
 
     @FXML private Label lblInfo;
     @FXML private Button btnBan;

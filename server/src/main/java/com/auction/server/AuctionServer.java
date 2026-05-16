@@ -89,15 +89,11 @@ public class AuctionServer {
         System.out.println("Server stopped");
     }
     public void registerClient(String username, ClientHandler handler) {
-        // ✅ Xóa client cũ nếu tồn tại
         if (clients.containsKey(username)) {
             ClientHandler old = clients.remove(username);
-            try {
-                old.disconnect();
-            } catch (Exception e) {
-                System.err.println("Lỗi đóng client cũ: " + e.getMessage());
-            }
-            System.out.println("Đã xóa client cũ: " + username);
+            // KHÔNG gọi old.disconnect() ở đây
+            // Handler cũ sẽ tự kết thúc khi client ngắt kết nối
+            System.out.println("Đã thay thế client cũ: " + username);
         }
         clients.put(username, handler);
         System.out.println("Client registered: " + username);
