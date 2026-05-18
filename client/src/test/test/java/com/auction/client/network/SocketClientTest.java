@@ -55,13 +55,13 @@ class SocketClientTest {
                     // Mỗi connection xử lý trong thread riêng
                     new Thread(() -> handleMockClient(clientSocket)).start();
                 } catch (IOException e) {
-                    if (mockRunning) System.err.println("[MockServer] Accept error: " + e.getMessage());
+                    if (mockRunning) logger.error("[MockServer] Accept error: " ,e);
                 }
             }
         });
         mockServerThread.setDaemon(true);
         mockServerThread.start();
-        System.out.println("[MockServer] Started on port " + mockPort);
+        logger.info("[MockServer] Started on port {}" , mockPort);
     }
 
     private void handleMockClient(Socket clientSocket) {
@@ -80,7 +80,7 @@ class SocketClientTest {
         } catch (EOFException ignored) {
             // Client ngắt kết nối bình thường
         } catch (Exception e) {
-            System.err.println("[MockServer] Handler error: " + e.getMessage());
+            logger.error("[MockServer] Handler error: " ,e);
         }
     }
 
@@ -146,7 +146,7 @@ class SocketClientTest {
     void stopMockServer() throws IOException {
         mockRunning = false;
         mockServerSocket.close();
-        System.out.println("[MockServer] Stopped");
+        logger.info("[MockServer] Stopped");
     }
 
     // ── Setup / Teardown mỗi test ────────────────────────────────────────────

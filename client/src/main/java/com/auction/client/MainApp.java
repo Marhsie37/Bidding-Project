@@ -8,7 +8,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         // WindowManager tự xử lý đóng cửa sổ và logout
-        WindowManager.openUndecoratedWindow("/com/auction/client/view/LoginController.fxml", this);
+        WindowManager.openWindow("/com/auction/client/view/LoginController.fxml", this);
     }
 
     public static void main(String[] args) {

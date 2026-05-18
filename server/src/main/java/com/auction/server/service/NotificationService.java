@@ -3,29 +3,34 @@ package com.auction.server.service;
 import com.auction.server.ClientHandler;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.concurrent.*;
+import java.util.logging.Handler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NotificationService {
-    private static NotificationService instance;
+    private static volatile NotificationService instance;
     private ConcurrentHashMap<Integer,CopyOnWriteArrayList<ClientHandler>> subscribers;
     private NotificationService(){
         this.subscribers = new ConcurrentHashMap<>();
     }
-    public static NotificationService getInstance(){
-        if (instance == null){
-            instance = new NotificationService();
+    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
+    public static NotificationService getInstance() {
+        if (instance == null) {
+            synchronized (NotificationService.class) {
+                if (instance == null) {
+                    instance = new NotificationService();
+                }
+            }
         }
         return instance;
     }
     public void subscribe(int auctionId, String username, ClientHandler handler) {
-        if (handler == null) {
-            System.err.println("⚠️ Cannot subscribe: handler is null for user " + username);
-            return;
-        }
         subscribers.computeIfAbsent(auctionId, k -> new CopyOnWriteArrayList<>())
-                .add(handler);
-        System.out.println("User " + username + " subscribed to auction " + auctionId);
+                .add(handler); //ktra xem auctionId co trong map chua, neu chua co tao CopyOnWrite.. moi, neu da co tra ve danh sach hien tai
+        logger.info("User " + username + " subscribed to auction " + auctionId);
     }
     public void unsubscribe(int auctionId, String username){
         CopyOnWriteArrayList<ClientHandler> handlers = subscribers.get(auctionId);

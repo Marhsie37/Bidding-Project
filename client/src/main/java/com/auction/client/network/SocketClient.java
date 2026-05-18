@@ -3,6 +3,8 @@ package com.auction.client.network;
 import com.auction.shared.protocol.CommandType;
 import com.auction.shared.protocol.Request;
 import com.auction.shared.protocol.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -25,13 +27,14 @@ public class SocketClient {
     private String authToken;
     private boolean connected;
 
-    // ✅ pendingCallbacks theo requestId - tránh ghi đè lẫn nhau
+    // ✅ pendingCallbacks theo requestId - tránh ghi đè lẫn nhau (từ bản 2)
     private Map<String, Consumer<Response>> pendingCallbacks = new ConcurrentHashMap<>();
-    // ✅ persistentHandlers theo CommandType - dùng cho BID_UPDATE, AUCTION_END...
-    private Map<CommandType, Consumer<Response>> persistentHandlers = new ConcurrentHashMap<>();
+    // ✅ responseHandlers theo CommandType - dùng cho BID_UPDATE, AUCTION_END... (từ bản 1)
+    private Map<CommandType, Consumer<Response>> responseHandlers = new ConcurrentHashMap<>();
 
     private Thread listenerThread;
-    private final Object writeLock = new Object(); // ✅ lock ghi socket
+    private final Object writeLock = new Object();
+    private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
 
     private SocketClient() {
         this.serverHost = "localhost";
@@ -45,6 +48,17 @@ public class SocketClient {
         return instance;
     }
 
+    public void connect() throws IOException {
+        // XÓA DÒNG if (connected.get()) { ... return; }
+        socket = new Socket(serverHost, serverPort);
+        outputStream = new ObjectOutputStream(socket.getOutputStream());
+        inputStream = new ObjectInputStream(socket.getInputStream());
+        connected = true;
+        startListener();
+        logger.info("Connected to server");
+    }
+
+
     private void startListener() {
         listenerThread = new Thread(() -> {
             try {
@@ -53,31 +67,32 @@ public class SocketClient {
                     if (obj instanceof Response) {
                         Response response = (Response) obj;
 
-                        // ✅ Ưu tiên tìm theo requestId
                         String requestId = response.getRequestId();
                         Consumer<Response> handler = null;
 
+                        // ✅ Ưu tiên tìm theo requestId (từ bản 2)
                         if (requestId != null) {
-                            handler = pendingCallbacks.remove(requestId); // remove sau khi dùng
+                            handler = pendingCallbacks.remove(requestId);
                         }
 
-                        // ✅ Fallback: tìm theo CommandType (BID_UPDATE, AUCTION_END, AUCTION_EXTENDED)
+                        // ✅ Fallback: tìm theo CommandType (từ bản 1)
                         if (handler == null) {
-                            handler = persistentHandlers.get(response.getCommand());
+                            handler = responseHandlers.get(response.getCommand());
                         }
 
                         if (handler != null) {
                             handler.accept(response);
                         } else {
-                            System.err.println("⚠️ Không có handler cho: " + response.getCommand() + " (requestId=" + requestId + ")");
+                            logger.warn("⚠️ Không có handler cho: {} (requestId={})",
+                                    response.getCommand(), requestId);
                         }
                     }
                 }
             } catch (EOFException e) {
-                System.out.println("Connection closed by server");
+                logger.info("Connection closed by server");
             } catch (IOException | ClassNotFoundException e) {
                 if (connected) {
-                    System.err.println("Error receiving response: " + e.getMessage());
+                    logger.error("Error receiving response: ", e);
                 }
             }
         });
@@ -92,7 +107,7 @@ public class SocketClient {
         if (authToken != null) {
             request.setToken(authToken);
         }
-        // ✅ Đồng bộ hóa - chỉ 1 thread ghi tại một thời điểm
+        // ✅ Đồng bộ ghi socket (từ bản 2)
         synchronized (writeLock) {
             outputStream.writeObject(request);
             outputStream.flush();
@@ -100,20 +115,17 @@ public class SocketClient {
     }
 
     public void sendRequestAsync(Request request, Consumer<Response> callback) {
-        // ✅ Gán requestId duy nhất cho mỗi request
-        String requestId = UUID.randomUUID().toString();
-        request.setRequestId(requestId);
-
+        // ✅ Đăng ký handler TRƯỚC khi gửi
         if (callback != null) {
-            pendingCallbacks.put(requestId, callback);
+            responseHandlers.put(request.getCommand(), callback);
         }
-
+        // ✅ Gửi trong 1 thread riêng nhưng có synchronized bên trong
         new Thread(() -> {
             try {
                 sendRequest(request);
             } catch (IOException e) {
                 System.err.println("LỖI GỬI SOCKET: " + e.getMessage());
-                pendingCallbacks.remove(requestId);
+                responseHandlers.remove(request.getCommand());
                 if (callback != null) {
                     callback.accept(new Response(request.getCommand(), false, e.getMessage()));
                 }
@@ -222,51 +234,55 @@ public class SocketClient {
         sendRequestAsync(new Request(CommandType.LOGOUT, new HashMap<>()), callback);
     }
 
-    // ✅ Persistent handlers cho server-push events
+    // ========== PERSISTENT HANDLERS (từ bản 1) ==========
     public void setBidUpdateHandler(Consumer<Response> handler) {
-        persistentHandlers.put(CommandType.BID_UPDATE, handler);
+        responseHandlers.put(CommandType.BID_UPDATE, handler);
     }
 
     public void setAuctionEndHandler(Consumer<Response> handler) {
-        persistentHandlers.put(CommandType.AUCTION_END, handler);
+        responseHandlers.put(CommandType.AUCTION_END, handler);
     }
 
     public void setAuctionExtendedHandler(Consumer<Response> handler) {
-        persistentHandlers.put(CommandType.AUCTION_EXTENDED, handler);
+        responseHandlers.put(CommandType.AUCTION_EXTENDED, handler);
     }
 
+    // ========== UTILITY ==========
     public void disconnect() {
         connected = false;
-        pendingCallbacks.clear(); // ✅ Xóa callbacks cũ khi disconnect
+        pendingCallbacks.clear();
+        responseHandlers.clear();
         try {
             if (inputStream != null) inputStream.close();
             if (outputStream != null) outputStream.close();
             if (socket != null && !socket.isClosed()) socket.close();
         } catch (IOException e) {
-            System.err.println("Error disconnecting: " + e.getMessage());
+            logger.error("Error disconnecting: ", e);
         }
-        // ✅ Reset streams về null
         inputStream = null;
         outputStream = null;
         socket = null;
     }
 
-    public void connect() throws IOException {
-        // ✅ Bỏ guard "if connected return" - phải cho phép reconnect
-        socket = new Socket(serverHost, serverPort);
-        outputStream = new ObjectOutputStream(socket.getOutputStream());
-        inputStream = new ObjectInputStream(socket.getInputStream());
-        connected = true;
-        startListener();
-        System.out.println("Connected to server");
+    public boolean isConnected() {
+        return connected;
     }
 
-    public boolean isConnected() { return connected; }
-    public void setAuthToken(String token) { this.authToken = token; }
-    public String getAuthToken() { return authToken; }
+    public void setAuthToken(String token) {
+        this.authToken = token;
+    }
+
+    public String getAuthToken() {
+        return authToken;
+    }
 
     public void clearHandlers() {
         pendingCallbacks.clear();
-        System.out.println("✅ Đã xóa toàn bộ pending callbacks");
+        responseHandlers.clear();
+        logger.info("✅ Đã xóa toàn bộ handlers");
     }
+
+
+
+
 }

@@ -8,10 +8,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserProductDAO {
     private DatabaseConnection dbConnection;
-
+    private static final Logger logger = LoggerFactory.getLogger(UserProductDAO.class);
     public UserProductDAO() {
         this.dbConnection = DatabaseConnection.getInstance();
     }
@@ -25,7 +27,7 @@ public class UserProductDAO {
             pstmt.setDouble(4, price);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Error adding purchased product: " + e.getMessage());
+            logger.error("Error adding purchased product: " ,e);
             return false;
         }
     }
@@ -38,7 +40,7 @@ public class UserProductDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
-            System.out.println("🔍 [DEBUG] getPurchasedProducts - userId: " + userId);
+            logger.info("🔍 [DEBUG] getPurchasedProducts - userId: " + userId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -47,15 +49,15 @@ public class UserProductDAO {
                     p.setName(rs.getString("product_name"));
                     p.setCurrentPrice(rs.getDouble("product_price"));
                     products.add(p);
-                    System.out.println("✅ [DEBUG] Đã lấy sản phẩm: " + p.getName());
+                    logger.info("✅ [DEBUG] Đã lấy sản phẩm: " + p.getName());
                 }
             }
         } catch (SQLException e) {
-            System.err.println("❌ [DEBUG] Lỗi SQL trong getPurchasedProducts: " + e.getMessage());
+            logger.error("❌ [DEBUG] Lỗi SQL trong getPurchasedProducts: " ,e);
             e.printStackTrace();
         }
 
-        System.out.println("✅ [DEBUG] Tổng số sản phẩm tìm thấy: " + products.size());
+        logger.info("✅ [DEBUG] Tổng số sản phẩm tìm thấy: " + products.size());
         return products;
     }
 }
