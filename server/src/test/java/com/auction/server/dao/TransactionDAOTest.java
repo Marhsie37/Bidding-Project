@@ -4,6 +4,7 @@ import com.auction.shared.model.User;
 import org.junit.jupiter.api.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import static org.junit.jupiter.api.Assertions.*;
