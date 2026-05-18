@@ -325,3 +325,31 @@
     -fx-background-color: #f0f8ff;
     -fx-cursor: hand;
 }
+
+
+/* Notification Toast Styles */
+.notification-toast {
+    -fx-background-radius: 8;
+    -fx-padding: 12 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 3);
+}
+
+.notification-icon {
+    -fx-font-size: 20px;
+}
+
+.notification-message {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.notification-close {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.notification-close:hover {
+    -fx-opacity: 0.8;
+}

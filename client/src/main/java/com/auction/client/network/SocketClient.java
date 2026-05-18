@@ -70,7 +70,6 @@ public class SocketClient {
                         String requestId = response.getRequestId();
                         Consumer<Response> handler = null;
 
-                        // ✅ Ưu tiên tìm theo requestId (từ bản 2)
                         if (requestId != null) {
                             handler = pendingCallbacks.remove(requestId);
                         }
@@ -133,7 +132,6 @@ public class SocketClient {
         }).start();
     }
 
-    // ========== CÁC METHOD GỬI REQUEST ==========
     public void login(String username, String password, Consumer<Response> callback) {
         Map<String, Object> data = new HashMap<>();
         data.put("username", username);
@@ -281,6 +279,15 @@ public class SocketClient {
         responseHandlers.clear();
         logger.info("✅ Đã xóa toàn bộ handlers");
     }
+
+
+    public Consumer<Response> getResponseHandler(CommandType command) {
+        return responseHandlers.get(command);
+    }
+    public void registerResponseHandler(CommandType command, Consumer<Response> handler) {
+        responseHandlers.put(command, handler);
+    }
+
 
 
 

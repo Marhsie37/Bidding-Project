@@ -1,6 +1,7 @@
 package com.auction.client.controller;
 
 import com.auction.client.network.SocketClient;
+import com.auction.client.utils.NotificationManager;
 import com.auction.shared.model.BidTransaction;
 import com.auction.shared.model.Product;
 import com.auction.shared.protocol.CommandType;
@@ -45,6 +46,22 @@ public class ProductDetailController {
     private Product product;
     private Timeline timerTimeline;
     private boolean isSubscribed = false;
+    private NotificationManager notificationManager;
+
+    @FXML
+    public void initialize() {
+        notificationManager = NotificationManager.getInstance();
+
+        // 2. Khởi tạo các component khác (nếu cần)
+        // Ví dụ: thiết lập sự kiện, format số, ...
+        txtBidAmount.setTextFormatter(new TextFormatter<>(change -> {
+            if (change.getText().matches("\\d*")) {
+                return change;
+            }
+            return null;
+        }));
+
+    }
 
     public void setProductData(Product p) {
         this.product = p;
@@ -224,9 +241,16 @@ public class ProductDetailController {
             Platform.runLater(() -> {
                 if (response.isSuccess()) {
                     logger.info("{} sản phẩm thành công", isSubscribed ? "Theo dõi" : "Hủy theo dõi");
-                    showAlert("Thông báo", isSubscribed ? "Đã theo dõi sản phẩm!" : "Đã hủy theo dõi sản phẩm!");
+
+                    //  bỏ showAlert, dùng NotificationToast
+                    if (isSubscribed) {
+                        NotificationManager.getInstance().showSubscribeNotification(product.getId());
+                    } else {
+                        NotificationManager.getInstance().showUnsubscribeNotification(product.getId());
+                    }
                 } else {
                     chkSubscribe.setSelected(!isSubscribed);
+                    // Giữ nguyên showAlert cho lỗi (hoặc cũng có thể đổi thành toast)
                     showAlert("Lỗi", response.getMessage());
                 }
             });
