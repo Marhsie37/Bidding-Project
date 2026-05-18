@@ -27,7 +27,9 @@ class ClientHandlerTest {
     @Mock private AuctionServer mockAuctionServer;
 
     // MockedStatic phải được mở/đóng thủ công trong BeforeEach/AfterEach
-    private MockedStatic<AuctionServer> mockedAuctionServer;
+    private MockedStatic<AuctionServer>    mockedAuctionServer;
+    private MockedStatic<AuctionService>   mockedAuctionService;
+    private MockedStatic<NotificationService> mockedNotificationService;
 
     private ByteArrayOutputStream baos;
     private ObjectOutputStream oos;
@@ -40,8 +42,13 @@ class ClientHandlerTest {
         oos  = new ObjectOutputStream(baos);
 
         // Mở static mock TRƯỚC khi constructor chạy
-        mockedAuctionServer = mockStatic(AuctionServer.class);
+        mockedAuctionServer      = mockStatic(AuctionServer.class);
+        mockedAuctionService     = mockStatic(AuctionService.class);
+        mockedNotificationService = mockStatic(NotificationService.class);
+
         mockedAuctionServer.when(AuctionServer::getInstance).thenReturn(mockAuctionServer);
+        mockedAuctionService.when(AuctionService::getInstance).thenReturn(mockAuctionService);
+        mockedNotificationService.when(NotificationService::getInstance).thenReturn(mockNotificationService);
 
         // null socket vì stream được inject sau bằng reflection
         handler = new ClientHandler(null);
@@ -54,9 +61,9 @@ class ClientHandlerTest {
     @AfterEach
     void tearDown() {
         // Bắt buộc close, nếu không Mockito sẽ báo NotAMockException
-        if (mockedAuctionServer != null) {
-            mockedAuctionServer.close();
-        }
+        if (mockedAuctionServer      != null) mockedAuctionServer.close();
+        if (mockedAuctionService     != null) mockedAuctionService.close();
+        if (mockedNotificationService != null) mockedNotificationService.close();
     }
 
     // ============================================================== handleLogin
