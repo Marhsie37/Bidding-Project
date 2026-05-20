@@ -327,6 +327,7 @@ public class ClientHandler implements Runnable {
             AuctionServer.getInstance().unregisterClient(username);
         }
         sendResponse(CommandType.LOGOUT, true, "Logged out", null);
+        connected = false;
         disconnect();
     }
     private boolean isAdmin() {

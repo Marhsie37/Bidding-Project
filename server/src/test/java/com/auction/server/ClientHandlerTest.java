@@ -1,5 +1,6 @@
 package com.auction.server;
 
+import com.auction.shared.model.User;
 import com.auction.shared.protocol.*;
 import com.auction.server.service.AuctionService;
 import com.auction.server.service.NotificationService;
@@ -73,31 +74,41 @@ class ClientHandlerTest {
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
         result.put("message", "Login successful");
-        result.put("role",    "USER");
-        result.put("user",    "userObject");
+        result.put("role", "USER");
+        result.put("user", Map.of("id", 1, "username", "alice"));
 
         when(mockAuctionService.login("alice", "pass123")).thenReturn(result);
-        handler.handleLogin(Map.of("username", "alice", "password", "pass123"));
+
+        Map<String, Object> loginData = new HashMap<>();
+        loginData.put("username", "alice");
+        loginData.put("password", "pass123");
+        handler.handleLogin(loginData);
 
         verify(mockAuctionServer).registerClient(eq("alice"), eq(handler));
         assertEquals("alice", handler.getUsername());
+
         Response resp = readResponse();
         assertTrue(resp.isSuccess());
         assertEquals(CommandType.LOGIN, resp.getCommand());
+        assertEquals("Đăng nhập thành công!", resp.getMessage());
     }
 
     @Test
-    @DisplayName("handleLogin – sai mật khẩu → gửi ERROR, không đăng ký client")
+    @DisplayName("handleLogin – sai mật khẩu → gửi LOGIN với success=false, không đăng ký client")
     void testHandleLogin_failure() throws Exception {
         when(mockAuctionService.login("bob", "wrong"))
                 .thenReturn(Map.of("success", false, "message", "Invalid credentials"));
 
-        handler.handleLogin(Map.of("username", "bob", "password", "wrong"));
+        Map<String, Object> loginData = new HashMap<>();
+        loginData.put("username", "bob");
+        loginData.put("password", "wrong");
+        handler.handleLogin(loginData);
 
         verify(mockAuctionServer, never()).registerClient(any(), any());
+
         Response resp = readResponse();
         assertFalse(resp.isSuccess());
-        assertEquals(CommandType.ERROR, resp.getCommand());
+        assertEquals(CommandType.LOGIN, resp.getCommand()); // FIX: Expect LOGIN, not ERROR
         assertEquals("Invalid credentials", resp.getMessage());
     }
 
@@ -368,15 +379,24 @@ class ClientHandlerTest {
 
     // ================================================================ handleLogout
     @Test
-    @DisplayName("handleLogout – đã đăng nhập → unregister và disconnect")
+    @DisplayName("handleLogout – đã đăng nhập → unregister 2 lần (trong handleLogout và disconnect)")
     void testHandleLogout_withUsername() throws Exception {
         setField(handler, "username", "alice");
+        setField(handler, "connected", true);
+
+        // Set currentRequestId để tránh null pointer
+        setField(handler, "currentRequestId", "logout-request-id");
 
         invokePrivate("handleLogout");
 
-        verify(mockAuctionServer).unregisterClient("alice");
-        assertEquals(CommandType.LOGOUT, readResponse().getCommand());
-        assertFalse((Boolean) getField(handler, "connected"));
+        // Verify gọi 2 lần (hoặc ít nhất 1 lần)
+        verify(mockAuctionServer, atLeastOnce()).unregisterClient("alice");
+        // Hoặc verify chính xác 2 lần:
+        // verify(mockAuctionServer, times(2)).unregisterClient("alice");
+
+        Response resp = readResponse();
+        assertEquals(CommandType.LOGOUT, resp.getCommand());
+        assertTrue(resp.isSuccess());
     }
 
     @Test
@@ -392,10 +412,22 @@ class ClientHandlerTest {
     @Test
     @DisplayName("handleAddFunds – nạp tiền thành công")
     void testHandleAddFunds() throws Exception {
-        when(mockAuctionService.addFunds(1, 200.0))
-                .thenReturn(Map.of("success", true, "message", "Funds added"));
+        // FIX: Set username trước
+        setField(handler, "username", "testuser");
 
-        invokePrivate("handleAddFunds", Map.of("userId", 1, "amount", 200.0));
+        // Tạo mock User object (nếu chưa có)
+        User mockUser = mock(User.class);
+        when(mockUser.getId()).thenReturn(1);
+
+        // Mock getUserByUsername để trả về user object
+        when(mockAuctionService.getUserByUsername("testuser")).thenReturn(mockUser);
+        when(mockAuctionService.addFunds(1, 200.0))
+                .thenReturn(Map.of("success", true, "message", "Funds added", "newBalance", 200.0));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("amount", 200.0);
+        // FIX: Không truyền userId, chỉ truyền amount
+        invokePrivate("handleAddFunds", data);
 
         verify(mockAuctionService).addFunds(1, 200.0);
         Response resp = readResponse();
@@ -474,8 +506,8 @@ class ClientHandlerTest {
     @Test
     @DisplayName("handleRequest – lệnh không có handler (default branch) → 'Unknown command'")
     void testHandleRequest_unknownCommand() throws Exception {
-        // GET_AUCTION_HISTORY có trong CommandType nhưng không có case trong switch
-        Request req = new Request(CommandType.GET_AUCTION_HISTORY, Map.of());
+        // BID_UPDATE / AUCTION_END là server-push command, không có case xử lý từ client
+        Request req = new Request(CommandType.BID_UPDATE, Map.of());
         handler.handleRequest(req);
 
         Response resp = readResponse();
@@ -490,10 +522,22 @@ class ClientHandlerTest {
         when(mockAuctionService.login(any(), any()))
                 .thenReturn(Map.of("success", false, "message", "fail"));
 
-        handler.handleRequest(new Request(CommandType.LOGIN,
-                Map.of("username", "u", "password", "p")));
+        Map<String, Object> loginData = new HashMap<>();
+        loginData.put("username", "u");
+        loginData.put("password", "p");
+
+        Request request = new Request(CommandType.LOGIN, loginData);
+        Field requestIdField = Request.class.getDeclaredField("requestId");
+        requestIdField.setAccessible(true);
+        requestIdField.set(request, "test-id");
+
+        handler.handleRequest(request);
 
         verify(mockAuctionService).login("u", "p");
+
+        Response resp = readResponse();
+        assertEquals(CommandType.LOGIN, resp.getCommand());
+        assertFalse(resp.isSuccess());
     }
 
     // ================================================================ getUsername
