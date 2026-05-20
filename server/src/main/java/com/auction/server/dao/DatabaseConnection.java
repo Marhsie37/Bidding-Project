@@ -1,24 +1,26 @@
 package com.auction.server.dao;
 
 import java.sql.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatabaseConnection {
     private static DatabaseConnection instance;
     private Connection connection;
-
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseConnection.class);
     private static final String URL = "jdbc:mysql://localhost:3306/auction_system?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true";
     private static final String USER = "root";
-    private static final String PASSWORD = "";
+    private static final String PASSWORD = "admin";
 
     private DatabaseConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            System.out.println("Database connected successfully");
+            logger.info("Database connected successfully");
 
             createTables();
         } catch (ClassNotFoundException | SQLException e) {
-            System.err.println("Database connection error: " + e.getMessage());
+            logger.error("Database connection error: " ,e);
         }
     }
 
@@ -94,6 +96,25 @@ public class DatabaseConnection {
         ) ENGINE=InnoDB
     """;
 
+
+
+        String createUserProductsTable = """
+    CREATE TABLE IF NOT EXISTS user_products (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        product_id INT NOT NULL,
+        product_name VARCHAR(200) NOT NULL,
+        product_price DECIMAL(15,2) NOT NULL,
+        purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT fk_up_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        CONSTRAINT fk_up_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+        UNIQUE KEY unique_user_product (user_id, product_id)
+    ) ENGINE=InnoDB
+""";
+        //Tạo bảng user_product là sản phẩm mà người thắng nhận được
+
+
+
         try (Statement stmt = connection.createStatement()) {
             // Tạo bảng users (đã có cột status)
             stmt.execute(createUsersTable);
@@ -103,12 +124,13 @@ public class DatabaseConnection {
                 stmt.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'ACTIVE'");
             } catch (SQLException e) {
                 // Cột có thể đã tồn tại, bỏ qua lỗi
-                System.out.println("Column status already exists or error: " + e.getMessage());
+                logger.error("Column status already exists or error: " , e);
             }
 
             stmt.execute(createProductsTable);
             stmt.execute(createBidsTable);
             stmt.execute(createAutoBidsTable);
+            stmt.execute(createUserProductsTable);
 
             String checkAdmin = "SELECT COUNT(*) FROM users WHERE username = 'admin'";
             try (ResultSet rs = stmt.executeQuery(checkAdmin)) {
@@ -116,13 +138,13 @@ public class DatabaseConnection {
                     String insertAdmin = "INSERT INTO users (username, password, email, full_name, role, balance, status) " +
                             "VALUES ('admin', 'admin123', 'admin@auction.com', 'System Admin', 'ADMIN', 0, 'ACTIVE')";
                     stmt.execute(insertAdmin);
-                    System.out.println("Default admin created: username='admin', password='admin123'");
+                    logger.info("Default admin created: username='admin', password='admin123'");
                 }
             }
 
-            System.out.println("Database tables created/verified successfully.");
+            logger.info("Database tables created/verified successfully.");
         } catch (SQLException e) {
-            System.err.println("Error creating tables: " + e.getMessage());
+            logger.error("Error creating tables: " ,e);
             e.printStackTrace();
         }
     }
@@ -131,10 +153,10 @@ public class DatabaseConnection {
         try {
             if (connection == null || connection.isClosed() || !connection.isValid(2)) {
                 connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("🔄 Đã kết nối lại database");
+                logger.info("🔄 Đã kết nối lại database");
             }
         } catch (SQLException e) {
-            System.err.println("Error reconnecting: " + e.getMessage());
+            logger.error("Error reconnecting: " ,e);
         }
         return connection;
     }
@@ -143,10 +165,10 @@ public class DatabaseConnection {
         try {
             if (connection != null && !connection.isClosed()) {
                 connection.close();
-                System.out.println("Database connection closed.");
+                logger.info("Database connection closed.");
             }
         } catch (SQLException e) {
-            System.err.println("Error closing connection: " + e.getMessage());
+            logger.error("Error closing connection: " ,e);
         }
     }
 

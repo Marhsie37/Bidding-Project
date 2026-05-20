@@ -1,5 +1,7 @@
 package com.auction.server;
 
+import com.auction.server.dao.BidDAO;
+import com.auction.shared.model.BidTransaction;
 import com.auction.shared.protocol.*;
 import com.auction.server.service.AuctionService;
 import com.auction.server.service.NotificationService;
@@ -23,42 +25,51 @@ public class ClientHandler implements Runnable {
     private NotificationService notificationService;
     private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
 
+
+    private String currentRequestId; // thêm cùng chỗ với các field khác
+    private BidDAO bidDAO = new BidDAO();
+
     public ClientHandler(Socket socket) {
         this.socket = socket;
         this.connected = true;
         this.auctionService = AuctionService.getInstance();
         this.notificationService = NotificationService.getInstance();
+        if (socket == null) return;
 
 
-        /*try {
+        try {
+            socket.setSoTimeout(0);
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
             this.inputStream = new ObjectInputStream((socket.getInputStream()));
         } catch (IOException e) {
             logger.error("Error creating streams: ",e);
+            connected = false; //Nên thêm cái này lỡ nếu tạo stream thất bại, connected vẫn là true, run() vẫn chạy, nhưng inputStream/outputStream là null → sẽ bị NullPointerException khi đọc/ghi.
+        }
 
-        }*/
     }
 
-    public void run(){
-        try{
-            while (connected){
+    public void run() {
+        try {
+            while (connected) {
                 Object obj = inputStream.readObject();
-                if (obj instanceof Request){
-                    Request request = (Request) obj;
-                    handleRequest(request);
+                if (obj instanceof Request) {
+                    handleRequest((Request) obj);
                 }
             }
-        } catch (EOFException e){
-            logger.info("Client disconnected: " + username);
-
-        } catch (IOException | ClassNotFoundException e){
-            logger.error("Error handling client: " ,e);
-
+        } catch (SocketException e) {
+            System.err.println(" SOCKET EXCEPTION: " + e.getMessage());
+            e.printStackTrace();
+        } catch (EOFException e) {
+            System.out.println("Client disconnected: " + username);
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error handling client: " + e.getMessage());
+            e.printStackTrace();
         } finally {
             disconnect();
         }
     }
     public void handleRequest(Request request){
+        this.currentRequestId = request.getRequestId();
         CommandType command = request.getCommand();
         Map<String,Object> data = request.getData();
         switch (command){
@@ -131,12 +142,32 @@ public class ClientHandler implements Runnable {
             case GET_USER_BALANCE:
                 handleGetUserBalance(data);
                 break;
+
+
+            case ADMIN_BAN_USER: //Admin khóa 1 người dùng
+                handleAdminBanUser(data);
+                break;
+            case ADMIN_UNBAN_USER: //Admin mở khóa người dùng
+                handleAdminUnbanUser(data);
+                break;
+            case GET_USER_INFO: //Profile thị thông tin
+                handleGetUserInfo(data);
+                break;
+            case GET_PURCHASED_PRODUCTS: //Xem được sản phẩm đã mua
+                handleGetPurchasedProducts(data);
+                break;
+            // Thêm vào switch trong handleRequest():
+            case GET_AUCTION_HISTORY:
+                handleGetAuctionHistory(data);
+                break;
+
+
             default:
                 sendError("Unknown command");
 
         }
     }
-    public void handleLogin(Map<String,Object> data){
+    /*public void handleLogin(Map<String,Object> data){
         String username = (String) data.get("username");
         String password = (String) data.get("password");
         Map<String,Object> result = auctionService.login(username,password);
@@ -155,7 +186,31 @@ public class ClientHandler implements Runnable {
         } else {
             sendError((String) result.get("message"));
         }
+    }*/
+
+    public void handleLogin(Map<String,Object> data) {
+        String username = (String) data.get("username");
+        String password = (String) data.get("password");
+        Map<String,Object> result = auctionService.login(username, password);
+
+        if ((boolean) result.get("success")) {
+            this.username = username;
+            this.role = (String) result.get("role"); // AuctionService để "role" trực tiếp
+            Map<String,Object> userInfo = (Map<String,Object>) result.get("user"); // key là "user"
+
+            AuctionServer.getInstance().registerClient(username, this);
+
+            Map<String,Object> responseData = new HashMap<>();
+            responseData.put("userData", userInfo); // client đọc "userData"
+            responseData.put("role", this.role);
+
+            sendResponse(CommandType.LOGIN, true, "Đăng nhập thành công!", responseData);
+        } else {
+            sendResponse(CommandType.LOGIN, false, (String) result.get("message"), null);
+        }
     }
+
+
     private void handleRegister(Map<String,Object> data){
         Map<String, Object> result = auctionService.register(data);
         sendResponse(CommandType.REGISTER, (boolean) result.get("success"), (String) result.get("message"), null);
@@ -272,6 +327,7 @@ public class ClientHandler implements Runnable {
             AuctionServer.getInstance().unregisterClient(username);
         }
         sendResponse(CommandType.LOGOUT, true, "Logged out", null);
+        connected = false;
         disconnect();
     }
     private boolean isAdmin() {
@@ -303,6 +359,7 @@ public class ClientHandler implements Runnable {
     private void sendResponse(CommandType command, boolean success, String message, Map<String,Object> data){
         try{
             Response response = new Response(command,success,message,data);
+            response.setRequestId(currentRequestId); // ✅ THÊM DÒNG NÀY
             outputStream.writeObject(response);
             outputStream.flush();
 
@@ -340,9 +397,14 @@ public class ClientHandler implements Runnable {
     }
 
     private void handleAddFunds(Map<String, Object> data) {
-        int userId = ((Number) data.get("userId")).intValue();
+        // Lấy userId từ username đang đăng nhập (an toàn hơn nhận từ client)
+        com.auction.shared.model.User user = auctionService.getUserByUsername(username);
+        if (user == null) {
+            sendResponse(CommandType.ADD_FUNDS, false, "Không tìm thấy người dùng!", null);
+            return;
+        }
         double amount = ((Number) data.get("amount")).doubleValue();
-        Map<String, Object> result = auctionService.addFunds(userId, amount);
+        Map<String, Object> result = auctionService.addFunds(user.getId(), amount);
         sendResponse(CommandType.ADD_FUNDS,
                 (boolean) result.get("success"),
                 (String) result.get("message"),
@@ -366,6 +428,61 @@ public class ClientHandler implements Runnable {
                 (boolean) result.get("success"),
                 (String) result.get("message"),
                 result);
+    }
+
+
+
+
+    private void handleAdminBanUser(Map<String, Object> data) {
+        if (!isAdmin()) return;
+        int userId = ((Number) data.get("userId")).intValue();
+        Map<String, Object> result = auctionService.banUser(userId);
+        sendResponse(CommandType.ADMIN_BAN_USER, (boolean) result.get("success"),
+                (String) result.get("message"), null);
+    }
+
+    private void handleAdminUnbanUser(Map<String, Object> data) {
+        if (!isAdmin()) return;
+        int userId = ((Number) data.get("userId")).intValue();
+        Map<String, Object> result = auctionService.unbanUser(userId);
+        sendResponse(CommandType.ADMIN_UNBAN_USER, (boolean) result.get("success"),
+                (String) result.get("message"), null);
+    }
+
+    private void handleGetUserInfo(Map<String, Object> data) {
+        try {
+            System.out.println("📊 handleGetUserInfo() - username: " + username);
+            Map<String, Object> result = auctionService.getUserInfo(username);
+            sendResponse(CommandType.GET_USER_INFO, true, "Success", result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(CommandType.GET_USER_INFO, false, "Error: " + e.getMessage(), null);
+        }
+    }
+
+    private void handleGetPurchasedProducts(Map<String, Object> data) {
+        try {
+            System.out.println("🔍 handleGetPurchasedProducts - username: " + username);
+            Map<String, Object> result = auctionService.getPurchasedProducts(username);
+            sendResponse(CommandType.GET_PURCHASED_PRODUCTS, true, "Success", result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            sendResponse(CommandType.GET_PURCHASED_PRODUCTS, false, "Error: " + e.getMessage(), null);
+        }
+    }
+
+
+
+
+
+
+    // Thêm method coi lịch sử bid
+    private void handleGetAuctionHistory(Map<String, Object> data) {
+        int productId = ((Number) data.get("productId")).intValue();
+        List<BidTransaction> history = bidDAO.getBidsByProduct(productId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("history", history);
+        sendResponse(CommandType.GET_AUCTION_HISTORY, true, "Success", result);
     }
 
 }

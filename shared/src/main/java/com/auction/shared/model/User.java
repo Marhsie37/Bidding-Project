@@ -16,6 +16,11 @@ public class User implements Serializable {
     private LocalDateTime createdAt;
     private boolean active = true;
 
+
+    private String status = "ACTIVE"; //Trạng thái của người dùng có bị ban hay không
+
+
+
     public User() {}
 
     public User(int id, String username, String email, String fullName, String role, double balance) {
@@ -57,4 +62,9 @@ public class User implements Serializable {
     public boolean isBidder() { return "BIDDER".equalsIgnoreCase(role); }
     public boolean isSeller() { return "SELLER".equalsIgnoreCase(role); }
     public boolean isAdmin() { return "ADMIN".equalsIgnoreCase(role); }
+
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    /* Cho biết trạng thái của tài khoản bị ban hay không và admin có thể nhấn ban hoặc unban để khóa,mở khóa cho tài khoản */
 }

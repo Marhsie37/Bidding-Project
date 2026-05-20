@@ -75,7 +75,7 @@ class AuctionServerTest {
 
     @Test
     void testCanConnectToServer() {
-        try (Socket socket = new Socket("localhost", 8888)) {
+        try (Socket socket = new Socket("localhost", 9999)) {
             assertTrue(socket.isConnected());
         } catch (IOException e) {
             fail("Should be able to connect to server", e);

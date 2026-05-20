@@ -5,10 +5,12 @@ import com.auction.shared.model.BidTransaction;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BidDAO {
     private DatabaseConnection dbConnection;
-
+    private static final Logger logger = LoggerFactory.getLogger(BidDAO.class);
     public BidDAO() {
         this.dbConnection = DatabaseConnection.getInstance();
     }
@@ -31,7 +33,7 @@ public class BidDAO {
                 return true;
             }
         } catch (SQLException e) {
-            System.err.println("Error creating bid: " + e.getMessage());
+            logger.error("Error creating bid: " ,e);
         }
         return false;
     }
@@ -49,7 +51,7 @@ public class BidDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error getting bids by product: " + e.getMessage());
+            logger.error("Error getting bids by product: " ,e);
         }
         return bids;
     }
@@ -67,7 +69,7 @@ public class BidDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error getting bids by user: " + e.getMessage());
+            logger.error("Error getting bids by user: " ,e);
         }
         return bids;
     }
@@ -82,7 +84,7 @@ public class BidDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error getting current highest bid: " + e.getMessage());
+            logger.error("Error getting current highest bid: ",e);
         }
         return 0;
     }
@@ -97,7 +99,7 @@ public class BidDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error getting current highest bidder: " + e.getMessage());
+            logger.error("Error getting current highest bidder: " ,e);
         }
         return 0;
     }

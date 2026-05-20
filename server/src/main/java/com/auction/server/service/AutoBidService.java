@@ -8,6 +8,8 @@ import java.util.PriorityQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AutoBidService {
 
@@ -16,6 +18,10 @@ public class AutoBidService {
 
     // Bộ chạy ngầm đa luồng
     private ScheduledExecutorService scheduler;
+    private AuctionService auctionService;
+    private static final Logger logger = LoggerFactory.getLogger(AutoBidService.class);
+    // Lưu auto bid: productId -> (username -> maxBid)
+    private Map<Integer, Map<String, Double>> autoBidConfigs = new ConcurrentHashMap<>();
 
     private AutoBidService() {}
 
@@ -27,6 +33,10 @@ public class AutoBidService {
     }
 
     public void start() {
+        auctionService = AuctionService.getInstance();
+        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(this::processAllAutoBids, 0, 2, TimeUnit.SECONDS);
+        logger.info("AutoBidService: Hệ thống tự động đặt giá đã khởi chạy!");
         scheduler = Executors.newScheduledThreadPool(2);
 
         scheduler.scheduleAtFixedRate(this::processAllAutoBids, 0, 3, TimeUnit.SECONDS);
@@ -39,12 +49,28 @@ public class AutoBidService {
     public void stop() {
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdown();
-            System.out.println("AutoBidService: Đã tắt.");
+            logger.info("AutoBidService: Đã tắt.");
         }
     }
 
     private void checkAndCloseExpiredAuctions() {
         AuctionService.getInstance().checkAndEndAuctions();
+    // Đăng ký auto bid cho user
+    public void registerAutoBid(int productId, String username, double maxBid) {
+        autoBidConfigs.computeIfAbsent(productId, k -> new ConcurrentHashMap<>())
+                .put(username, maxBid);
+        logger.info("✅ AutoBid đăng ký: user=" + username + ", product=" + productId + ", max=" + maxBid);
+    }
+
+    // Hủy auto bid của user
+    public void unregisterAutoBid(int productId, String username) {
+        Map<String, Double> bids = autoBidConfigs.get(productId);
+        if (bids != null) {
+            bids.remove(username);
+            if (bids.isEmpty()) {
+                autoBidConfigs.remove(productId);
+            }
+        }
     }
 
     // Lõi thuật toán Auto-Bid

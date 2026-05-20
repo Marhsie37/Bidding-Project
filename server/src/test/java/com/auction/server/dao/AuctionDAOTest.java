@@ -7,7 +7,8 @@ import com.auction.shared.model.User;
 import org.junit.jupiter.api.*;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -16,7 +17,7 @@ public class AuctionDAOTest {
     private AuctionDAO auctionDAO;
     private UserDAO userDAO;
     private ProductDAO productDAO;
-
+    private static final Logger logger = LoggerFactory.getLogger(AuctionDAOTest.class);
     private int testProductId;
     private int testBidderId;
 
@@ -42,7 +43,7 @@ public class AuctionDAOTest {
         productDAO.createProduct(p);
         testProductId = p.getId();
 
-        System.out.println("--- SETUP HOÀN TẤT: UserID=" + testBidderId + ", ProductID=" + testProductId + " ---");
+        logger.info("--- SETUP HOÀN TẤT: UserID=" + testBidderId + ", ProductID=" + testProductId + " ---");
     }
 
     @Test

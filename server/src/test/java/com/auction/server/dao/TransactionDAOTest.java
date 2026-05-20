@@ -4,17 +4,19 @@ import com.auction.shared.model.User;
 import org.junit.jupiter.api.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TransactionDAOTest {
     private TransactionDAO transactionDAO;
     private UserDAO userDAO;
     private int testUserId;
-
+    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
     @BeforeAll
     void setup() {
         DatabaseConnection.getInstance();
@@ -25,7 +27,7 @@ public class TransactionDAOTest {
         userDAO.createUser(tempUser, "123", tempUser + "@test.com", "Trans Tester", "BIDDER");
         testUserId = userDAO.findByUsername(tempUser).getId();
 
-        System.out.println("--- SETUP: Đã tạo User test với ID = " + testUserId + " ---");
+        logger.info("--- SETUP: Đã tạo User test với ID = " + testUserId + " ---");
     }
 
     @Test

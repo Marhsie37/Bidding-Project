@@ -16,12 +16,14 @@ public class Product implements Serializable {
     private String category;
     private String imageUrl;
     private int durationHours;
+    private int durationSeconds;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String status;
     private int winnerId;
     private String winnerName;
     private LocalDateTime createdAt;
+
 
     public Product() {}
 
@@ -52,8 +54,18 @@ public class Product implements Serializable {
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    public int getDurationHours() { return durationHours; }
-    public void setDurationHours(int durationHours) { this.durationHours = durationHours; }
+
+
+    public int getDurationSeconds() { return durationSeconds; }
+    public void setDurationSeconds(int durationSeconds) { this.durationSeconds = durationSeconds; }
+
+    // Giữ lại durationHours nếu cần tương thích, nhưng quy đổi
+    public int getDurationHours() { return durationSeconds / 3600; }
+    public void setDurationHours(int durationHours) { this.durationSeconds = durationHours * 3600; }
+
+    //Ban đầu dùng giây để tính nên giờ nên sửa một chút cho liên quan đến giây
+
+
 
     public LocalDateTime getStartTime() { return startTime; }
     public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
@@ -74,4 +86,14 @@ public class Product implements Serializable {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public boolean isActive() { return "ACTIVE".equalsIgnoreCase(status); }
+
+
+
+
+    public int getRemainingSeconds() {
+        if (endTime == null) return 0;
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isAfter(endTime)) return 0;
+        return (int) java.time.Duration.between(now, endTime).getSeconds();
+    }
 }

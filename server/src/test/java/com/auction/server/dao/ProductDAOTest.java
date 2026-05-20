@@ -6,14 +6,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ProductDAOTest {
     private ProductDAO productDAO;
     private int testSellerId = 1;
     private static int createdProductId;
-
+    private static final Logger logger = LoggerFactory.getLogger(ProductDAOTest.class);
     @BeforeAll
     void setupDatabase() {
         // Khởi tạo connection và tạo bảng
@@ -40,7 +41,7 @@ public class ProductDAOTest {
 
         createdProductId = product.getId();
         assertTrue(createdProductId > 0, "ID sản phẩm phải lớn hơn 0");
-        System.out.println("Sản phẩm test được tạo với ID: " + createdProductId);
+        logger.info("Sản phẩm test được tạo với ID: " + createdProductId);
     }
 
     @Test

@@ -12,7 +12,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * Test SocketClient với MockServer chạy in-process.
  *
@@ -36,7 +37,7 @@ class SocketClientTest {
     private Thread mockServerThread;
     private int mockPort;
     private volatile boolean mockRunning;
-
+    private static final Logger logger = LoggerFactory.getLogger(SocketClientTest.class);
     /**
      * MockServer: chấp nhận 1 connection, đọc Request, trả Response phù hợp.
      * Chạy trong thread riêng, tự lặp lại cho mỗi test.
@@ -55,13 +56,13 @@ class SocketClientTest {
                     // Mỗi connection xử lý trong thread riêng
                     new Thread(() -> handleMockClient(clientSocket)).start();
                 } catch (IOException e) {
-                    if (mockRunning) System.err.println("[MockServer] Accept error: " + e.getMessage());
+                    if (mockRunning) logger.error("[MockServer] Accept error: ",e);
                 }
             }
         });
         mockServerThread.setDaemon(true);
         mockServerThread.start();
-        System.out.println("[MockServer] Started on port " + mockPort);
+        logger.info("[MockServer] Started on port {}" , mockPort);
     }
 
     private void handleMockClient(Socket clientSocket) {
@@ -80,7 +81,7 @@ class SocketClientTest {
         } catch (EOFException ignored) {
             // Client ngắt kết nối bình thường
         } catch (Exception e) {
-            System.err.println("[MockServer] Handler error: " + e.getMessage());
+            logger.error("[MockServer] Handler error: " ,e);
         }
     }
 
@@ -146,7 +147,7 @@ class SocketClientTest {
     void stopMockServer() throws IOException {
         mockRunning = false;
         mockServerSocket.close();
-        System.out.println("[MockServer] Stopped");
+        logger.info("[MockServer] Stopped");
     }
 
     // ── Setup / Teardown mỗi test ────────────────────────────────────────────

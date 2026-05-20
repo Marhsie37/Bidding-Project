@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AuctionServer {
-    private static final int PORT = 8888;
+    private static final int PORT = 9999;
     private static volatile AuctionServer instance;
     private ServerSocket serverSocket;
     private ExecutorService threadPool;
@@ -45,17 +45,19 @@ public class AuctionServer {
     public void start(){
         try{
             serverSocket = new ServerSocket(PORT);
-            logger.info("Auction Server started on port " + PORT);
+            System.out.println("Auction Server started on port " + PORT);
             autoBidService.start();
             startAuctionMonitor();
             while (running){
                 Socket clientSocket = serverSocket.accept();
+                // THÊM 2 DÒNG NÀY
+                clientSocket.setSoTimeout(0);      // Vô hiệu hóa timeout đọc
+                clientSocket.setKeepAlive(true);   // Giữ kết nối sống
                 ClientHandler handler = new ClientHandler(clientSocket);
                 threadPool.execute(handler);
             }
         } catch (IOException e){
-            logger.error("Server error: " ,e);
-
+            System.err.println("Server error: " + e.getMessage());
         }
     }
     private void startAuctionMonitor() {
@@ -64,7 +66,7 @@ public class AuctionServer {
                 try {
                     List<AuctionSession> activeAuctions = auctionService.getActiveAuctions();
                     for (AuctionSession auction : activeAuctions) {
-                        if (LocalDateTime.now().isAfter(auction.getScheduledEndTime())) {
+                        if (LocalDateTime.now().isAfter(auction.getEndTime())) {
                             auctionService.endAuction(auction.getId());
                         }
                     }
@@ -93,10 +95,19 @@ public class AuctionServer {
         autoBidService.stop();
         logger.info("Server stopped");
     }
-    public void registerClient(String username, ClientHandler handler){
-        clients.put(username,handler);
-        logger.info("Client registered: " + username);
+    public void registerClient(String username, ClientHandler handler) {
+        // 1. Giữ logic phòng thủ của bạn: Tự động xóa vết client cũ nếu trùng tên
+        if (clients.containsKey(username)) {
+            clients.remove(username);
+            // KHÔNG gọi old.disconnect() ở đây để tránh lỗi giật/sập Socket Client dưới máy
+            logger.info("Đã thay thế client cũ: " + username);
+        }
 
+        // 2. Đăng ký client mới vào hệ thống như bình thường
+        clients.put(username, handler);
+
+        // 3. Dùng Logger chuẩn của Git thay cho System.out
+        logger.info("Client registered: " + username);
     }
     public void unregisterClient(String username){
         clients.remove(username);
@@ -117,5 +128,6 @@ public class AuctionServer {
         server.start();
 
     }
+
 
 }

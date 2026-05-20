@@ -44,6 +44,19 @@ public enum CommandType {
 
     ADD_FUNDS,        // nap tien vao tai khoan
     PROCESS_PAYMENT,  // xu ly thanh toan
-    GET_USER_BALANCE  // lay so du
+    GET_USER_BALANCE,  // lay so du
+
+
+
+
+    GET_PURCHASED_PRODUCTS,  // lay san pham da mua
+    ADMIN_UNBAN_USER,
+    ADMIN_BAN_USER,
+
+    // Thông báo từ server đẩy xuống client
+    NOTIFY_NEW_BID,
+    NOTIFY_AUCTION_END,
+    NOTIFY_AUCTION_EXTENDED,
+
 
 }

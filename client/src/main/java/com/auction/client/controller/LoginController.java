@@ -5,18 +5,18 @@ import com.auction.shared.protocol.Response;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
 
 public class LoginController {
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @FXML private TextField userNameField;
     @FXML private TextField passwordField;
@@ -33,17 +33,18 @@ public class LoginController {
 
         SocketClient socketClient = SocketClient.getInstance();
 
-        // ✅ QUAN TRỌNG: Ngắt kết nối cũ trước khi tạo kết nối mới
+        // ✅ Luôn disconnect cũ và connect mới để tránh dùng socket đã chết
         if (socketClient.isConnected()) {
-            System.out.println("🔌 Đang ngắt kết nối cũ...");
+            logger.info("🔌 Đang ngắt kết nối cũ...");
             socketClient.disconnect();
         }
 
         try {
-            System.out.println("🔌 Đang kết nối đến server...");
+            logger.info("🔌 Đang kết nối đến server...");
             socketClient.connect();
-            System.out.println("✅ Đã kết nối server");
+            logger.info("✅ Đã kết nối server");
         } catch (IOException e) {
+            logger.error("❌ Lỗi kết nối: ", e);
             showAlert(Alert.AlertType.ERROR, "Lỗi kết nối", "Không thể kết nối đến server: " + e.getMessage());
             return;
         }
@@ -59,54 +60,57 @@ public class LoginController {
         });
     }
 
+    @SuppressWarnings("unchecked")
     private void handleLoginSuccess(ActionEvent event, Response response) {
         try {
             Map<String, Object> data = (Map<String, Object>) response.getData();
+            logger.info("📦 TOÀN BỘ DATA TỪ SERVER: {}", data);
+
             String role = "";
-            if (data != null && data.containsKey("userData")) {
-                Map<String, Object> userData = (Map<String, Object>) data.get("userData");
-                if (userData != null && userData.get("role") != null) {
-                    role = userData.get("role").toString().trim().toUpperCase();
+            if (data != null) {
+                // ✅ Kiểm tra lấy role từ các cấu trúc dữ liệu bọc của gói tin trả về
+                if (data.containsKey("role")) {
+                    role = data.get("role").toString();
+                } else if (data.containsKey("userData") && data.get("userData") instanceof Map) {
+                    Map<String, Object> userData = (Map<String, Object>) data.get("userData");
+                    if (userData.containsKey("role")) {
+                        role = userData.get("role").toString();
+                    }
+                } else if (data.containsKey("user") && data.get("user") instanceof Map) {
+                    Map<String, Object> user = (Map<String, Object>) data.get("user");
+                    if (user.containsKey("role")) {
+                        role = user.get("role").toString();
+                    }
                 }
             }
 
-            System.out.println("Role xác định được: [" + role + "]");
+            role = role.trim().toUpperCase();
+            logger.info("🔍 ROLE LẤY ĐƯỢC: [{}]", role);
 
             String fxmlPath;
-            String windowTitle;
-
             switch (role) {
                 case "ADMIN":
                     fxmlPath = "/com/auction/client/view/Admin.fxml";
-                    windowTitle = "Hệ thống đấu giá - Quản trị viên";
                     break;
                 case "SELLER":
                     fxmlPath = "/com/auction/client/view/Selling.fxml";
-                    windowTitle = "Hệ thống đấu giá - Người bán";
                     break;
                 case "BIDDER":
                     fxmlPath = "/com/auction/client/view/ProductListController.fxml";
-                    windowTitle = "Hệ thống đấu giá - Người mua";
                     break;
                 default:
                     fxmlPath = "/com/auction/client/view/ProductListController.fxml";
-                    windowTitle = "Hệ thống đấu giá";
+                    logger.warn("⚠️ Role không xác định: {}, chuyển về màn hình mặc định", role);
                     break;
             }
 
-            // ❌ BỎ DÒNG NÀY - NÓ GÂY LỖI
-            // SocketClient.getInstance().clearHandlers();
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent root = loader.load();
-            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            window.setScene(new Scene(root));
-            window.setTitle(windowTitle);
-            window.centerOnScreen();
-            window.show();
+            // ✅ Đóng cửa sổ đăng nhập cũ và mở giao diện phân quyền tương ứng
+            Stage oldStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            oldStage.close();
+            WindowManager.openWindow(fxmlPath, this);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Lỗi khi xử lý đăng nhập thành công: ", e);
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể tải giao diện: " + e.getMessage());
         }
     }
@@ -114,13 +118,11 @@ public class LoginController {
     @FXML
     public void goToRegisterScreen(ActionEvent event) {
         try {
-            Parent registerRoot = FXMLLoader.load(getClass().getResource("/com/auction/client/view/RegisterController.fxml"));
-            Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            window.setScene(new Scene(registerRoot));
-            window.setTitle("Đăng ký tài khoản");
-            window.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+            Stage oldStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            oldStage.close();
+            WindowManager.openWindow("/com/auction/client/view/RegisterController.fxml", this);
+        } catch (Exception e) {
+            logger.error("Lỗi khi chuyển sang màn hình đăng ký: ", e);
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Không thể mở màn hình đăng ký!");
         }
     }
