@@ -8,15 +8,35 @@ public class DatabaseConnection {
     private static DatabaseConnection instance;
     private Connection connection;
     private static final Logger logger = LoggerFactory.getLogger(DatabaseConnection.class);
+
     private static final String URL = "jdbc:mysql://localhost:3306/auction_system?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true";
     private static final String USER = "root";
     private static final String PASSWORD = "admin";
 
+    private static final String H2_URL = "jdbc:h2:mem:auction_test;DB_CLOSE_DELAY=-1;MODE=MySQL";
+    private static final String H2_USER = "sa";
+    private static final String H2_PASSWORD = "";
+
+    private boolean isTestMode = false;
+
     private DatabaseConnection() {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            logger.info("Database connected successfully");
+            for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+                if (element.getClassName().contains("org.junit") || element.getClassName().contains("surefire")) {
+                    isTestMode = true;
+                    break;
+                }
+            }
+
+            if (isTestMode) {
+                Class.forName("org.h2.Driver");
+                this.connection = DriverManager.getConnection(H2_URL, H2_USER, H2_PASSWORD);
+                logger.info("✅ TEST MODE: Đã kết nối H2 Database ảo trên RAM thành công!");
+            } else {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                logger.info("✅ PRODUCTION MODE: Database MySQL connected successfully");
+            }
 
             createTables();
         } catch (ClassNotFoundException | SQLException e) {
@@ -96,34 +116,26 @@ public class DatabaseConnection {
         ) ENGINE=InnoDB
     """;
 
-
-
         String createUserProductsTable = """
-    CREATE TABLE IF NOT EXISTS user_products (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        user_id INT NOT NULL,
-        product_id INT NOT NULL,
-        product_name VARCHAR(200) NOT NULL,
-        product_price DECIMAL(15,2) NOT NULL,
-        purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        CONSTRAINT fk_up_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        CONSTRAINT fk_up_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-        UNIQUE KEY unique_user_product (user_id, product_id)
-    ) ENGINE=InnoDB
-""";
-        //Tạo bảng user_product là sản phẩm mà người thắng nhận được
-
-
+        CREATE TABLE IF NOT EXISTS user_products (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            product_id INT NOT NULL,
+            product_name VARCHAR(200) NOT NULL,
+            product_price DECIMAL(15,2) NOT NULL,
+            purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            CONSTRAINT fk_up_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            CONSTRAINT fk_up_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+            UNIQUE KEY unique_user_product (user_id, product_id)
+        ) ENGINE=InnoDB
+    """;
 
         try (Statement stmt = connection.createStatement()) {
-            // Tạo bảng users (đã có cột status)
             stmt.execute(createUsersTable);
 
-            // Kiểm tra nếu cột status chưa có thì thêm (cho database cũ)
             try {
                 stmt.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'ACTIVE'");
             } catch (SQLException e) {
-                // Cột có thể đã tồn tại, bỏ qua lỗi
                 logger.error("Column status already exists or error: " , e);
             }
 
@@ -145,14 +157,17 @@ public class DatabaseConnection {
             logger.info("Database tables created/verified successfully.");
         } catch (SQLException e) {
             logger.error("Error creating tables: " ,e);
-            e.printStackTrace();
         }
     }
 
     public Connection getConnection() {
         try {
-            if (connection == null || connection.isClosed() || !connection.isValid(2)) {
-                connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            if (connection == null || connection.isClosed() || (!isTestMode && !connection.isValid(2))) {
+                if (isTestMode) {
+                    connection = DriverManager.getConnection(H2_URL, H2_USER, H2_PASSWORD);
+                } else {
+                    connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                }
                 logger.info("🔄 Đã kết nối lại database");
             }
         } catch (SQLException e) {
@@ -171,6 +186,4 @@ public class DatabaseConnection {
             logger.error("Error closing connection: " ,e);
         }
     }
-
-
 }
