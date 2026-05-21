@@ -8,27 +8,33 @@ import java.sql.SQLException;
 
 public class TransactionDAO {
     private static final Logger logger = LoggerFactory.getLogger(TransactionDAO.class);
+    private Connection conn;
 
-    // Hàm ghi lại lịch sử giao dịch
+    public TransactionDAO() {}
+
+    public TransactionDAO(Connection conn) {
+        this.conn = conn;
+    }
+
+    private Connection getConnection() throws SQLException {
+        if (this.conn != null) {
+            return this.conn;
+        }
+        return DatabaseConnection.getInstance().getConnection();
+    }
+
     public boolean logTransaction(int userId, double amount, String type, String description) {
         String sql = "INSERT INTO transactions (user_id, amount, type, description) VALUES (?, ?, ?, ?)";
-
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
+        try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
             stmt.setInt(1, userId);
             stmt.setDouble(2, amount);
             stmt.setString(3, type);
             stmt.setString(4, description);
-
             int result = stmt.executeUpdate();
-            if (result > 0) {
-                logger.info("LOG: Giao dịch {} cho User ID {} đã được ghi lại ({} VNĐ)", type, userId, amount);
-                return true;
-            }
+            return result > 0;
         } catch (SQLException e) {
-            logger.info("LỖI: Không thể ghi log giao dịch cho User ID: " + userId, e);
+            logger.error("LỖI: Không thể ghi log giao dịch", e);
+            return false;
         }
-        return false;
     }
 }

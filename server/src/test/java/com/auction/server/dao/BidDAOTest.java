@@ -4,15 +4,20 @@ import com.auction.shared.model.BidTransaction;
 import com.auction.shared.model.Product;
 import com.auction.shared.model.User;
 import org.junit.jupiter.api.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BidDAOTest {
+    private Connection testConn;
     private BidDAO bidDAO;
     private UserDAO userDAO;
     private ProductDAO productDAO;
@@ -21,11 +26,49 @@ public class BidDAOTest {
     private int testProductId;
 
     @BeforeAll
-    void setup() {
-        DatabaseConnection.getInstance();
-        bidDAO = new BidDAO();
-        userDAO = new UserDAO();
-        productDAO = new ProductDAO();
+    void setup() throws Exception {
+        testConn = DriverManager.getConnection("jdbc:h2:mem:testdb_bid;DB_CLOSE_DELAY=-1");
+        try (Statement stmt = testConn.createStatement()) {
+            stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
+                    "id INT PRIMARY KEY AUTO_INCREMENT, " +
+                    "username VARCHAR(50) UNIQUE, " +
+                    "password VARCHAR(255), " +
+                    "email VARCHAR(100) UNIQUE, " +
+                    "full_name VARCHAR(100), " +
+                    "role VARCHAR(20), " +
+                    "balance DOUBLE DEFAULT 0, " +
+                    "active BOOLEAN DEFAULT TRUE, " +
+                    "status VARCHAR(20) DEFAULT 'ACTIVE', " +
+                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+
+            stmt.execute("CREATE TABLE IF NOT EXISTS products (" +
+                    "id INT PRIMARY KEY AUTO_INCREMENT, " +
+                    "name VARCHAR(200), " +
+                    "description TEXT, " +
+                    "starting_price DOUBLE, " +
+                    "current_price DOUBLE, " +
+                    "seller_id INT, " +
+                    "category VARCHAR(100), " +
+                    "image_url VARCHAR(255), " +
+                    "duration_hours INT, " +
+                    "start_time TIMESTAMP, " +
+                    "end_time TIMESTAMP, " +
+                    "status VARCHAR(50), " +
+                    "winner_id INT, " +
+                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+
+            stmt.execute("CREATE TABLE IF NOT EXISTS bids (" +
+                    "id INT PRIMARY KEY AUTO_INCREMENT, " +
+                    "product_id INT, " +
+                    "bidder_id INT, " +
+                    "bid_amount DOUBLE, " +
+                    "is_auto_bid BOOLEAN DEFAULT FALSE, " +
+                    "bid_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+        }
+
+        bidDAO = new BidDAO(testConn);
+        userDAO = new UserDAO(testConn);
+        productDAO = new ProductDAO(testConn);
 
         String uniqueKey = String.valueOf(System.currentTimeMillis());
         String testEmail = "bid_" + uniqueKey + "@test.com";
@@ -45,6 +88,14 @@ public class BidDAOTest {
         productDAO.createProduct(p);
         testProductId = p.getId();
     }
+
+    @AfterAll
+    void tearDown() throws Exception {
+        if (testConn != null) {
+            testConn.close();
+        }
+    }
+
     @Test
     @Order(1)
     @DisplayName("Test tạo lượt đặt giá mới")
@@ -65,7 +116,6 @@ public class BidDAOTest {
     @Order(2)
     @DisplayName("Test lấy giá cao nhất hiện tại")
     void testGetCurrentHighestBid() {
-        // Đặt thêm một giá cao hơn
         BidTransaction higherBid = new BidTransaction();
         higherBid.setAuctionId(testProductId);
         higherBid.setBidderId(testUserId);

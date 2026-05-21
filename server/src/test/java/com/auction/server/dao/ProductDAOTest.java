@@ -2,24 +2,57 @@ package com.auction.server.dao;
 
 import com.auction.shared.model.Product;
 import org.junit.jupiter.api.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ProductDAOTest {
+    private Connection testConn;
     private ProductDAO productDAO;
     private int testSellerId = 1;
     private static int createdProductId;
     private static final Logger logger = LoggerFactory.getLogger(ProductDAOTest.class);
+
     @BeforeAll
-    void setupDatabase() {
-        // Khởi tạo connection và tạo bảng
-        DatabaseConnection.getInstance();
-        productDAO = new ProductDAO();
+    void setupDatabase() throws Exception {
+        testConn = DriverManager.getConnection("jdbc:h2:mem:testdb_product;DB_CLOSE_DELAY=-1");
+        try (Statement stmt = testConn.createStatement()) {
+            stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
+                    "id INT PRIMARY KEY AUTO_INCREMENT, " +
+                    "username VARCHAR(50))");
+
+            stmt.execute("CREATE TABLE IF NOT EXISTS products (" +
+                    "id INT PRIMARY KEY AUTO_INCREMENT, " +
+                    "name VARCHAR(200), " +
+                    "description TEXT, " +
+                    "starting_price DOUBLE, " +
+                    "current_price DOUBLE, " +
+                    "seller_id INT, " +
+                    "category VARCHAR(100), " +
+                    "image_url VARCHAR(255), " +
+                    "duration_hours INT, " +
+                    "start_time TIMESTAMP, " +
+                    "end_time TIMESTAMP, " +
+                    "status VARCHAR(50), " +
+                    "winner_id INT, " +
+                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+        }
+        productDAO = new ProductDAO(testConn);
+    }
+
+    @AfterAll
+    void tearDown() throws Exception {
+        if (testConn != null) {
+            testConn.close();
+        }
     }
 
     @Test

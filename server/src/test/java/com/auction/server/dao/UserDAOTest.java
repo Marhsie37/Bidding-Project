@@ -18,10 +18,8 @@ public class UserDAOTest {
 
     @BeforeAll
     void setup() throws Exception {
-        // 1. Khởi tạo kết nối H2 ảo (chạy trên RAM, cực nhanh và sạch)
         testConn = DriverManager.getConnection("jdbc:h2:mem:testdb_user;DB_CLOSE_DELAY=-1");
 
-        // 2. Tạo bảng users mẫu khớp với logic trong UserDAO
         try (Statement stmt = testConn.createStatement()) {
             stmt.execute("CREATE TABLE users (" +
                     "id INT PRIMARY KEY AUTO_INCREMENT, " +
@@ -36,7 +34,6 @@ public class UserDAOTest {
                     "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
         }
 
-        // 3. Khởi tạo DAO với kết nối test
         userDAO = new UserDAO(testConn);
         uniqueSuffix = String.valueOf(System.currentTimeMillis());
     }

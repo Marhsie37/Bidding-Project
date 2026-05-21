@@ -3,6 +3,7 @@ package com.auction.server.dao;
 import com.auction.shared.model.User;
 import org.junit.jupiter.api.*;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -10,24 +11,55 @@ import java.sql.Statement;
 import static org.junit.jupiter.api.Assertions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TransactionDAOTest {
+    private Connection testConn;
     private TransactionDAO transactionDAO;
     private UserDAO userDAO;
     private int testUserId;
-    private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
+    private static final Logger logger = LoggerFactory.getLogger(TransactionDAOTest.class);
+
     @BeforeAll
-    void setup() {
-        DatabaseConnection.getInstance();
-        transactionDAO = new TransactionDAO();
-        userDAO = new UserDAO();
+    void setup() throws Exception {
+        testConn = DriverManager.getConnection("jdbc:h2:mem:testdb_tx;DB_CLOSE_DELAY=-1;NON_KEYWORDS=TYPE");
+
+        try (Statement stmt = testConn.createStatement()) {
+            stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
+                    "id INT PRIMARY KEY AUTO_INCREMENT, " +
+                    "username VARCHAR(50) UNIQUE, " +
+                    "password VARCHAR(255), " +
+                    "email VARCHAR(100) UNIQUE, " +
+                    "full_name VARCHAR(100), " +
+                    "role VARCHAR(20), " +
+                    "balance DOUBLE DEFAULT 0, " +
+                    "active BOOLEAN DEFAULT TRUE, " +
+                    "status VARCHAR(20) DEFAULT 'ACTIVE', " +
+                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+
+            stmt.execute("CREATE TABLE IF NOT EXISTS transactions (" +
+                    "id INT PRIMARY KEY AUTO_INCREMENT, " +
+                    "user_id INT, " +
+                    "amount DOUBLE, " +
+                    "type VARCHAR(50), " +
+                    "description VARCHAR(255), " +
+                    "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
+        }
+
+        transactionDAO = new TransactionDAO(testConn);
+        userDAO = new UserDAO(testConn);
 
         String tempUser = "trans_user_" + System.currentTimeMillis();
         userDAO.createUser(tempUser, "123", tempUser + "@test.com", "Trans Tester", "BIDDER");
         testUserId = userDAO.findByUsername(tempUser).getId();
+    }
 
-        logger.info("--- SETUP: Đã tạo User test với ID = " + testUserId + " ---");
+    @AfterAll
+    void tearDown() throws SQLException {
+        if (testConn != null) {
+            testConn.close();
+        }
     }
 
     @Test
@@ -40,8 +72,7 @@ public class TransactionDAOTest {
                 "DEPOSIT",
                 "Nạp tiền qua chuyển khoản ngân hàng"
         );
-
-        assertTrue(result, "Việc ghi log giao dịch nạp tiền phải thành công");
+        assertTrue(result);
     }
 
     @Test
@@ -54,26 +85,22 @@ public class TransactionDAOTest {
                 "BID_HOLD",
                 "Tạm giữ tiền cho phiên đấu giá Laptop"
         );
-
-        assertTrue(result, "Việc ghi log giao dịch trừ tiền phải thành công");
+        assertTrue(result);
     }
 
     @Test
     @Order(3)
-    @DisplayName("Kiểm tra dữ liệu thực tế trong Database")
+    @DisplayName("Kiểm tra dữ liệu thực tế trong Database H2")
     void testVerifyDataInDb() {
-        // Kiểm tra xem dữ liệu có thực sự nằm trong bảng transactions không
         String sql = "SELECT COUNT(*) FROM transactions WHERE user_id = " + testUserId;
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             Statement stmt = conn.createStatement();
+        try (Statement stmt = testConn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-
             if (rs.next()) {
                 int count = rs.getInt(1);
-                assertEquals(2, count, "Phải tìm thấy đúng 2 bản ghi giao dịch cho user này");
+                assertEquals(2, count);
             }
         } catch (Exception e) {
-            fail("Lỗi khi truy vấn kiểm tra Database: " + e.getMessage());
+            fail(e.getMessage());
         }
     }
 }
