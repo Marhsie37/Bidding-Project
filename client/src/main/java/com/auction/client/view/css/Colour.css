@@ -1,0 +1,1009 @@
+/* ========================================================================
+   GIAO DIỆN CHIA ĐÔI: WELCOME PANEL (TRÁI) VỀ LOGIN PANEL (PHẢI)
+   ======================================================================== */
+
+/* Khung lớn chứa toàn bộ giao diện (HBox hoặc AnchorPane) */
+.main-container {
+    -fx-background-color: #1a1135;
+    /* Đồng bộ nền tím trầm */
+}
+
+/* PANEL BÊN TRÁI - WELCOME PANEL (Sử dụng dải màu Gradient 4 điểm như hình mẫu) */
+.welcome-panel {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #7c162e 0%, #b8235a 35%, #42167c 70%, #16567c 100%);
+    /* Khuyên dùng: Giữ lại padding của Panel để nội dung không bị dính sát vào mép màn hình */
+    -fx-padding: 40px 60px;
+}
+
+/* Các chữ menu nhỏ góc trên (About, Download, Contact) */
+.nav-link-text {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-opacity: 0.8;
+}
+
+/* Chữ "Welcome." lớn */
+.text1 {
+    -fx-text-fill: white;
+    -fx-font-family: "Impact";
+    -fx-font-size: 60px;
+    -fx-font-weight: bold;
+    -fx-stroke: rgba(255, 255, 255, 0.3);
+    -fx-stroke-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 0, 255, 0.8), 15, 0, 0, 0);
+}
+
+
+/* ========================================================================
+   PANEL BÊN PHẢI - LOGIN PANEL
+   ======================================================================== */
+.login-panel {
+    -fx-background-color: #1a1135;
+    -fx-padding: 40px 60px;
+}
+
+/* Nút "Log in" nhỏ ở góc trên bên phải - Đã bỏ padding */
+/* Nút "Log in" nhỏ ở góc trên - ĐÃ SỬA ĐẬM VÀ RÕ RÀNG */
+/* Nút "Log in" nhỏ góc trên - Đảm bảo bao trọn chữ mượt mà */
+.btn-top-login {
+    -fx-background-color: #211646;
+    -fx-text-fill: white;
+    -fx-border-color: #4933a3;
+    -fx-border-width: 1.2px;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 13px;
+
+    /* Dùng padding cân đối để chữ luôn có không gian thở ở 2 bên */
+    -fx-padding: 4px 14px;
+}
+
+.btn-top-login:hover {
+    -fx-background-color: #2f2065;
+}
+
+/* Vòng tròn Avatar user - Đã bỏ min/max width height cứng, bạn tự chỉnh ở mục Layout */
+.avatar-container {
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 2px;
+    -fx-border-radius: 1000px;
+    /* Số lớn để đảm bảo khi bạn kéo hình vuông nó luôn tròn */
+    -fx-background-radius: 1000px;
+}
+
+/* Ô nhập liệu Username và Password - Đã bỏ padding lớn, giữ lại chút để chữ không dính viền */
+/* Ô nhập liệu Username và Password */
+.text-input {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255, 255, 255, 0.7);
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 25px;
+    -fx-background-radius: 25px;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+
+    /* === SỬA CHỖ NÀY: Tăng số thứ 4 lên để đẩy chữ cách xa icon ra === */
+    /* Thứ tự padding: Top (5px) - Right (10px) - Bottom (5px) - Left (45px) */
+    -fx-padding: 5px 10px 5px 45px;
+}
+
+.text-input:focused {
+    -fx-border-color: #e84393;
+}
+
+/* Nút bấm LOGIN lớn màu hồng Neon rực rỡ - Đã bỏ hoàn toàn padding */
+.btn-submit {
+    -fx-background-color: linear-gradient(to right, #e84393 0%, #ff5e97 100%);
+    -fx-text-fill: white;
+    -fx-background-radius: 25px;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(232, 67, 147, 0.4), 15, 0, 0, 4);
+}
+
+.btn-submit:hover {
+    -fx-background-color: linear-gradient(to right, #ff5e97 0%, #ff8da1 100%);
+    -fx-effect: dropshadow(three-pass-box, rgba(232, 67, 147, 0.7), 20, 0, 0, 4);
+}
+
+/* Checkbox "Remember" và chữ "Forget password" */
+.check-box {
+    -fx-text-fill: rgba(255, 255, 255, 0.6);
+    -fx-font-size: 12px;
+}
+
+.check-box .box {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255, 255, 255, 0.7);
+    -fx-border-radius: 3px;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #e84393;
+}
+
+.hyperlink {
+    -fx-text-fill: rgba(255, 255, 255, 0.6);
+    -fx-font-size: 12px;
+    -fx-underline: false;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: white;
+}
+
+/* 3 dấu chấm tròn nhỏ trang trí - Đã xóa width/height cứng */
+.dot {
+    -fx-background-color: white;
+    -fx-background-radius: 1000px;
+    -fx-opacity: 0.3;
+}
+
+.dot-active {
+    -fx-opacity: 1;
+}
+
+/* Style cho cả nhóm chữ Menu (About, Download, Contact) */
+.menu-item {
+    -fx-font-family: "Segoe UI Semibold";
+    /* Độ dày vừa vặn, nhìn cực sang và rõ */
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+    -fx-opacity: 0.9;
+    /* Hiện rõ hơn, không lo bị tàng hình */
+    -fx-underline: false;
+}
+
+.menu-item:hover {
+    -fx-opacity: 1.0;
+}
+
+.text-logo {
+    -fx-font-family: "Segoe UI Black";
+    /* Giữ phông chữ dày ấn tượng */
+    -fx-font-weight: bold;
+
+    /* Dải màu chuyển sắc Gradient (Trắng -> Hồng -> Tím) */
+    -fx-text-fill: linear-gradient(to bottom right, #ffffff 0%, #e84393 50%, #ae44ff 100%);
+
+    /* Hiệu ứng bóng đổ phát sáng (Glow) - Sẽ tự co giãn theo cỡ chữ bạn chỉnh */
+    -fx-effect: dropshadow(gaussian, rgba(232, 67, 147, 0.7), 20, 0.4, 0, 0);
+
+    /* ĐÃ XÓA dòng -fx-font-size để bạn tự chỉnh bằng tay */
+}
+
+/* Khung AnchorPane vừa trong suốt vừa bo tròn góc */
+/* Hiệu ứng kính mờ (Glassmorphism) - Vừa trong suốt vừa đầm đậm cực sang */
+.pane-trong-suot {
+    /* Mã màu tím đen tối (giống tone nền cũ của bạn) nhưng pha thêm độ trong suốt.
+       Số 0.65 ở cuối nghĩa là độ đậm đặc 65% (bạn có thể tăng lên 0.8 nếu muốn đậm hơn nữa)
+    */
+    -fx-background-color: rgba(11, 7, 30, 0.65);
+
+    /* Bo tròn góc mượt mà theo form của bạn */
+    -fx-background-radius: 25px;
+    -fx-border-radius: 25px;
+
+    /* Tạo một đường viền mỏng như sợi chỉ bao quanh khung để tạo cảm giác phản chiếu của kính */
+    -fx-border-color: rgba(255, 255, 255, 0.15);
+    -fx-border-width: 1px;
+}
+
+
+/* ========================================================================
+   GIAO DIỆN TRANG ĐĂNG KÝ (REGISTER) - KHÔNG DÙNG CHUNG CLASS GỐC
+   ======================================================================== */
+
+/* 1. KHUNG KÍNH MỜ BỌC FORM ĐĂNG KÝ (Glassmorphism) */
+.pane-dangky-glass {
+    /* Nền tím đen trong suốt nhìn xuyên thấu tinh vân */
+    -fx-background-color: rgba(15, 10, 35, 0.6);
+    -fx-background-radius: 25px;
+    -fx-border-radius: 25px;
+    /* Viền mỏng như sợi chỉ phản chiếu ánh sáng */
+    -fx-border-color: rgba(255, 255, 255, 0.15);
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.4), 15, 0, 0, 5);
+}
+
+/* 2. TIÊU ĐỀ "Create Your Account" */
+.label-dangky-title {
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI Semibold", sans-serif;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    /* Đổ bóng nhẹ phía sau để chữ nổi bật trên mây tinh vân */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 8, 0, 0, 0);
+}
+
+/* 3. CÁC Ô NHẬP LIỆU (Username, Password, Email, Fullname...) */
+.input-dangky-field {
+    -fx-background-color: rgba(255, 255, 255, 0.07);
+    /* Nền trong suốt mờ */
+    -fx-background-radius: 20px;
+    -fx-border-color: rgba(255, 255, 255, 0.25);
+    /* Viền mờ tinh tế */
+    -fx-border-radius: 20px;
+    -fx-text-fill: white;
+    /* Chữ gõ vào màu trắng rực rõ */
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.5);
+    /* Chữ gợi ý ẩn hiện mượt mà */
+    -fx-padding: 8px 15px 8px 15px;
+}
+
+/* Hiệu ứng khi nhấn chuột vào ô nhập liệu (Focused) */
+.input-dangky-field:focused {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    /* Viền chuyển sang màu hồng neon tiệp với dải mây hồng tím bên phải ảnh */
+    -fx-border-color: #ff5e97;
+}
+
+/* 4. Ô CHỌN QUYỀN HẠN (MenuButton Role) */
+.menu-dangky-role {
+    -fx-background-color: rgba(255, 255, 255, 0.09);
+    -fx-background-radius: 15px;
+    -fx-border-color: rgba(255, 255, 255, 0.25);
+    -fx-border-radius: 15px;
+    -fx-padding: 5px 15px;
+    -fx-cursor: hand;
+}
+
+/* Chữ hiển thị bên trong ô Role */
+.menu-dangky-role .label {
+    -fx-text-fill: #e0e0e0;
+    -fx-font-family: "Segoe UI Semibold";
+}
+
+/* Mũi tên nhỏ của ô Role */
+.menu-dangky-role .arrow {
+    -fx-background-color: #ff5e97;
+    /* Mũi tên màu hồng neon làm điểm nhấn */
+}
+
+.menu-dangky-role:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+}
+
+/* 5. NÚT "REGISTER" CHÍNH (Đã bỏ màu cam đỏ - Đổi sang dải Neon hợp nền) */
+.btn-dangky-submit {
+    /* Gradient chuyển màu cực mượt từ Hồng Tím sang Xanh Cyan kiểu Aurora Vũ Trụ */
+    -fx-background-color: linear-gradient(to right, #e84393, #ae44ff);
+    -fx-text-fill: white;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 25px;
+    -fx-cursor: hand;
+    /* Hiệu ứng phát sáng nhẹ (Glow) lan tỏa ra nền */
+    -fx-effect: dropshadow(three-pass-box, rgba(232, 67, 147, 0.5), 12, 0, 0, 0);
+}
+
+.btn-dangky-submit:hover {
+    /* Khi trỏ chuột vào, nút đảo sắc độ và sáng rực rỡ hơn */
+    -fx-background-color: linear-gradient(to right, #ff5e97, #c16eff);
+    -fx-effect: dropshadow(three-pass-box, rgba(232, 67, 147, 0.8), 18, 0, 0, 0);
+}
+
+/* 6. NÚT "BACK" PHỤ */
+.btn-dangky-back {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-text-fill: #dcdde1;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-width: 1px;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 14px;
+    -fx-padding: 8px 25px;
+    -fx-cursor: hand;
+}
+
+.btn-dangky-back:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-text-fill: white;
+    -fx-border-color: rgba(255, 255, 255, 0.4);
+}
+
+
+
+/*Seller*/
+/* Thanh tìm kiếm bo tròn giống Chợ Tốt */
+/* Trạng thái bình thường */
+/* Trạng thái bình thường */
+.search-field-modern {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 25px;
+    -fx-border-radius: 25px;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0px;
+    /* Triệt tiêu khoảng lún mặc định */
+    -fx-padding: 10px 15px 10px 25px;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.12), 8, 0, 0, 3);
+}
+
+/* Khi nhấn chuột vào (Focus) - Cách viết ép hệ thống xóa viền vuông */
+.search-field-modern:focused {
+    /* Mẹo tối quan trọng: JavaFX mặc định dùng nhiều lớp màu xếp chồng lên nhau để tạo viền.
+       Ta gán tất cả các lớp đó về màu trắng (hoặc màu viền mong muốn) để xóa hoàn toàn viền vuông xanh.
+    */
+    -fx-background-color: #ffffff, #ffffff, #ffffff;
+
+    /* Ép tất cả các lớp nền này đều phải bo tròn 25px */
+    -fx-background-radius: 25px, 25px, 25px;
+
+    /* Đảm bảo khoảng cách lún không bị đẩy ra làm méo ô */
+    -fx-background-insets: 0px, 0px, 0px;
+
+    /* Đổi đường viền ngoài thành một màu xám rất nhạt cho tinh tế */
+    -fx-border-color: #dcdde1;
+    -fx-border-radius: 25px;
+
+    /* Giữ nguyên đổ bóng */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.15), 8, 0, 0, 3);
+}
+
+
+/* Trạng thái bình thường của nút - Chuyển sang tone Tím Hồng rực rỡ */
+.btn-orange-red {
+    /* 1. Màu nền Tím Hồng (Purple Pink) hiện đại và rực rỡ */
+    -fx-background-color: #d11fff;
+    /* Chuyển sang sắc tím hồng tươi */
+
+    /* 2. Màu chữ trắng để nổi bật trên nền tím hồng */
+    -fx-text-fill: #ffffff;
+
+    /* 3. Bo tròn góc 25px để đồng bộ với thanh tìm kiếm */
+    -fx-background-radius: 25px;
+    -fx-border-radius: 25px;
+
+    /* 4. Định dạng chữ: Chữ đậm, Font hiện đại */
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+
+    /* 5. Khoảng cách đệm bên trong nút (Trên Phải Dưới Trái) */
+    -fx-padding: 10px 25px 10px 25px;
+
+    /* Thay đổi con trỏ chuột thành hình bàn tay khi di chuyển vào */
+    -fx-cursor: hand;
+
+    /* Hiệu ứng bóng đổ nhẹ giúp nút trông nổi khối */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0, 0, 2);
+}
+
+/* Hiệu ứng khi người dùng di chuột vào nút (Hover) */
+.btn-orange-red:hover {
+    /* Màu tím hồng sáng lên một chút để báo hiệu có thể click */
+    -fx-background-color: #ff66e0;
+    /* Sắc hồng tím sáng hơn */
+    /* Tăng độ bóng đổ khi di chuột vào */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 8, 0, 0, 3);
+}
+
+/* Hiệu ứng khi người dùng nhấn giữ chuột (Pressed) */
+.btn-orange-red:armed {
+    /* Màu tím hồng sậm lại khi nhấn xuống tạo cảm giác nút bị lún */
+    -fx-background-color: #ae00f0;
+    /* Chuyển sang sắc tím sậm */
+}
+
+
+/* Trạng thái mặc định của nút submission - Tone Tím Hồng đồng bộ */
+.btn-modern-submit {
+    /* 1. Màu nền Tím Hồng rực rỡ, hiện đại */
+    -fx-background-color: #d11fff;
+
+    /* 2. Màu chữ trắng tương phản tốt, nổi bật */
+    -fx-text-fill: #ffffff;
+
+    /* 3. Bo tròn góc tối đa (25px) để khớp hoàn hảo với thanh tìm kiếm */
+    -fx-background-radius: 25px;
+    -fx-border-radius: 25px;
+
+    /* 4. Font chữ, độ đậm và cỡ chữ lớn, dễ nhìn */
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+
+    /* 5. Khoảng cách đệm để tạo độ dài cân đối cho nút */
+    -fx-padding: 10px 25px 10px 25px;
+
+    /* Đổi con trỏ chuột thành hình bàn tay khi chỉ vào */
+    -fx-cursor: hand;
+
+    /* 6. Hiệu ứng đổ bóng mờ nhẹ phía dưới giúp nút nổi khối */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.15), 6, 0, 0, 2);
+}
+
+/* Hiệu ứng khi người dùng di chuột vào submit button (Hover xịn) */
+.btn-modern-submit:hover {
+    /* Màu nền tím hồng sáng lên một chút tạo cảm giác phản hồi ánh sáng */
+    -fx-background-color: #ff66e0;
+    /* Tăng nhẹ độ bóng để nút có cảm giác nổi cao lên */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.25), 8, 0, 0, 3);
+}
+
+/* Hiệu ứng khi người dùng bấm chuột xuống submit button (Pressed) */
+.btn-modern-submit:armed {
+    /* Màu tím hồng sậm xuống tạo hiệu ứng nút bị lún thật */
+    -fx-background-color: #ae00f0;
+    /* Giảm bóng đổ */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.1), 3, 0, 0, 1);
+}
+
+
+/* Trạng thái mặc định của nút KHÔNG VIỀN, HOVER ZOOM - Tone Tím Hồng */
+.btn-hover-zoom {
+    /* Làm nền và viền hoàn toàn trong suốt */
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0px;
+    -fx-border-width: 0px;
+
+    /* Thiết lập bo tròn sẵn để khi hover vào màu hiện lên sẽ chuẩn */
+    -fx-background-radius: 25px;
+    -fx-border-radius: 25px;
+
+    /* Màu chữ gốc - giữ nguyên sắc xám cho đến khi hover */
+    -fx-text-fill: #333333;
+
+    /* Định dạng chữ */
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 25px 10px 25px;
+    -fx-cursor: hand;
+
+    /* Tỷ lệ phóng to mặc định là 1 (100% kích thước gốc) */
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+}
+
+/* 2. KHI DI CHUỘT VÀO HOVER ZOOM: ĐỔI MÀU NỀN TÍM HỒNG + PHÓNG TO */
+.btn-hover-zoom:hover {
+    /* Đổi sang màu tím hồng hiện đại */
+    -fx-background-color: #ff66e0;
+    -fx-text-fill: #ffffff;
+    /* Đổi chữ sang màu trắng cho nổi bật */
+
+    /* PHÓNG TO LÊN 5% (1.05 lần kích thước cũ) */
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+
+    /* Đổ bóng nhẹ mượt mà khi nút phóng lên */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 8, 0, 0, 3);
+}
+
+/* 3. KHI NHẤN CHUỘT XUỐNG HOVER ZOOM (PRESSED) */
+.btn-hover-zoom:armed {
+    -fx-background-color: #ae00f0;
+    /* Màu tím hồng sậm xuống */
+    /* Giữ nguyên kích thước hoặc thu nhỏ lại một chút tạo cảm giác nén nút */
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+
+/* Danh mục Card View - Giữ nguyên nền trắng sạch */
+.vbox-category-panel {
+    /* 1. Màu nền trắng hoàn toàn - Sạch sẽ và hiện đại */
+    -fx-background-color: #ffffff;
+
+    /* 2. Bo tròn đều các góc 15px (Chuẩn giao diện phẳng hiện đại) */
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+
+    /* Xóa hoàn toàn viền mặc định */
+    -fx-border-color: transparent;
+    -fx-background-insets: 0px;
+
+    /* 3. Khoảng cách đệm bên trong để các nút danh mục không bị dính sát vào mép viền trắng */
+    -fx-padding: 20px 20px 20px 20px;
+
+    /* 4. Hiệu ứng đổ bóng mờ cực nhẹ xung quanh panel để tạo độ nổi khối (Card View) */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.08), 12, 0, 0, 4);
+}
+
+/* Trạng thái bình thường của TextField */
+.text-field-seller {
+    -fx-background-color: #F8F9FA; /* Nền xám trắng cực nhẹ giúp phân biệt với nền chính */
+    -fx-border-color: #E0E0E0;    /* Viền xám nhạt tinh tế */
+    -fx-border-width: 1px;
+    -fx-border-radius: 20px;       /* Bo tròn góc giống ô Duration của bạn */
+    -fx-background-radius: 20px;
+    -fx-padding: 8px 12px;         /* Tạo khoảng trống bên trong cho dễ gõ */
+    -fx-text-fill: #333333;        /* Màu chữ khi gõ vào */
+
+    /* Đổ bóng nhẹ tạo độ nổi (Elevation) giúp nhận diện nút nhấn */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);
+}
+
+/* Khi di chuột qua (Hover) */
+.text-field-seller:hover {
+    -fx-border-color: #B39DDB;     /* Viền chuyển sang tím nhạt */
+    -fx-background-color: #FFFFFF; /* Nền sáng lên */
+}
+
+/* Khi click chuột vào để gõ (Focus) - Giúp biết rõ đang nhấn vào ô nào */
+.text-field-seller:focused {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #9067C6;     /* Viền đổi sang màu tím đậm của app */
+    -fx-border-width: 1.5px;
+    /* Đổ bóng lan tỏa màu tím nhẹ xung quanh ô */
+    -fx-effect: dropshadow(three-pass-box, rgba(144, 103, 198, 0.2), 8, 0, 0, 0);
+}
+/* ==========================================================================
+   CHỈ SỬA THANH CUỘN DỌC: TRỞ LẠI PHẲNG TRUYỀN THỐNG TRƯỚC KHI BO GÓC
+   ========================================================================== */
+
+/* Khung cuộn ngoài cùng và phần nền góc (Corner) */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 1px;               /* Padding nhỏ để viền không bị đè lên nội dung */
+
+    /* Tạo đường viền mỏng màu xám nhạt (bạn có thể đổi màu tùy ý) */
+    -fx-border-color: #DCDDE1;
+    -fx-border-width: 1px;          /* Độ dày 1px mỏng vừa vặn */
+
+    /* Bo góc nhẹ 4px cho viền nếu muốn tinh tế, hoặc để 0px nếu muốn vuông hẳn */
+    -fx-border-radius: 4px;
+}
+
+/* Đảm bảo vùng hiển thị bên trong (Viewport) cũng mượt mà, không lệch màu */
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .corner {
+    -fx-background-color: #F1F1F1;
+}
+
+/* 1. Thanh cuộn dọc (Track) - Quay lại góc vuông phẳng chuẩn Chrome */
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: #F1F1F1;  /* Nền xám nhạt */
+    -fx-width: 12px;                /* Trở lại độ rộng 12px gọn gàng */
+    -fx-padding: 0 1px 0 1px;
+
+    /* Đường viền dọc phân cách thẳng thớm bên trái như cũ */
+    -fx-border-color: transparent transparent transparent #E0E0E0;
+    -fx-border-width: 0 0 0 1px;
+}
+
+/* 2. Cục trượt để kéo (Thumb) */
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #C1C1C1;
+    -fx-background-insets: 1px 2px 1px 2px; /* Thụt lề nhẹ để cục trượt thon gọn */
+    -fx-background-radius: 4px;            /* Bo tròn nhẹ đầu cục trượt như mặc định */
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #A8A8A8;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:pressed {
+    -fx-background-color: #787878;
+}
+
+/* 3. Định hình 2 nút bấm mũi tên tam giác phẳng ở hai đầu */
+.scroll-pane .scroll-bar .increment-button,
+.scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 4px 2px;
+}
+
+.scroll-pane .scroll-bar .increment-button:hover,
+.scroll-pane .scroll-bar .decrement-button:hover {
+    -fx-background-color: #D8D8D8;
+}
+
+.scroll-pane .scroll-bar .decrement-arrow {
+    -fx-background-color: #787878;
+    -fx-shape: "M 0 4 L 4 0 L 8 4 Z"; /* Hình tam giác hướng lên */
+    -fx-padding: 2px 3px;
+}
+
+.scroll-pane .scroll-bar .increment-arrow {
+    -fx-background-color: #787878;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z"; /* Hình tam giác hướng xuống */
+    -fx-padding: 2px 3px;
+}
+
+
+
+
+
+/* 1. Định dạng toàn bộ khung TabPane giống như một chiếc thẻ (Card) */
+.tab-pane {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 2);
+    -fx-padding: 16px;
+}
+
+/* 2. Ẩn đường kẻ ngang mặc định nằm dưới thanh tiêu đề Tab */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-opacity: 0;
+}
+
+/* Khoảng cách giữa các nút tab */
+.tab-pane .tab-container {
+    -fx-spacing: 12px;
+}
+
+/* 3. Định dạng chung cho các nút Tab (Giống trạng thái Chưa Chọn - Đã bán) */
+.tab-pane .tab {
+    -fx-background-color: #f4f4f4; /* Nền xám nhạt */
+    -fx-background-radius: 20px;   /* Bo tròn hẳn dạng viên thuốc */
+    -fx-border-radius: 20px;
+    -fx-padding: 6px 16px;        /* Tạo độ rộng vừa vặn cho nút */
+    -fx-cursor: hand;
+}
+
+/* Định dạng chữ cho Tab khi chưa chọn */
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #222222;       /* Chữ màu tối */
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+}
+
+/* 4. Định dạng khi Tab được Chọn (Giống trạng thái Tin đang hoạt động) */
+.tab-pane .tab:selected {
+    -fx-background-color: #4a4a4a; /* Màu xám đậm/đen đặc trưng */
+}
+
+/* Định dạng chữ cho Tab khi được chọn */
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #ffffff;       /* Chữ đổi sang màu trắng */
+    -fx-font-weight: bold;        /* Chữ đậm lên */
+}
+
+/* 5. Định dạng phần nội dung hiển thị bên dưới Tab */
+.tab-pane .tab-content-area {
+    -fx-background-color: transparent;
+    -fx-padding: 20px 0 0 0;      /* Tạo khoảng cách từ nút tab xuống nội dung */
+}
+
+/* Đảm bảo ScrollPane bên trong cũng trong suốt và sạch sẽ */
+.tab-pane .scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.tab-pane .scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Định dạng mặc định cho thẻ VBox */
+.product-card {
+    /* Đặt tâm phóng to ở chính giữa thẻ */
+    -fx-transform-pivot-x: 50%;
+    -fx-transform-pivot-y: 50%;
+}
+
+/* Hiệu ứng kích hoạt khi di chuột qua (Hover) */
+.product-card:hover {
+    -fx-scale-x: 1.05; /* Phóng to 1.05 lần theo chiều ngang */
+    -fx-scale-y: 1.05; /* Phóng to 1.05 lần theo chiều dọc */
+    -fx-cursor: hand;  /* Đổi con trỏ chuột thành hình bàn tay */
+
+    /* Thêm đổ bóng nhẹ nhìn cho hiện đại (Tùy chọn) */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 4);
+}
+
+/* ==========================================
+   CODE DÙNG CHUNG CHO CẢ HAI NÚT HÀNH ĐỘNG
+   ========================================== */
+.btn-action {
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: #444444;          /* Chữ màu xám đậm hiện đại */
+    -fx-background-color: #ffffff;   /* Nền nút màu trắng tinh khôi */
+    -fx-background-radius: 6px;      /* Bo góc nhẹ vuông vắn */
+    -fx-padding: 6px 16px;
+    -fx-border-color: #dddddd;       /* Viền ngoài mảnh xám nhẹ */
+    -fx-border-radius: 6px;
+    -fx-border-width: 1px;
+}
+
+/* Hiệu ứng khi di chuột vào (Hover): Phóng to + Đổi nền xám khói nhẹ */
+.btn-action:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.1;                /* Phóng to lên 1.1 lần */
+    -fx-scale-y: 1.1;
+    -fx-background-color: #f2f2f2;   /* Chuyển sang nền xám khói nhẹ */
+    -fx-border-color: #cccccc;
+}
+
+/* Hiệu ứng khi click giữ chuột (Pressed) */
+.btn-action:pressed {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-background-color: #e5e5e5;
+}
+
+.btn-delete-orange {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: white;
+    -fx-background-color: #e67e22;   /* Màu cam đất ấm, sang trọng */
+    -fx-background-radius: 6px;      /* Bo góc nhẹ đồng bộ với nút Ban */
+    -fx-padding: 6px 16px;
+}
+
+/* Hover: Phóng to nhẹ 8% + Cam đậm đà hơn */
+.btn-delete-orange:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
+    -fx-background-color: #d35400;   /* Cam cháy đậm */
+}
+
+.btn-delete-orange:pressed {
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+
+/* ==========================================
+   1. ĐỊNH DẠNG ĐỒNG BỘ KÍCH THƯỚC & FORM DÁNG (DÙNG CHUNG)
+   ========================================== */
+.btn-base {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: white;
+
+    /* Cố định kích thước để 2 nút luôn bằng nhau */
+    -fx-min-width: 75px;             /* Chiều rộng tối thiểu */
+    -fx-max-width: 75px;             /* Chiều rộng tối đa */
+    -fx-min-height: 32px;            /* Chiều cao chuẩn */
+    -fx-max-height: 32px;
+
+    -fx-background-radius: 6px;      /* Bo góc nhẹ giống nút Ban cũ của bạn */
+    -fx-alignment: center;           /* Căn chữ luôn ở chính giữa nút */
+}
+
+
+/* ==========================================
+   2. HIỆU ỨNG HOVER PHÓNG TO (DÙNG CHUNG)
+   ========================================== */
+.btn-base:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.08;               /* Phóng to đều 8% */
+    -fx-scale-y: 1.08;
+}
+
+.btn-base:pressed {
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+
+/* ==========================================
+   3. MÀU SẮC RIÊNG CHO TỪNG TRẠNG THÁI
+   ========================================== */
+
+/* Nút Ban - Trạng thái màu XANH */
+.bg-ban-blue {
+    -fx-background-color: #2b579a;
+}
+.bg-ban-blue:hover {
+    -fx-background-color: #1e3d6b;   /* Tối hơn khi hover */
+}
+
+/* Nút Ban - Trạng thái màu ĐỎ */
+.bg-ban-red {
+    -fx-background-color: #d9455f;
+}
+.bg-ban-red:hover {
+    -fx-background-color: #bd364f;   /* Tối hơn khi hover */
+}
+
+/* Nút Xóa - Màu XÁM THAN (Hợp mắt, tách biệt hoàn toàn với Xanh/Đỏ) */
+.bg-delete-charcoal {
+    -fx-background-color: #3a3a3a;
+}
+.bg-delete-charcoal:hover {
+    -fx-background-color: #1a1a1a;   /* Tối hơn khi hover */
+}
+
+
+/* style.css */
+
+/*
+ * Đặt tên class tùy chỉnh cho việc ẩn viền, ví dụ: "no-border"
+ */
+.no-border {
+    /* Phương pháp 1: Làm màu viền trong suốt */
+    -fx-border-color: transparent;
+
+    /* Phương pháp 2: Hoặc đặt độ rộng viền bằng 0 (cũng hiệu quả)
+       -fx-border-width: 0;
+    */
+
+    /*
+     * Để Button/ComboBox thực sự hòa vào nền (nhìn "tàng hình"),
+     * bạn thường cũng muốn loại bỏ màu nền mặc định hoặc làm nó trong suốt
+     * trừ khi bạn muốn nó vẫn hiển thị một nền khác.
+     */
+    -fx-background-color: transparent; /* Tùy chọn: làm nền trong suốt */
+
+    /*
+     * Một số control như Button hoặc text area trong ComboBox có thể có padding
+     * mặc định trông như một phần viền. Bạn có thể giảm nó nếu cần:
+     * -fx-padding: 5 5 5 5; /* Tùy chọn: chỉnh sửa padding nếu cần
+     */
+}
+
+/*
+ * Đối với ComboBox hoặc MenuButton, mặc dù bạn ẩn viền chính,
+ * mũi tên tam giác vẫn sẽ hiển thị.
+ * Để đảm bảo control hoàn toàn không viền (trừ mũi tên),
+ * ta có thể đảm bảo phần thân nút cũng trong suốt nếu có.
+ */
+.no-border .combo-box-button-box {
+    -fx-background-color: transparent;
+}
+
+/* style.css */
+
+/*
+ * Base Style cho nút Dashboard để đảm bảo nó đậm và có khoảng cách đẹp
+ * (Chưa thay đổi màu nền)
+ */
+.dashboard-btn {
+    -fx-font-weight: bold;               /* Làm chữ đậm nét hơn */
+    -fx-text-fill: #1A1D2D;               /* Màu chữ xám đậm cứng cáp để nổi bật trên nền tím oải hương */
+    -fx-background-radius: 8px;          /* Bo góc nhẹ cho nút mượt mà hơn */
+    -fx-cursor: hand;                    /* Chuột biến thành hình bàn tay khi rê vào */
+    -fx-background-color: transparent;   /* Mặc định là nền trong suốt để hòa vào nền sidebar */
+}
+
+/*
+ * Hiệu ứng khi di chuột vào (HOVER) nút "Dashboard"
+ * (Tạo sự khác biệt rõ rệt)
+ */
+.dashboard-btn:hover {
+    -fx-background-color: rgba(139, 92, 246, 0.1); /* Nền TÍM NHẠT CỰC MỎNG khi rê chuột */
+    -fx-text-fill: #8B5CF6;                          /* Đổi màu chữ sang TÍM SÁNG khi rê chuột */
+}
+
+/*
+ * (Tùy chọn) Style cho nút Dashboard khi được CHỌN (Active)
+ * Thường nút "Dashboard" sẽ luôn được đánh dấu là "đang được chọn".
+ * Nếu bạn gán một ID cụ thể cho nó (ví dụ: dashboard-selected), bạn có thể dùng cách này:
+ */
+#dashboard-selected {
+    -fx-background-color: #8B5CF6;       /* Nền TÍM ĐẬM chuyên nghiệp (Đây là màu liên quan đến màu tím của bạn) */
+    -fx-text-fill: white;                 /* Đổi màu chữ sang màu trắng để nổi bật */
+}
+
+/* style.css */
+
+/*
+ * Tạo một lớp kiểu cụ thể cho nhãn 'Admin'
+ */
+.admin-header {
+    /*
+     * 1. Tăng kích thước phông chữ để nổi bật hơn so với văn bản menu.
+     * Hãy thử các giá trị như 18px, 20px, hoặc 22px tùy theo sở thích của bạn.
+     */
+    -fx-font-size: 20px;
+
+    /*
+     * 2. Làm chữ đậm để tạo cảm giác quan trọng và mạnh mẽ hơn.
+     */
+    -fx-font-weight: bold;
+
+    /*
+     * 3. (Tùy chọn) Làm tối màu văn bản một chút để tăng độ tương phản với nền.
+     * Sử dụng một màu xám rất đậm thay vì màu đen hoàn toàn để trông chuyên nghiệp hơn.
+     */
+    -fx-text-fill: #1a1a1a; /* Màu xám đậm */
+
+    /*
+     * 4. (Tùy chọn) Thêm một chút khoảng cách phía trên và dưới để văn bản không bị dính.
+     */
+    -fx-padding: 15px 0; /* Khoảng cách trên-dưới là 15px, trái-phải là 0 */
+}
+
+/*
+ * (Tùy chọn bổ sung) Bạn có thể sử dụng ID nếu bạn gán ID cho nhãn 'Admin'
+ * (ví dụ: #admin-label) trong Scene Builder.
+ */
+#admin-label {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a1a1a;
+    -fx-padding: 15px 0;
+}
+
+
+/* style.css */
+
+/* ==========================================================================
+   1. ĐỊNH DẠNG HỘP CHỨA MENU THẢ XUỐNG (CONTEXT MENU)
+   ========================================================================== */
+.context-menu {
+    /* Đổi màu nền hộp menu sang màu xám/tím rất đậm để tiệp với sidebar mới */
+    -fx-background-color: #1A1D26;
+
+    /* BẮT BUỘC: Xóa bỏ padding mặc định để các menu-item có thể tràn ra full chiều rộng */
+    -fx-padding: 0px;
+
+    /* Làm viền trong suốt hoặc mỏng để không bị lệch */
+    -fx-border-color: transparent;
+
+    /* Bo góc nhẹ cho hộp menu đồng bộ với nút Dashboard (8px) */
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+
+    /* Đổ bóng nhẹ phía dưới menu để tạo hiệu ứng lớp (layer) chuyên nghiệp */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 12, 0, 0, 4);
+}
+
+/* ==========================================================================
+   2. ĐỊNH DẠNG CÁC DÒNG LỰA CHỌN (MENU ITEM) BÊN TRONG
+   ========================================================================== */
+.menu-item {
+    /* Tạo khoảng cách trên dưới vừa vặn, trái phải rộng rãi */
+    -fx-padding: 10px 18px;
+
+    /* Mặc định nền trong suốt */
+    -fx-background-color: transparent;
+
+    /* Bo góc cho item khớp với góc của hộp chứa context-menu bên trên */
+    -fx-background-radius: 8px;
+
+    -fx-cursor: hand;
+}
+
+/* Định dạng chữ của Menu Item ở trạng thái bình thường */
+.menu-item > .label {
+    -fx-text-fill: #E2E8F0;       /* Chữ màu trắng xám nhẹ để nổi bật trên nền tối */
+    -fx-font-weight: bold;        /* Chữ đậm như bạn yêu cầu */
+    -fx-font-size: 13px;
+}
+
+/* ==========================================================================
+   3. HIỆU ỨNG KHI DI CHUỘT VÀO (HOVER / FOCUSED) - GIỮ MÀU TÍM CHỦ ĐẠO
+   ========================================================================== */
+.menu-item:focused,
+.menu-item:hover,
+.menu-item:armed {
+    /* Đổi sang màu TÍM ĐẬM hiện đại khi rê chuột vào */
+    -fx-background-color: #8B5CF6;
+}
+
+/* Đổi màu chữ sang TRẮNG TINH KHIẾT khi di chuột vào nền tím */
+.menu-item:focused > .label,
+.menu-item:hover > .label,
+.menu-item:armed > .label {
+    -fx-text-fill: #FFFFFF;
+}
+
+
+.quit-button {
+    -fx-background-color: #8E44AD; -fx-background-radius: 8px; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;
+}
+
+/* Đoạn mã CSS */
+.anh-bo-goc {
+    width: 300px; /* Chiều rộng ảnh */
+    height: 200px; /* Chiều cao ảnh */
+
+    /* Thuộc tính bo góc ở đây */
+    border-radius: 15px;
+
+    object-fit: cover; /* Giúp ảnh không bị méo khi cố định kích thước */
+}

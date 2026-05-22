@@ -42,16 +42,16 @@ public enum CommandType {
     AUCTION_END,
     AUCTION_EXTENDED,
 
-    ADD_FUNDS,        // nap tien vao tai khoan
-    PROCESS_PAYMENT,  // xu ly thanh toan
-    GET_USER_BALANCE,  // lay so du
+    ADD_FUNDS, // nap tien vao tai khoan
+    PROCESS_PAYMENT, // xu ly thanh toan
+    GET_USER_BALANCE, // lay so du
 
-
-
-
-    GET_PURCHASED_PRODUCTS,  // lay san pham da mua
+    GET_PURCHASED_PRODUCTS, // lay san pham da mua
     ADMIN_UNBAN_USER,
     ADMIN_BAN_USER,
+
+    NEW_PRODUCT_ADDED, // thong bao san pham moi toi tat ca client
+
 
 
 }

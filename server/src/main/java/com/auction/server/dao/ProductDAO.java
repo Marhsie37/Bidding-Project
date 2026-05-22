@@ -58,8 +58,9 @@ public class ProductDAO {
 
     public List<Product> getProductsBySeller(int sellerId) {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT p.*, u.username as seller_name FROM products p " +
+        String sql = "SELECT p.*, u.username as seller_name, w.username as winner_name FROM products p " +
                 "LEFT JOIN users u ON p.seller_id = u.id " +
+                "LEFT JOIN users w ON p.winner_id = w.id " +
                 "WHERE p.seller_id = ? ORDER BY p.created_at DESC";
 
         try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
@@ -255,6 +256,12 @@ public class ProductDAO {
         int winnerId = rs.getInt("winner_id");
         if (!rs.wasNull()) {
             product.setWinnerId(winnerId);
+        }
+        try {
+            String winnerName = rs.getString("winner_name");
+            if (winnerName != null) product.setWinnerName(winnerName);
+        } catch (SQLException ignored) {
+            // Column winner_name không có trong một số queries
         }
 
         Timestamp createdAt = rs.getTimestamp("created_at");

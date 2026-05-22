@@ -24,8 +24,10 @@ public class ClientHandler implements Runnable {
     private AuctionService auctionService;
     private NotificationService notificationService;
     private static final Logger logger = LoggerFactory.getLogger(ClientHandler.class);
+    private static final java.util.concurrent.ConcurrentHashMap<Integer, Boolean> onlineUsers = new java.util.concurrent.ConcurrentHashMap<>();
 
-
+    // Thêm biến instance để lưu userId hiện tại
+    private int currentUserId = -1;
     private String currentRequestId; // thêm cùng chỗ với các field khác
     private BidDAO bidDAO = new BidDAO();
 
@@ -193,14 +195,26 @@ public class ClientHandler implements Runnable {
         Map<String,Object> result = auctionService.login(username, password);
 
         if ((boolean) result.get("success")) {
+            // 🟢 LẤY USER ID
+            Map<String,Object> userInfo = (Map<String,Object>) result.get("user");
+            int userId = (int) userInfo.get("id");
+
+            // 🟢🟢🟢 KIỂM TRA TÀI KHOẢN ĐANG ĐƯỢC DÙNG Ở NƠI KHÁC 🟢🟢🟢
+            if (onlineUsers.containsKey(userId)) {
+                sendResponse(CommandType.LOGIN, false, "Tài khoản đang được đăng nhập ở nơi khác!", null);
+                return;
+            }
+
+            // 🟢 LƯU USER ID VÀO MAP VÀ BIẾN INSTANCE
+            onlineUsers.put(userId, true);
+            this.currentUserId = userId;  // Cần thêm biến này ở đầu class
             this.username = username;
-            this.role = (String) result.get("role"); // AuctionService để "role" trực tiếp
-            Map<String,Object> userInfo = (Map<String,Object>) result.get("user"); // key là "user"
+            this.role = (String) result.get("role");
 
             AuctionServer.getInstance().registerClient(username, this);
 
             Map<String,Object> responseData = new HashMap<>();
-            responseData.put("userData", userInfo); // client đọc "userData"
+            responseData.put("userData", userInfo);
             responseData.put("role", this.role);
 
             sendResponse(CommandType.LOGIN, true, "Đăng nhập thành công!", responseData);
@@ -228,8 +242,16 @@ public class ClientHandler implements Runnable {
     private void handleAddProduct(Map<String, Object> data) {
         data.put("sellerId", username);
         Map<String, Object> result = auctionService.addProduct(data);
-        sendResponse(CommandType.ADD_PRODUCT, (boolean) result.get("success"),
-                (String) result.get("message"), result);
+        boolean success = (boolean) result.get("success");
+        sendResponse(CommandType.ADD_PRODUCT, success, (String) result.get("message"), result);
+
+        // Broadcast thông báo có sản phẩm mới cho toàn bộ client đang kết nối
+        if (success) {
+            com.auction.shared.protocol.Response broadcast = new com.auction.shared.protocol.Response(
+                    CommandType.NEW_PRODUCT_ADDED, true, "Có sản phẩm mới!", null);
+            AuctionServer.getInstance().broadcastToAll(broadcast);
+            logger.info("Đã broadcast NEW_PRODUCT_ADDED tới tất cả client");
+        }
     }
 
     private void handleUpdateProduct(Map<String, Object> data) {
@@ -249,12 +271,13 @@ public class ClientHandler implements Runnable {
         int productId = ((Number) data.get("productId")).intValue();
         double bidAmount = ((Number) data.get("bidAmount")).doubleValue();
         Map<String, Object> result = auctionService.placeBid(productId, username, bidAmount);
-        if ((boolean) result.get("success")){
-            //notify all subscibers
+
+        // 🟢 THÊM 3 DÒNG NÀY 🟢
+        if ((boolean) result.get("success")) {
             notificationService.notifyBidUpdate(productId, username, bidAmount);
         }
-        sendResponse(CommandType.PLACE_BID, (boolean) result.get("success"), (String) result.get("message"), result);
 
+        sendResponse(CommandType.PLACE_BID, (boolean) result.get("success"), (String) result.get("message"), result);
     }
     private void handleGetAuctionDetails(Map<String, Object> data) {
         int productId = ((Number) data.get("productId")).intValue();
@@ -357,12 +380,24 @@ public class ClientHandler implements Runnable {
     private void sendResponse(CommandType command, boolean success, String message, Map<String,Object> data){
         try{
             Response response = new Response(command,success,message,data);
-            response.setRequestId(currentRequestId); // ✅ THÊM DÒNG NÀY
+            response.setRequestId(currentRequestId);
             outputStream.writeObject(response);
             outputStream.flush();
 
         }catch (IOException e){
             logger.error("Error sending response: " ,e);
+        }
+    }
+
+    // Cho phép AuctionServer gọi để push dữ liệu (broadcast) xuống client này
+    public void sendResponsePublic(com.auction.shared.protocol.Response response) {
+        try {
+            synchronized (outputStream) {
+                outputStream.writeObject(response);
+                outputStream.flush();
+            }
+        } catch (IOException e) {
+            logger.error("Error broadcasting to client {}: ", username, e);
         }
     }
     private void sendError(String message) {
@@ -371,6 +406,12 @@ public class ClientHandler implements Runnable {
     private void disconnect(){
         connected = false;
         try{
+            // 🟢🟢🟢 XÓA USER ID KHỎI MAP ĐANG ONLINE 🟢🟢🟢
+            if (currentUserId > 0) {
+                onlineUsers.remove(currentUserId);
+                logger.info("User {} đã logout, xóa khỏi danh sách online", currentUserId);
+            }
+
             if (username != null){
                 AuctionServer.getInstance().unregisterClient(username);
             }

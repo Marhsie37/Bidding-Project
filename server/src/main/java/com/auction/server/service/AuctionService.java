@@ -464,6 +464,9 @@ public class AuctionService {
                 notificationService.notifyBidUpdate(productId, username, bidAmount);
             }
 
+            // Kích hoạt xử lý Auto-bid ngay lập tức khi có người đặt giá mới
+            AutoBidService.getInstance().processAllAutoBids();
+
             result.put("success", true);
             result.put("message", "Đặt giá thành công! Bạn đang dẫn đầu với giá " + bidAmount);
             result.put("currentPrice", bidAmount);
@@ -513,6 +516,11 @@ public class AuctionService {
         AuctionSession session = sessions.get(productId);
         if (session != null) {
             session.addAutoBid(username, maxBid);
+            AutoBidService.getInstance().registerAutoBid(productId, username, maxBid, increment);
+            
+            // Kích hoạt xử lý Auto-bid ngay lập tức
+            AutoBidService.getInstance().processAllAutoBids();
+            
             result.put("success", true);
             result.put("message", "Đã bật chế độ Auto-bid (Tối đa: " + maxBid + ")");
         } else {
@@ -527,6 +535,7 @@ public class AuctionService {
         AuctionSession session = sessions.get(productId);
         if (session != null) {
             session.removeAutoBid(username);
+            AutoBidService.getInstance().unregisterAutoBid(productId, username);
             result.put("success", true);
             result.put("message", "Đã tắt Auto-bid.");
         }
@@ -621,6 +630,9 @@ public class AuctionService {
         AuctionSession session = sessions.get(productId);
         if (session != null && "ACTIVE".equals(session.getStatus())) {
             session.setStatus("FINISHED");
+            
+            // Dọn dẹp cấu hình Auto-bid của sản phẩm này
+            AutoBidService.getInstance().removeProductAutoBids(productId);
 
             int winnerId = session.getCurrentWinnerId();
             double finalPrice = session.getCurrentPrice();
@@ -666,20 +678,6 @@ public class AuctionService {
     }
 
 
-    public void checkAndEndAuctions() {
-        LocalDateTime now = LocalDateTime.now();
-        for (Map.Entry<Integer, AuctionSession> entry : sessions.entrySet()) {
-            AuctionSession session = entry.getValue();
-            if ("ACTIVE".equals(session.getStatus()) && now.isAfter(session.getEndTime())) {
-                session.setStatus("FINISHED");
-                logger.info("Chốt phiên [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
-
-                if (notificationService != null) {
-                    notificationService.notifyAuctionEnd(session.getProductId(), session.getCurrentWinnerId(), session.getCurrentWinnerName(), session.getCurrentPrice());
-                }
-            }
-        }
-    }
 
     public synchronized Map<String, Object> addFunds(int userId, double amount) {
         Map<String, Object> result = new HashMap<>();
@@ -913,5 +911,23 @@ public class AuctionService {
             sessions.put(product.getId(), session);
         }
         logger.info("✅ Đã load " + activeProducts.size() + " sản phẩm vào RAM");
+    }
+
+
+    public void checkAndEndAuctions() {
+        LocalDateTime now = LocalDateTime.now();
+        for (Map.Entry<Integer, AuctionSession> entry : sessions.entrySet()) {
+            AuctionSession session = entry.getValue();
+            if ("ACTIVE".equals(session.getStatus()) && now.isAfter(session.getEndTime())) {
+                session.setStatus("FINISHED");
+                logger.info("Chốt phiên [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
+
+                // Dọn dẹp cấu hình Auto-bid của sản phẩm này
+                AutoBidService.getInstance().removeProductAutoBids(session.getProductId());
+                if (notificationService != null) {
+                    notificationService.notifyAuctionEnd(session.getProductId(), session.getCurrentWinnerId(), session.getCurrentWinnerName(), session.getCurrentPrice());
+                }
+            }
+        }
     }
 }

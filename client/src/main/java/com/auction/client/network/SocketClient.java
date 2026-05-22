@@ -11,9 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -27,10 +25,9 @@ public class SocketClient {
     private String authToken;
     private boolean connected;
 
-    // ✅ pendingCallbacks theo requestId - tránh ghi đè lẫn nhau (từ bản 2)
     private Map<String, Consumer<Response>> pendingCallbacks = new ConcurrentHashMap<>();
-    // ✅ responseHandlers theo CommandType - dùng cho BID_UPDATE, AUCTION_END... (từ bản 1)
     private Map<CommandType, Consumer<Response>> responseHandlers = new ConcurrentHashMap<>();
+    private Map<CommandType, List<Consumer<Response>>> multiHandlers = new ConcurrentHashMap<>();
 
     private Thread listenerThread;
     private final Object writeLock = new Object();
@@ -49,7 +46,6 @@ public class SocketClient {
     }
 
     public void connect() throws IOException {
-        // XÓA DÒNG if (connected.get()) { ... return; }
         socket = new Socket(serverHost, serverPort);
         outputStream = new ObjectOutputStream(socket.getOutputStream());
         inputStream = new ObjectInputStream(socket.getInputStream());
@@ -57,7 +53,6 @@ public class SocketClient {
         startListener();
         logger.info("Connected to server");
     }
-
 
     private void startListener() {
         listenerThread = new Thread(() -> {
@@ -70,19 +65,26 @@ public class SocketClient {
                         String requestId = response.getRequestId();
                         Consumer<Response> handler = null;
 
-                        // ✅ Ưu tiên tìm theo requestId (từ bản 2)
                         if (requestId != null) {
                             handler = pendingCallbacks.remove(requestId);
                         }
 
-                        // ✅ Fallback: tìm theo CommandType (từ bản 1)
                         if (handler == null) {
                             handler = responseHandlers.get(response.getCommand());
                         }
 
                         if (handler != null) {
                             handler.accept(response);
-                        } else {
+                        }
+
+                        List<Consumer<Response>> handlers = multiHandlers.get(response.getCommand());
+                        if (handlers != null) {
+                            for (Consumer<Response> h : handlers) {
+                                h.accept(response);
+                            }
+                        }
+
+                        if (handler == null && (handlers == null || handlers.isEmpty())) {
                             logger.warn("⚠️ Không có handler cho: {} (requestId={})",
                                     response.getCommand(), requestId);
                         }
@@ -107,7 +109,6 @@ public class SocketClient {
         if (authToken != null) {
             request.setToken(authToken);
         }
-        // ✅ Đồng bộ ghi socket (từ bản 2)
         synchronized (writeLock) {
             outputStream.writeObject(request);
             outputStream.flush();
@@ -115,17 +116,20 @@ public class SocketClient {
     }
 
     public void sendRequestAsync(Request request, Consumer<Response> callback) {
-        // ✅ Đăng ký handler TRƯỚC khi gửi
-        if (callback != null) {
-            responseHandlers.put(request.getCommand(), callback);
+        if (request.getRequestId() == null) {
+            request.setRequestId(UUID.randomUUID().toString());
         }
-        // ✅ Gửi trong 1 thread riêng nhưng có synchronized bên trong
+
+        if (callback != null) {
+            pendingCallbacks.put(request.getRequestId(), callback);
+        }
+
         new Thread(() -> {
             try {
                 sendRequest(request);
             } catch (IOException e) {
                 System.err.println("LỖI GỬI SOCKET: " + e.getMessage());
-                responseHandlers.remove(request.getCommand());
+                pendingCallbacks.remove(request.getRequestId());
                 if (callback != null) {
                     callback.accept(new Response(request.getCommand(), false, e.getMessage()));
                 }
@@ -234,7 +238,7 @@ public class SocketClient {
         sendRequestAsync(new Request(CommandType.LOGOUT, new HashMap<>()), callback);
     }
 
-    // ========== PERSISTENT HANDLERS (từ bản 1) ==========
+    // ========== PERSISTENT HANDLERS ==========
     public void setBidUpdateHandler(Consumer<Response> handler) {
         responseHandlers.put(CommandType.BID_UPDATE, handler);
     }
@@ -247,11 +251,32 @@ public class SocketClient {
         responseHandlers.put(CommandType.AUCTION_EXTENDED, handler);
     }
 
+    public void setNewProductAddedHandler(Consumer<Response> handler) {
+        responseHandlers.put(CommandType.NEW_PRODUCT_ADDED, handler);
+    }
+
+    public void removeNewProductAddedHandler() {
+        responseHandlers.remove(CommandType.NEW_PRODUCT_ADDED);
+    }
+
+    // ========== MULTIPLE HANDLERS SUPPORT ==========
+    public void addResponseHandler(CommandType command, Consumer<Response> handler) {
+        multiHandlers.computeIfAbsent(command, k -> new ArrayList<>()).add(handler);
+    }
+
+    public void removeResponseHandler(CommandType command, Consumer<Response> handler) {
+        List<Consumer<Response>> handlers = multiHandlers.get(command);
+        if (handlers != null) {
+            handlers.remove(handler);
+        }
+    }
+
     // ========== UTILITY ==========
     public void disconnect() {
         connected = false;
         pendingCallbacks.clear();
         responseHandlers.clear();
+        multiHandlers.clear();
         try {
             if (inputStream != null) inputStream.close();
             if (outputStream != null) outputStream.close();
@@ -279,10 +304,15 @@ public class SocketClient {
     public void clearHandlers() {
         pendingCallbacks.clear();
         responseHandlers.clear();
+        multiHandlers.clear();
         logger.info("✅ Đã xóa toàn bộ handlers");
     }
 
+    public Consumer<Response> getResponseHandler(CommandType command) {
+        return responseHandlers.get(command);
+    }
 
-
-
+    public void registerResponseHandler(CommandType command, Consumer<Response> handler) {
+        responseHandlers.put(command, handler);
+    }
 }

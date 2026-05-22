@@ -1,108 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="725.0" prefWidth="772.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.SellingController">
+<?import javafx.scene.control.TextArea?>
+<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="725.0" prefWidth="1148.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.SellingController">
    <children>
-      <ScrollPane layoutY="1.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="724.0" prefWidth="845.0">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="1004.0" prefWidth="830.0" style="-fx-background-color: #F4F7F6;">
+      <AnchorPane layoutY="1.0" minHeight="0.0" minWidth="0.0" prefHeight="726.0" prefWidth="1148.0" style="-fx-background-color: #F4F7F6;">
+         <children>
+            <VBox layoutX="646.0" layoutY="64.0" prefHeight="580.0" prefWidth="410.0" spacing="15.0" styleClass="vbox-category-panel" stylesheets="@css/Seller.css">
                <children>
-                  <Separator layoutX="130.0" layoutY="121.0" prefHeight="17.0" prefWidth="586.0" />
-                  <VBox layoutX="28.0" layoutY="148.0" prefHeight="564.0" prefWidth="500.0" style="-fx-background-radius: 10px;">
+                  <VBox prefHeight="162.0" prefWidth="370.0" spacing="5.0">
                      <children>
-                        <ScrollPane fitToWidth="true" prefHeight="412.0" prefWidth="500.0" styleClass="form-container" stylesheets="@Colour.css">
-                          <content>
-                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="588.0" prefWidth="485.0">
+                        <Label style="-fx-text-fill: #555555; -fx-font-size: 12;" text="Hình ảnh (Tối đa 1 ảnh) *" />
+                        <HBox prefHeight="100.0" prefWidth="282.0" spacing="10.0">
+                           <children>
+                              <AnchorPane fx:id="boxImagePreview" managed="false" prefHeight="100.0" prefWidth="100.0" style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #E0E0E0; -fx-border-width: 1;" visible="false">
                                  <children>
-                                    <VBox fx:id="vboxDisplay" prefHeight="578.0" prefWidth="499.0" />
+                                    <ImageView fx:id="imagePreview" fitHeight="98.0" fitWidth="98.0" layoutX="1.0" layoutY="1.0" pickOnBounds="true" />
+                                    <Button layoutX="76.0" layoutY="4.0" mnemonicParsing="false" onAction="#handleRemoveImage" prefHeight="20.0" prefWidth="20.0" style="-fx-background-color: rgba(0,0,0,0.6); -fx-text-fill: white; -fx-background-radius: 50%; -fx-font-size: 10; -fx-padding: 0; -fx-cursor: hand;" text="X" />
+                                    <Label alignment="CENTER" layoutX="1.0" layoutY="79.0" prefWidth="98.0" style="-fx-background-color: rgba(142,68,173,0.9); -fx-text-fill: white; -fx-font-size: 11; -fx-font-weight: bold; -fx-background-radius: 0 0 8 8;" text="Ảnh bìa" />
                                  </children>
                               </AnchorPane>
-                          </content>
-                        </ScrollPane>
-                     </children></VBox>
-                  <VBox layoutX="544.0" layoutY="148.0" prefHeight="410.0" prefWidth="282.0" spacing="15.0" styleClass="form-container" stylesheets="@Colour.css">
-                     <children>
-                        <AnchorPane prefHeight="50.0" prefWidth="211.0" style="-fx-background-radius: 10;">
-                           <children>
-                              <TextField fx:id="txtName" layoutX="78.0" layoutY="12.0" prefHeight="35.0" prefWidth="192.0" stylesheets="@Colour.css" />
-                              <Label layoutX="23.0" layoutY="21.0" text="Name" />
+                              <VBox fx:id="boxAddImage" alignment="CENTER" onMouseClicked="#handleChooseImageClick" prefHeight="120.0" prefWidth="370.0" spacing="5.0" style="-fx-border-color: #8E44AD; -fx-border-width: 1.5; -fx-border-radius: 8; -fx-background-color: #F5EEF8; -fx-background-radius: 8; -fx-cursor: hand;" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <Label style="-fx-font-size: 28; -fx-text-fill: #8E44AD; -fx-font-weight: bold;" text="+" />
+                                    <Label style="-fx-text-fill: #333333; -fx-font-size: 12;" text="Thêm ảnh" />
+                                 </children>
+                              </VBox>
                            </children>
-                        </AnchorPane>
-                        <AnchorPane prefHeight="38.0" prefWidth="146.0">
-                           <children>
-                              <TextField fx:id="txtPrice" layoutX="76.0" layoutY="10.0" prefHeight="35.0" prefWidth="192.0" stylesheets="@Colour.css" />
-                              <Label layoutX="28.0" layoutY="19.0" text="Price" />
-                           </children>
-                        </AnchorPane>
-                        <AnchorPane prefHeight="50.0" prefWidth="211.0">
-                           <children>
-                              <TextField fx:id="txtImageUrl" layoutX="76.0" layoutY="12.0" prefHeight="35.0" prefWidth="192.0" stylesheets="@Colour.css" />
-                              <Label layoutX="14.0" layoutY="21.0" text="Image URL" />
-                           </children>
-                        </AnchorPane>
-                        <AnchorPane prefHeight="46.0" prefWidth="211.0">
-                           <children>
-                              <TextField fx:id="txtDuration" layoutX="76.0" layoutY="2.0" prefHeight="35.0" prefWidth="192.0" stylesheets="@Colour.css" />
-                              <Label layoutX="20.0" layoutY="11.0" text="Duration" />
-                           </children>
-                        </AnchorPane>
-                        <TextArea fx:id="txtDescription" prefHeight="124.0" prefWidth="282.0" promptText="Thông tin sản phẩm" stylesheets="@Colour.css" />
-                        <AnchorPane prefHeight="43.0" prefWidth="211.0">
-                           <children>
-                              <Button layoutX="153.0" layoutY="-6.0" mnemonicParsing="false" onAction="#handleAddProduct" prefHeight="39.0" prefWidth="103.0" styleClass="btn-primary" stylesheets="@Colour.css" text="Add" />
-                           </children>
-                        </AnchorPane>
+                        </HBox>
                      </children>
                   </VBox>
-                  <AnchorPane prefHeight="114.0" prefWidth="888.0" style="-fx-background-color: #87CEEB;">
+                  <AnchorPane prefHeight="138.0" prefWidth="370.0">
                      <children>
-                        <Button alignment="TOP_CENTER" layoutX="579.0" layoutY="11.0" mnemonicParsing="false" onAction="#toProfile" prefHeight="30.0" prefWidth="93.0" styleClass="menu-button" stylesheets="@Colour.css" text="      Profile" />
-                        <Button alignment="CENTER" layoutX="679.0" layoutY="11.0" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#goToLoginScreen" prefHeight="30.0" prefWidth="90.0" styleClass="menu-button" stylesheets="@Colour.css" text="    Log out" textAlignment="CENTER" wrapText="true" AnchorPane.leftAnchor="679.0" />
-                        <TextField fx:id="searchField" layoutX="298.0" layoutY="44.0" prefHeight="38.0" prefWidth="261.0" promptText="Tìm kiếm " stylesheets="@Colour.css">
-                           <styleClass>
-                              <String fx:value="button-custom" />
-                              <String fx:value="text-field" />
-                           </styleClass>
-                        </TextField>
-                        <ImageView fitHeight="32.0" fitWidth="29.0" layoutX="520.0" layoutY="49.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="38.8" AnchorPane.leftAnchor="520.0" AnchorPane.rightAnchor="342.20000000000005" AnchorPane.topAnchor="49.0">
-                           <image>
-                              <Image url="@images/search.png" />
-                           </image>
-                        </ImageView>
-                        <Button layoutX="33.0" layoutY="26.0" mnemonicParsing="false" prefHeight="49.0" prefWidth="146.0" stylesheets="@Colour.css">
-                           <graphic>
-                              <AnchorPane prefHeight="46.0" prefWidth="35.0">
-                                 <children>
-                                    <ImageView fitHeight="48.0" fitWidth="56.0" layoutY="3.0" pickOnBounds="true">
-                                       <image>
-                                          <Image url="@images/auction.png" />
-                                       </image>
-                                    </ImageView>
-                                    <Label layoutX="56.0" layoutY="-4.0" prefHeight="62.0" prefWidth="86.0" styleClass="text3" stylesheets="@Colour.css" text="AIB" />
-                                 </children>
-                              </AnchorPane>
-                           </graphic>
-                           <styleClass>
-                              <String fx:value="text3" />
-                              <String fx:value="menu-button" />
-                           </styleClass>
-                        </Button>
+                        <VBox layoutX="106.0" minHeight="0.0" minWidth="0.0" prefHeight="164.0" prefWidth="263.0" spacing="25.0">
+                           <children>
+                              <TextField fx:id="txtName" prefHeight="35.0" prefWidth="192.0" styleClass="text-field-seller" stylesheets="@css/Seller.css" />
+                              <TextField fx:id="txtPrice" prefHeight="35.0" prefWidth="192.0" styleClass="text-field-seller" stylesheets="@css/Seller.css" />
+                              <TextField fx:id="txtDuration" prefHeight="35.0" prefWidth="192.0" styleClass="text-field-seller" stylesheets="@css/Seller.css" />
+                           </children>
+                        </VBox>
+                        <VBox alignment="CENTER" layoutX="29.0" layoutY="-3.0" minHeight="0.0" minWidth="0.0" prefHeight="164.0" prefWidth="64.0" spacing="44.0">
+                           <children>
+                              <Label text="Name" />
+                              <Label text="Price" />
+                              <Label text="Duration" />
+                           </children>
+                        </VBox>
                      </children>
                   </AnchorPane>
+                  <TextArea fx:id="txtDescription" prefHeight="174.0" prefWidth="370.0" promptText="Mô tả sản phẩm ..." styleClass="text-field-seller" stylesheets="@css/Seller.css" wrapText="true" />
+               </children>
+            </VBox>
+            <AnchorPane prefHeight="47.0" prefWidth="1146.0" style="-fx-background-color: #F1EAFF;">
+               <children>
+                  <Button alignment="TOP_CENTER" layoutX="829.0" layoutY="2.0" mnemonicParsing="false" onAction="#toProfile" prefHeight="39.0" prefWidth="112.0" styleClass="btn-orange-red" stylesheets="@css/Seller.css" text="Profile" />
+                  <Button alignment="CENTER" layoutX="959.0" layoutY="2.0" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#goToLoginScreen" prefHeight="39.0" prefWidth="112.0" styleClass="btn-orange-red" stylesheets="@css/Seller.css" text="Log out" textAlignment="CENTER" wrapText="true" AnchorPane.leftAnchor="959.0" />
                </children>
             </AnchorPane>
-        </content>
-      </ScrollPane>
+            <Button layoutX="684.0" layoutY="655.0" mnemonicParsing="false" onAction="#handleAddProduct" prefHeight="39.0" prefWidth="339.0" styleClass="btn-dangky-submit" stylesheets="@css/Seller.css" text="Sell" />
+            <ScrollPane fitToWidth="true" layoutX="73.0" layoutY="64.0" prefHeight="579.0" prefWidth="486.0" styleClass="form-container" stylesheets="@css/Seller.css">
+               <content>
+                  <VBox fx:id="vboxDisplay" prefHeight="682.0" prefWidth="451.0" />
+               </content>
+            </ScrollPane>
+         </children>
+      </AnchorPane>
    </children>
 </AnchorPane>
+

@@ -20,7 +20,7 @@ public class DatabaseConnection {
 
             createTables();
         } catch (ClassNotFoundException | SQLException e) {
-            logger.error("Database connection error: " ,e);
+            logger.error("Database connection error: ", e);
         }
     }
 
@@ -33,87 +33,83 @@ public class DatabaseConnection {
 
     private void createTables() {
         String createUsersTable = """
-        CREATE TABLE IF NOT EXISTS users (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            username VARCHAR(50) UNIQUE NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            email VARCHAR(100) UNIQUE NOT NULL,
-            full_name VARCHAR(100),
-            role ENUM('BIDDER', 'SELLER', 'ADMIN') DEFAULT 'BIDDER',
-            balance DECIMAL(15,2) DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            active BOOLEAN DEFAULT TRUE,
-            status VARCHAR(20) DEFAULT 'ACTIVE'
-        ) ENGINE=InnoDB
-    """;
+                    CREATE TABLE IF NOT EXISTS users (
+                        id INT PRIMARY KEY AUTO_INCREMENT,
+                        username VARCHAR(50) UNIQUE NOT NULL,
+                        password VARCHAR(255) NOT NULL,
+                        email VARCHAR(100) UNIQUE NOT NULL,
+                        full_name VARCHAR(100),
+                        role ENUM('BIDDER', 'SELLER', 'ADMIN') DEFAULT 'BIDDER',
+                        balance DECIMAL(15,2) DEFAULT 0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        active BOOLEAN DEFAULT TRUE,
+                        status VARCHAR(20) DEFAULT 'ACTIVE'
+                    ) ENGINE=InnoDB
+                """;
 
         String createProductsTable = """
-        CREATE TABLE IF NOT EXISTS products (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            name VARCHAR(200) NOT NULL,
-            description TEXT,
-            starting_price DECIMAL(15,2) NOT NULL,
-            current_price DECIMAL(15,2),
-            seller_id INT NOT NULL,
-            category VARCHAR(50),
-            image_url VARCHAR(500),
-            duration_hours INT DEFAULT 24,
-            start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            end_time TIMESTAMP NULL,
-            status ENUM('PENDING', 'ACTIVE', 'ENDED', 'CANCELLED') DEFAULT 'PENDING',
-            winner_id INT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            CONSTRAINT fk_product_seller FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE,
-            CONSTRAINT fk_product_winner FOREIGN KEY (winner_id) REFERENCES users(id) ON DELETE SET NULL
-        ) ENGINE=InnoDB
-    """;
+                    CREATE TABLE IF NOT EXISTS products (
+                        id INT PRIMARY KEY AUTO_INCREMENT,
+                        name VARCHAR(200) NOT NULL,
+                        description TEXT,
+                        starting_price DECIMAL(15,2) NOT NULL,
+                        current_price DECIMAL(15,2),
+                        seller_id INT NOT NULL,
+                        category VARCHAR(50),
+                        image_url LONGTEXT,
+                        duration_hours INT DEFAULT 24,
+                        start_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        end_time TIMESTAMP NULL,
+                        status ENUM('PENDING', 'ACTIVE', 'ENDED', 'CANCELLED', 'SOLD') DEFAULT 'PENDING',
+                        winner_id INT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT fk_product_seller FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE,
+                        CONSTRAINT fk_product_winner FOREIGN KEY (winner_id) REFERENCES users(id) ON DELETE SET NULL
+                    ) ENGINE=InnoDB
+                """;
 
         String createBidsTable = """
-        CREATE TABLE IF NOT EXISTS bids (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            product_id INT NOT NULL,
-            bidder_id INT NOT NULL,
-            bid_amount DECIMAL(15,2) NOT NULL,
-            bid_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            is_auto_bid BOOLEAN DEFAULT FALSE,
-            CONSTRAINT fk_bid_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-            CONSTRAINT fk_bid_user FOREIGN KEY (bidder_id) REFERENCES users(id) ON DELETE CASCADE
-        ) ENGINE=InnoDB
-    """;
+                    CREATE TABLE IF NOT EXISTS bids (
+                        id INT PRIMARY KEY AUTO_INCREMENT,
+                        product_id INT NOT NULL,
+                        bidder_id INT NOT NULL,
+                        bid_amount DECIMAL(15,2) NOT NULL,
+                        bid_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        is_auto_bid BOOLEAN DEFAULT FALSE,
+                        CONSTRAINT fk_bid_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+                        CONSTRAINT fk_bid_user FOREIGN KEY (bidder_id) REFERENCES users(id) ON DELETE CASCADE
+                    ) ENGINE=InnoDB
+                """;
 
         String createAutoBidsTable = """
-        CREATE TABLE IF NOT EXISTS auto_bids (
-            id INT PRIMARY KEY AUTO_INCREMENT,
-            product_id INT NOT NULL,
-            user_id INT NOT NULL,
-            max_bid DECIMAL(15,2) NOT NULL,
-            increment_amount DECIMAL(15,2) DEFAULT 1000,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            active BOOLEAN DEFAULT TRUE,
-            CONSTRAINT fk_auto_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-            CONSTRAINT fk_auto_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-            UNIQUE KEY unique_auto_bid (product_id, user_id)
-        ) ENGINE=InnoDB
-    """;
-
-
+                    CREATE TABLE IF NOT EXISTS auto_bids (
+                        id INT PRIMARY KEY AUTO_INCREMENT,
+                        product_id INT NOT NULL,
+                        user_id INT NOT NULL,
+                        max_bid DECIMAL(15,2) NOT NULL,
+                        increment_amount DECIMAL(15,2) DEFAULT 1000,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        active BOOLEAN DEFAULT TRUE,
+                        CONSTRAINT fk_auto_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+                        CONSTRAINT fk_auto_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                        UNIQUE KEY unique_auto_bid (product_id, user_id)
+                    ) ENGINE=InnoDB
+                """;
 
         String createUserProductsTable = """
-    CREATE TABLE IF NOT EXISTS user_products (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        user_id INT NOT NULL,
-        product_id INT NOT NULL,
-        product_name VARCHAR(200) NOT NULL,
-        product_price DECIMAL(15,2) NOT NULL,
-        purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        CONSTRAINT fk_up_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-        CONSTRAINT fk_up_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
-        UNIQUE KEY unique_user_product (user_id, product_id)
-    ) ENGINE=InnoDB
-""";
-        //Tạo bảng user_product là sản phẩm mà người thắng nhận được
-
-
+                    CREATE TABLE IF NOT EXISTS user_products (
+                        id INT PRIMARY KEY AUTO_INCREMENT,
+                        user_id INT NOT NULL,
+                        product_id INT NOT NULL,
+                        product_name VARCHAR(200) NOT NULL,
+                        product_price DECIMAL(15,2) NOT NULL,
+                        purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT fk_up_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                        CONSTRAINT fk_up_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+                        UNIQUE KEY unique_user_product (user_id, product_id)
+                    ) ENGINE=InnoDB
+                """;
+        // Tạo bảng user_product là sản phẩm mà người thắng nhận được
 
         try (Statement stmt = connection.createStatement()) {
             // Tạo bảng users (đã có cột status)
@@ -124,7 +120,7 @@ public class DatabaseConnection {
                 stmt.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'ACTIVE'");
             } catch (SQLException e) {
                 // Cột có thể đã tồn tại, bỏ qua lỗi
-                logger.error("Column status already exists or error: " , e);
+                logger.error("Column status already exists or error: ", e);
             }
 
             stmt.execute(createProductsTable);
@@ -132,10 +128,17 @@ public class DatabaseConnection {
             stmt.execute(createAutoBidsTable);
             stmt.execute(createUserProductsTable);
 
+            try {
+                stmt.execute("ALTER TABLE products MODIFY COLUMN image_url LONGTEXT");
+            } catch (SQLException e) {
+                logger.warn("Could not modify image_url column (may already be LONGTEXT): " + e.getMessage());
+            }
+
             String checkAdmin = "SELECT COUNT(*) FROM users WHERE username = 'admin'";
             try (ResultSet rs = stmt.executeQuery(checkAdmin)) {
                 if (rs.next() && rs.getInt(1) == 0) {
-                    String insertAdmin = "INSERT INTO users (username, password, email, full_name, role, balance, status) " +
+                    String insertAdmin = "INSERT INTO users (username, password, email, full_name, role, balance, status) "
+                            +
                             "VALUES ('admin', 'admin123', 'admin@auction.com', 'System Admin', 'ADMIN', 0, 'ACTIVE')";
                     stmt.execute(insertAdmin);
                     logger.info("Default admin created: username='admin', password='admin123'");
@@ -144,7 +147,7 @@ public class DatabaseConnection {
 
             logger.info("Database tables created/verified successfully.");
         } catch (SQLException e) {
-            logger.error("Error creating tables: " ,e);
+            logger.error("Error creating tables: ", e);
             e.printStackTrace();
         }
     }
@@ -156,7 +159,7 @@ public class DatabaseConnection {
                 logger.info("🔄 Đã kết nối lại database");
             }
         } catch (SQLException e) {
-            logger.error("Error reconnecting: " ,e);
+            logger.error("Error reconnecting: ", e);
         }
         return connection;
     }
@@ -168,9 +171,8 @@ public class DatabaseConnection {
                 logger.info("Database connection closed.");
             }
         } catch (SQLException e) {
-            logger.error("Error closing connection: " ,e);
+            logger.error("Error closing connection: ", e);
         }
     }
-
 
 }

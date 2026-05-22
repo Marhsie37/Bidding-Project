@@ -138,9 +138,8 @@ public class WindowManager {
 
             stage.setResizable(config.resizable);
 
-            if (config.enableDrag && config.undecorated) {
-                enableDrag(root, stage);
-            }
+            // 🟢 THÊM KÉO THẢ CHO CỬA SỔ (dùng chung cho mọi màn hình)
+            setupDragAndDrop(root, stage);
 
             stage.setOnCloseRequest(event -> {
                 logger.info("Đóng cửa sổ: {}", fxmlPath);
@@ -169,12 +168,7 @@ public class WindowManager {
     }
 
     /**
-     * Mở cửa sổ với cấu hình mặc định (dùng Object - giữ để tương thích cũ)
-     */
-
-
-    /**
-     * Mở cửa sổ với cấu hình tùy chỉnh (dùng Object - giữ để tương thích cũ)
+     * Mở cửa sổ với cấu hình tùy chỉnh (dùng Object)
      */
     public static Stage openWindow(String fxmlPath, Object caller, Config config) {
         return openWindow(fxmlPath, caller.getClass(), config);
@@ -209,9 +203,9 @@ public class WindowManager {
     // ==================== UTILITY METHODS ====================
 
     /**
-     * Thêm khả năng kéo thả cho cửa sổ
+     * Thiết lập kéo thả cho cửa sổ (dùng chung cho mọi màn hình)
      */
-    private static void enableDrag(Parent root, Stage stage) {
+    private static void setupDragAndDrop(Parent root, Stage stage) {
         final double[] xOffset = new double[1];
         final double[] yOffset = new double[1];
 
@@ -318,8 +312,9 @@ public class WindowManager {
         return copy;
     }
 
-
-    // Thêm method này vào WindowManager:
+    /**
+     * Mở cửa sổ với cấu hình mặc định (dùng Object)
+     */
     public static Stage openWindow(String fxmlPath, Object caller) {
         try {
             FXMLLoader loader = new FXMLLoader(caller.getClass().getResource(fxmlPath));
@@ -333,16 +328,7 @@ public class WindowManager {
             stage.centerOnScreen();
 
             // Kéo thả
-            final double[] xOffset = new double[1];
-            final double[] yOffset = new double[1];
-            root.setOnMousePressed(event -> {
-                xOffset[0] = event.getSceneX();
-                yOffset[0] = event.getSceneY();
-            });
-            root.setOnMouseDragged(event -> {
-                stage.setX(event.getScreenX() - xOffset[0]);
-                stage.setY(event.getScreenY() - yOffset[0]);
-            });
+            setupDragAndDrop(root, stage);
 
             stage.show();
             return stage;

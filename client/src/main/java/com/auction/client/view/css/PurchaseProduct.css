@@ -1,0 +1,35 @@
+.vbox-category-panel {
+    /* 1. Màu nền trắng hoàn toàn - Sạch sẽ và hiện đại */
+    -fx-background-color: #ffffff;
+
+    /* 2. Bo tròn đều các góc 15px (Chuẩn giao diện phẳng hiện đại) */
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+
+    /* Xóa hoàn toàn viền mặc định */
+    -fx-border-color: transparent;
+    -fx-background-insets: 0px;
+
+    /* 3. Khoảng cách đệm bên trong để các nút danh mục không bị dính sát vào mép viền trắng */
+    -fx-padding: 20px 20px 20px 20px;
+
+    /* 4. Hiệu ứng đổ bóng mờ cực nhẹ xung quanh panel để tạo độ nổi khối (Card View) */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.08), 12, 0, 0, 4);
+}
+
+/* Định dạng mặc định cho thẻ VBox */
+.product-card {
+    /* Đặt tâm phóng to ở chính giữa thẻ */
+    -fx-transform-pivot-x: 50%;
+    -fx-transform-pivot-y: 50%;
+}
+
+/* Hiệu ứng kích hoạt khi di chuột qua (Hover) */
+.product-card:hover {
+    -fx-scale-x: 1.05; /* Phóng to 1.05 lần theo chiều ngang */
+    -fx-scale-y: 1.05; /* Phóng to 1.05 lần theo chiều dọc */
+    -fx-cursor: hand;  /* Đổi con trỏ chuột thành hình bàn tay */
+
+    /* Thêm đổ bóng nhẹ nhìn cho hiện đại (Tùy chọn) */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 4);
+}

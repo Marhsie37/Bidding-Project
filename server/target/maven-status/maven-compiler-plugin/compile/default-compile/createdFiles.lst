@@ -1,4 +1,5 @@
 com\auction\server\dao\ProductDAO.class
+com\auction\server\service\AutoBidService$AutoBidConfig.class
 com\auction\server\dao\TransactionDAO.class
 com\auction\server\dao\UserProductDAO.class
 com\auction\server\service\NotificationService.class

@@ -1,0 +1,193 @@
+/* ========================================================================
+   GIAO DIỆN CHIA ĐÔI: WELCOME PANEL (TRÁI) VỀ LOGIN PANEL (PHẢI)
+   ======================================================================== */
+
+/* Khung lớn chứa toàn bộ giao diện (HBox hoặc AnchorPane) */
+.main-container {
+    -fx-background-color: #1a1135;
+    /* Đồng bộ nền tím trầm */
+}
+
+/* PANEL BÊN TRÁI - WELCOME PANEL (Sử dụng dải màu Gradient 4 điểm như hình mẫu) */
+.welcome-panel {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #7c162e 0%, #b8235a 35%, #42167c 70%, #16567c 100%);
+    /* Khuyên dùng: Giữ lại padding của Panel để nội dung không bị dính sát vào mép màn hình */
+    -fx-padding: 40px 60px;
+}
+
+/* Các chữ menu nhỏ góc trên (About, Download, Contact) */
+.nav-link-text {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-opacity: 0.8;
+}
+
+/* Chữ "Welcome." lớn */
+.text1 {
+    -fx-text-fill: white;
+    -fx-font-family: "Impact";
+    -fx-font-size: 60px;
+    -fx-font-weight: bold;
+    -fx-stroke: rgba(255, 255, 255, 0.3);
+    -fx-stroke-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(255, 0, 255, 0.8), 15, 0, 0, 0);
+}
+
+
+/* ========================================================================
+   PANEL BÊN PHẢI - LOGIN PANEL
+   ======================================================================== */
+.login-panel {
+    -fx-background-color: #1a1135;
+    -fx-padding: 40px 60px;
+}
+
+/* Nút "Log in" nhỏ ở góc trên bên phải - Đã bỏ padding */
+/* Nút "Log in" nhỏ ở góc trên - ĐÃ SỬA ĐẬM VÀ RÕ RÀNG */
+/* Nút "Log in" nhỏ góc trên - Đảm bảo bao trọn chữ mượt mà */
+.btn-top-login {
+    -fx-background-color: #211646;
+    -fx-text-fill: white;
+    -fx-border-color: #4933a3;
+    -fx-border-width: 1.2px;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 13px;
+
+    /* Dùng padding cân đối để chữ luôn có không gian thở ở 2 bên */
+    -fx-padding: 4px 14px;
+}
+
+.btn-top-login:hover {
+    -fx-background-color: #2f2065;
+}
+
+/* Vòng tròn Avatar user - Đã bỏ min/max width height cứng, bạn tự chỉnh ở mục Layout */
+.avatar-container {
+    -fx-border-color: rgba(255, 255, 255, 0.8);
+    -fx-border-width: 2px;
+    -fx-border-radius: 1000px;
+    /* Số lớn để đảm bảo khi bạn kéo hình vuông nó luôn tròn */
+    -fx-background-radius: 1000px;
+}
+
+/* Ô nhập liệu Username và Password - Đã bỏ padding lớn, giữ lại chút để chữ không dính viền */
+/* Ô nhập liệu Username và Password */
+.text-input {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255, 255, 255, 0.7);
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 25px;
+    -fx-background-radius: 25px;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+
+    /* === SỬA CHỖ NÀY: Tăng số thứ 4 lên để đẩy chữ cách xa icon ra === */
+    /* Thứ tự padding: Top (5px) - Right (10px) - Bottom (5px) - Left (45px) */
+    -fx-padding: 5px 10px 5px 45px;
+}
+
+.text-input:focused {
+    -fx-border-color: #e84393;
+}
+
+/* Nút bấm LOGIN lớn màu hồng Neon rực rỡ - Đã bỏ hoàn toàn padding */
+.btn-submit {
+    -fx-background-color: linear-gradient(to right, #e84393 0%, #ff5e97 100%);
+    -fx-text-fill: white;
+    -fx-background-radius: 25px;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(232, 67, 147, 0.4), 15, 0, 0, 4);
+}
+
+.btn-submit:hover {
+    -fx-background-color: linear-gradient(to right, #ff5e97 0%, #ff8da1 100%);
+    -fx-effect: dropshadow(three-pass-box, rgba(232, 67, 147, 0.7), 20, 0, 0, 4);
+}
+
+/* Checkbox "Remember" và chữ "Forget password" */
+.check-box {
+    -fx-text-fill: rgba(255, 255, 255, 0.6);
+    -fx-font-size: 12px;
+}
+
+.check-box .box {
+    -fx-background-color: transparent;
+    -fx-border-color: rgba(255, 255, 255, 0.7);
+    -fx-border-radius: 3px;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #e84393;
+}
+
+.hyperlink {
+    -fx-text-fill: rgba(255, 255, 255, 0.6);
+    -fx-font-size: 12px;
+    -fx-underline: false;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: white;
+}
+
+/* 3 dấu chấm tròn nhỏ trang trí - Đã xóa width/height cứng */
+.dot {
+    -fx-background-color: white;
+    -fx-background-radius: 1000px;
+    -fx-opacity: 0.3;
+}
+
+.dot-active {
+    -fx-opacity: 1;
+}
+
+/* Style cho cả nhóm chữ Menu (About, Download, Contact) */
+.menu-item {
+    -fx-font-family: "Segoe UI Semibold";
+    /* Độ dày vừa vặn, nhìn cực sang và rõ */
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+    -fx-opacity: 0.9;
+    /* Hiện rõ hơn, không lo bị tàng hình */
+    -fx-underline: false;
+}
+
+.menu-item:hover {
+    -fx-opacity: 1.0;
+}
+
+.text-logo {
+    -fx-font-family: "Segoe UI Black";
+    /* Giữ phông chữ dày ấn tượng */
+    -fx-font-weight: bold;
+
+    /* Dải màu chuyển sắc Gradient (Trắng -> Hồng -> Tím) */
+    -fx-text-fill: linear-gradient(to bottom right, #ffffff 0%, #e84393 50%, #ae44ff 100%);
+
+    /* Hiệu ứng bóng đổ phát sáng (Glow) - Sẽ tự co giãn theo cỡ chữ bạn chỉnh */
+    -fx-effect: dropshadow(gaussian, rgba(232, 67, 147, 0.7), 20, 0.4, 0, 0);
+
+    /* ĐÃ XÓA dòng -fx-font-size để bạn tự chỉnh bằng tay */
+}
+
+/* Khung AnchorPane vừa trong suốt vừa bo tròn góc */
+/* Hiệu ứng kính mờ (Glassmorphism) - Vừa trong suốt vừa đầm đậm cực sang */
+.pane-trong-suot {
+    /* Mã màu tím đen tối (giống tone nền cũ của bạn) nhưng pha thêm độ trong suốt.
+       Số 0.65 ở cuối nghĩa là độ đậm đặc 65% (bạn có thể tăng lên 0.8 nếu muốn đậm hơn nữa)
+    */
+    -fx-background-color: rgba(11, 7, 30, 0.65);
+
+    /* Bo tròn góc mượt mà theo form của bạn */
+    -fx-background-radius: 25px;
+    -fx-border-radius: 25px;
+
+    /* Tạo một đường viền mỏng như sợi chỉ bao quanh khung để tạo cảm giác phản chiếu của kính */
+    -fx-border-color: rgba(255, 255, 255, 0.15);
+    -fx-border-width: 1px;
+}

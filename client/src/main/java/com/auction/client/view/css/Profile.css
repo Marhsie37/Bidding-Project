@@ -1,0 +1,427 @@
+/* ============================================================
+   PROFILE UI - JavaFX CSS Stylesheet
+   Chỉ định nghĩa: màu sắc, bo góc, bóng, viền, nền
+   KHÔNG định nghĩa: font-size, padding, kích thước → tự chỉnh trong Scene Builder
+   ============================================================ */
+
+
+/* ── NỀN TỔNG THỂ ── */
+.root {
+    -fx-background-color: #eef0f5;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+
+/* ============================================================
+   TOPBAR - Thanh tiêu đề
+   styleClass="topbar"
+   ============================================================ */
+.topbar {
+    -fx-background-color: linear-gradient(to right, #c8b8e8, #d8c8f0, #b8a8d8);
+    -fx-effect: dropshadow(gaussian, rgba(160,130,210,0.3), 10, 0, 0, 3);
+}
+
+.topbar-title {
+    -fx-font-weight: bold;
+    -fx-text-fill: #3a2060;
+}
+
+
+/* ============================================================
+   NÚT TOPBAR
+   ============================================================ */
+
+/* Nút "Bidder / Seller" */
+.btn-seller {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #5a3ea0;
+    -fx-font-weight: 600;
+    -fx-background-radius: 8;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 6, 0, 0, 2);
+}
+.btn-seller:hover {
+    -fx-background-color: #f0ebff;
+}
+.btn-seller:pressed {
+    -fx-background-color: #e0d8ff;
+    -fx-scale-x: 0.97; -fx-scale-y: 0.97;
+}
+
+/* Nút "Log out" */
+.btn-logout {
+    -fx-background-color: transparent;
+    -fx-text-fill: #3a2060;
+    -fx-border-color: rgba(58,32,96,0.35);
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+.btn-logout:hover {
+    -fx-background-color: rgba(255,255,255,0.35);
+    -fx-border-color: rgba(58,32,96,0.6);
+}
+.btn-logout:pressed {
+    -fx-background-color: rgba(255,255,255,0.55);
+}
+
+
+/* ============================================================
+   CARD - Khung trắng bo góc dùng chung
+   styleClass="card"
+   ============================================================ */
+.card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);
+}
+
+
+/* ============================================================
+   THÔNG TIN CÁ NHÂN - Info card bên trái
+   ============================================================ */
+
+/* Label "Họ tên:", "Email:", "Số dư (VNĐ):" */
+.field-label {
+    -fx-font-weight: 600;
+    -fx-text-fill: #555555;
+}
+
+/* TextField Họ tên và Email (chỉ đọc) */
+.field-input {
+    -fx-background-color: #f5f4f9;
+    -fx-border-color: #e4e0f0;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+    -fx-text-fill: #333333;
+}
+.field-input:focused {
+    -fx-border-color: #a080d0;
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(160,128,208,0.18), 6, 0, 0, 0);
+}
+
+/* TextField Số dư - nền xanh lá nhạt */
+.field-input-balance {
+    -fx-background-color: #f0faf2;
+    -fx-border-color: #c8e8cc;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+    -fx-font-weight: 700;
+    -fx-text-fill: #2e7d32;
+}
+
+/* Nút "Edit" */
+.btn-edit {
+    -fx-background-color: linear-gradient(to right, #9070c0, #b090e0);
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 600;
+    -fx-background-radius: 50;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(144,112,192,0.4), 8, 0, 0, 3);
+}
+.btn-edit:hover {
+    -fx-background-color: linear-gradient(to right, #a080d0, #c0a0f0);
+    -fx-effect: dropshadow(gaussian, rgba(144,112,192,0.55), 12, 0, 0, 4);
+}
+.btn-edit:pressed {
+    -fx-background-color: #7055a8;
+    -fx-scale-x: 0.97; -fx-scale-y: 0.97;
+}
+
+
+/* ============================================================
+   NẠP TIỀN VÀO TÀI KHOẢN - Deposit card bên phải
+   ============================================================ */
+
+/* Tiêu đề "Nạp tiền vào tài khoản" */
+.deposit-title {
+    -fx-font-weight: 700;
+    -fx-text-fill: #3a2060;
+}
+
+/* Separator dưới tiêu đề */
+.deposit-separator .line {
+    -fx-border-color: #eeebf8;
+    -fx-border-width: 1;
+}
+
+/* TextField "Nhập số tiền..." */
+.deposit-input {
+    -fx-background-color: #f5f4f9;
+    -fx-border-color: #e4e0f0;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+    -fx-text-fill: #333333;
+}
+.deposit-input:focused {
+    -fx-border-color: #a080d0;
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(160,128,208,0.18), 6, 0, 0, 0);
+}
+
+/* Khi đã nhập số tiền hợp lệ → thêm class này bằng code Java */
+.deposit-input-filled {
+    -fx-background-color: #f0faf2;
+    -fx-border-color: #c8e8cc;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+    -fx-font-weight: 700;
+    -fx-text-fill: #2e7d32;
+}
+
+/* Khi nhập sai → thêm class này bằng code Java */
+.deposit-input-error {
+    -fx-background-color: #fff5f5;
+    -fx-border-color: #ffcdd2;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+    -fx-text-fill: #c62828;
+}
+
+/* ── Nút mệnh giá tiền (50,000đ / 100,000đ / ...) ──
+   styleClass="btn-quick"
+   ============================================================ */
+.btn-quick {
+    -fx-background-color: #f0eef8;
+    -fx-border-color: #e0dcf0;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #7050b0;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+.btn-quick:hover {
+    -fx-background-color: #e0d8f8;
+    -fx-border-color: #c0b0e8;
+    -fx-text-fill: #5030a0;
+}
+.btn-quick:pressed {
+    -fx-background-color: #ccc0e8;
+    -fx-scale-x: 0.96; -fx-scale-y: 0.96;
+}
+
+/* Nút mệnh giá đang được chọn → thêm class này bằng code Java */
+.btn-quick-selected {
+    -fx-background-color: #9070c0;
+    -fx-border-color: #7050a8;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(144,112,192,0.4), 6, 0, 0, 2);
+}
+
+/* Nút "NẠP TIỀN" */
+.btn-deposit {
+    -fx-background-color: linear-gradient(to right, #3a7bd5, #5a9bf5);
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 700;
+    -fx-background-radius: 50;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(58,123,213,0.4), 10, 0, 0, 3);
+}
+.btn-deposit:hover {
+    -fx-background-color: linear-gradient(to right, #2a6bc5, #4a8be5);
+    -fx-effect: dropshadow(gaussian, rgba(58,123,213,0.55), 14, 0, 0, 4);
+}
+.btn-deposit:pressed {
+    -fx-background-color: #2a5fb0;
+    -fx-scale-x: 0.97; -fx-scale-y: 0.97;
+}
+
+/* Label thông báo lỗi / thành công */
+.deposit-error-msg   { -fx-text-fill: #e53935; }
+.deposit-success-msg { -fx-text-fill: #2e7d32; }
+
+
+/* ============================================================
+   SẢN PHẨM NHẬN ĐƯỢC
+   ============================================================ */
+
+/* Card bọc ngoài */
+.products-section {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 14, 0, 0, 3);
+}
+
+/* Tiêu đề "Sản phẩm nhận được" */
+.products-title {
+    -fx-font-weight: 700;
+    -fx-text-fill: #3a2060;
+}
+
+/* Label đếm "4 sản phẩm" */
+.products-count {
+    -fx-background-color: #f0eef8;
+    -fx-text-fill: #7050b0;
+    -fx-font-weight: 600;
+    -fx-background-radius: 50;
+}
+
+
+
+/* VBox vboxPurchasedProducts - container các sản phẩm */
+.product-list {
+    -fx-background-color: transparent;
+}
+
+/* Mỗi hàng sản phẩm trong VBox */
+.product-row {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #f0eef8 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-cursor: hand;
+}
+.product-row:hover {
+    -fx-background-color: #faf8ff;
+}
+
+/* Tên sản phẩm */
+.product-row-name {
+    -fx-font-weight: 600;
+    -fx-text-fill: #222222;
+}
+
+/* Giá tiền */
+.product-row-price {
+    -fx-font-weight: 700;
+    -fx-text-fill: #e07b00;
+}
+
+/* Ngày nhận */
+.product-row-date {
+    -fx-text-fill: #aaaaaa;
+}
+
+/* ── TableView (nếu dùng thay VBox) ── */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #eeebf8;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-table-cell-border-color: transparent;
+}
+.table-view .column-header-background {
+    -fx-background-color: #f0eef8;
+    -fx-background-radius: 10 10 0 0;
+}
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+.table-view .column-header .label {
+    -fx-font-weight: 700;
+    -fx-text-fill: #7050b0;
+    -fx-alignment: center-left;
+}
+.table-view .table-cell {
+    -fx-text-fill: #333333;
+    -fx-border-color: transparent transparent #f0eef8 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-alignment: center-left;
+}
+.table-row-cell:even  { -fx-background-color: #ffffff; }
+.table-row-cell:odd   { -fx-background-color: #faf8ff; }
+.table-row-cell:hover { -fx-background-color: #f0eef8; }
+.table-row-cell:selected { -fx-background-color: #e0d8f8; }
+.table-row-cell:selected .table-cell { -fx-text-fill: #3a2060; }
+.table-view .scroll-bar:vertical .thumb { -fx-background-color: #c0b0e8; -fx-background-radius: 4; }
+.table-view .scroll-bar:vertical .track { -fx-background-color: #f0eef8; -fx-background-radius: 4; }
+.table-view .scroll-bar .increment-button,
+.table-view .scroll-bar .decrement-button { -fx-padding: 0; -fx-opacity: 0; -fx-min-height: 0; -fx-max-height: 0; }
+.table-view .placeholder .label { -fx-text-fill: #bbbbbb; }
+
+/* Nhãn trạng thái sản phẩm */
+.status-received {
+    -fx-background-color: #e8f5e9;
+    -fx-text-fill: #2e7d32;
+    -fx-font-weight: 600;
+    -fx-background-radius: 50;
+}
+.status-pending {
+    -fx-background-color: #fff8e1;
+    -fx-text-fill: #f57f17;
+    -fx-font-weight: 600;
+    -fx-background-radius: 50;
+}
+
+/* Separator chung */
+.separator .line {
+    -fx-border-color: #eeebf8;
+    -fx-border-width: 1;
+}
+
+/* ========== THANH CUỘN NGANG ========== */
+
+/* 1. Track của thanh cuộn ngang */
+.scroll-pane .scroll-bar:horizontal {
+    -fx-background-color: #F1F1F1;
+    -fx-pref-height: 12px;
+    -fx-padding: 0 1px 0 1px;
+}
+
+/* 2. Cục trượt (thumb) của thanh cuộn ngang */
+.scroll-pane .scroll-bar:horizontal .thumb {
+    -fx-background-color: #C1C1C1;
+    -fx-background-insets: 1px 2px 1px 2px;
+    -fx-background-radius: 4px;
+}
+
+.scroll-pane .scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #A8A8A8;
+}
+
+.scroll-pane .scroll-bar:horizontal .thumb:pressed {
+    -fx-background-color: #787878;
+}
+
+/* 3. Nút mũi tên trái/phải của thanh cuộn ngang */
+.scroll-pane .scroll-bar:horizontal .increment-button,
+.scroll-pane .scroll-bar:horizontal .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 2px 4px;
+}
+
+.scroll-pane .scroll-bar:horizontal .increment-button:hover,
+.scroll-pane .scroll-bar:horizontal .decrement-button:hover {
+    -fx-background-color: #D8D8D8;
+}
+
+/* Mũi tên trái (hướng trái) */
+.scroll-pane .scroll-bar:horizontal .decrement-arrow {
+    -fx-background-color: #787878;
+    -fx-shape: "M 8 0 L 0 4 L 8 8 Z";  /* Tam giác hướng trái */
+    -fx-padding: 3px 2px;
+}
+
+/* Mũi tên phải (hướng phải) */
+.scroll-pane .scroll-bar:horizontal .increment-arrow {
+    -fx-background-color: #787878;
+    -fx-shape: "M 0 0 L 8 4 L 0 8 Z";  /* Tam giác hướng phải */
+    -fx-padding: 3px 2px;
+}
+
+/* 4. Góc giữa thanh cuộn dọc và ngang */
+.scroll-pane .corner {
+    -fx-background-color: #F1F1F1;
+}
+
+.text1 {
+    -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #4a4a4a; -fx-padding: 10 0 5 0;
+}
+
