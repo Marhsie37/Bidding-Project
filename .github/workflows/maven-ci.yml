@@ -14,23 +14,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '25'
           distribution: 'liberica'
-          architecture: x64
           java-package: jdk+fx
           cache: maven
 
+      - name: Install xvfb (Tạo màn hình ảo cho JavaFX)
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
       - name: Build and Run Tests
-        run: mvn -B test
+        run: xvfb-run mvn -B test
 
       - name: Package Application
         if: success()
         run: mvn -B package -DskipTests
 
       - name: Archive Artifacts
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: auction-system-build

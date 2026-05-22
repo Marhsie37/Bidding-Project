@@ -137,7 +137,6 @@ public class SocketClient {
         }).start();
     }
 
-    // ========== CÁC METHOD GỬI REQUEST ==========
     public void login(String username, String password, Consumer<Response> callback) {
         Map<String, Object> data = new HashMap<>();
         data.put("username", username);

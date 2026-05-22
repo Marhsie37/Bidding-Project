@@ -12,10 +12,16 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         MainApp.primaryStage = primaryStage;
+
+        // Khởi tạo NotificationManager với Stage và SocketClient
+        // Lưu ý: SocketClient.getInstance() phải đã được kết nối trước khi gọi
+        // Nếu chưa kết nối, có thể gọi sau khi login thành công
+
         // WindowManager tự xử lý đóng cửa sổ và logout
         WindowManager.openWindow("/com/auction/client/view/LoginController.fxml", this);
     }
 
+    //  Thêm method để lấy primaryStage (cho các controller khác dùng nếu cần)
     public static Stage getPrimaryStage() {
         return primaryStage;
     }
@@ -27,7 +33,6 @@ public class MainApp extends Application {
                     com.auction.client.network.SocketClient.getInstance());
         }
     }
-
 
     public static void main(String[] args) {
         launch(args);

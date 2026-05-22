@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,16 +21,31 @@ public class AutoBidServiceTest {
     public void setUp() {
         auctionService = AuctionService.getInstance();
         autoBidService = AutoBidService.getInstance();
+
+        ensureUserExists("admin", "admin123", "admin_auto@test.com", "Admin System", "ADMIN");
     }
 
     @AfterEach
     public void tearDown() {
-        // Dọn dẹp luồng chạy ngầm sau khi test xong để không rò rỉ bộ nhớ
         try {
             autoBidService.stop();
         } catch (Exception e) {
             logger.error("Lỗi khi stop AutoBidService", e);
         }
+    }
+
+    private void ensureUserExists(String username, String password, String email, String fullName, String role) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("username", username);
+        data.put("password", password);
+        data.put("email", email);
+        data.put("fullName", fullName);
+        data.put("role", role);
+        auctionService.register(data);
+    }
+
+    private String generateUniqueStr(String prefix) {
+        return prefix + "_" + UUID.randomUUID().toString().substring(0, 5);
     }
 
     @Test
@@ -43,7 +59,6 @@ public class AutoBidServiceTest {
 
     @Test
     public void testStartAndStopService() {
-        // Chạy thử hàm start và stop xem có văng lỗi đa luồng không
         assertDoesNotThrow(() -> {
             autoBidService.start();
             autoBidService.stop();
@@ -51,36 +66,51 @@ public class AutoBidServiceTest {
     }
 
     @Test
-    public void testAutoBidPriorityQueueLogic() throws InterruptedException {
+    public void testRegisterAndUnregisterAutoBid() {
+        autoBidService.registerAutoBid(9999, "test_bot", 5000.0);
+
+        Map<String, Double> bids = autoBidService.getAutoBids(9999);
+        assertTrue(bids.containsKey("test_bot"), "Phải lưu được thông tin auto-bid");
+        assertEquals(5000.0, bids.get("test_bot"));
+
+        autoBidService.unregisterAutoBid(9999, "test_bot");
+        bids = autoBidService.getAutoBids(9999);
+        assertFalse(bids.containsKey("test_bot"), "Phải xóa được thông tin auto-bid");
+    }
+
+    @Test
+    public void testAutoBidLogic() throws InterruptedException {
         Map<String, Object> productData = new HashMap<>();
         productData.put("sellerId", "admin");
-        productData.put("productName", "VGA RTX 5090 Ti");
+        productData.put("name", "VGA RTX 5090 Ti"); // Gọi đúng key "name" theo bản update mới nhất
         productData.put("startingPrice", 1000.0);
+        productData.put("durationHours", 24);
         Map<String, Object> addResult = auctionService.addProduct(productData);
         int productId = (int) addResult.get("productId");
 
-        Map<String, Object> bot1 = new HashMap<>(); bot1.put("username", "autobot_ngheo"); bot1.put("password", "123");
-        Map<String, Object> bot2 = new HashMap<>(); bot2.put("username", "autobot_giau"); bot2.put("password", "123");
-        auctionService.register(bot1);
-        auctionService.register(bot2);
+        String botNgheo = generateUniqueStr("bot_ngheo");
+        String botGiau = generateUniqueStr("bot_giau");
+        ensureUserExists(botNgheo, "123", botNgheo+"@mail.com", "Bot Nghèo", "BIDDER");
+        ensureUserExists(botGiau, "123", botGiau+"@mail.com", "Bot Giàu", "BIDDER");
 
-        auctionService.setAutoBid(productId, "autobot_ngheo", 2000.0, 10.0);
+        int idNgheo = (int) ((Map<String, Object>) auctionService.login(botNgheo, "123").get("user")).get("id");
+        int idGiau = (int) ((Map<String, Object>) auctionService.login(botGiau, "123").get("user")).get("id");
+        auctionService.addFunds(idNgheo, 10000.0);
+        auctionService.addFunds(idGiau, 10000.0);
 
-        auctionService.setAutoBid(productId, "autobot_giau", 5000.0, 10.0);
+        autoBidService.registerAutoBid(productId, botNgheo, 2000.0);
+        autoBidService.registerAutoBid(productId, botGiau, 5000.0);
 
-        // Bật luồng Auto-bid và chờ
         autoBidService.start();
 
-        // Chờ 4 giây để ScheduledExecutorService có đủ thời gian quét (vì chu kỳ của bác là 3s/lần)
-        Thread.sleep(4000);
+        Thread.sleep(3500);
 
-        // Kiểm tra thuật toán Max-Heap (PriorityQueue)
         Map<String, Object> details = auctionService.getAuctionDetails(productId);
         com.auction.shared.model.AuctionSession session = (com.auction.shared.model.AuctionSession) details.get("session");
 
         assertNotNull(session.getCurrentWinnerName(), "Phải có người chiến thắng sau khi Auto-bid chạy");
 
-        assertEquals("autobot_giau", session.getCurrentWinnerName(), "Thuật toán phải chọn người có maxBid cao nhất làm winner");
+        assertEquals(botGiau, session.getCurrentWinnerName(), "Bot giàu phải là người thắng cuối cùng");
         assertTrue(session.getCurrentPrice() > 1000.0, "Thuật toán Auto-bid phải tự động đẩy giá lên");
     }
 }

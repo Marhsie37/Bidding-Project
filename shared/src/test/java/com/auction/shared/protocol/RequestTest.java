@@ -80,7 +80,10 @@ class RequestTest {
     }
 
     @Test
-    void testSerialVersionUID() throws NoSuchFieldException {
-        assertEquals(1L, Request.class.getDeclaredField("serialVersionUID").getModifiers());
+    void testSerialVersionUID() throws Exception {
+        java.lang.reflect.Field field = Request.class.getDeclaredField("serialVersionUID");
+        field.setAccessible(true);
+        long actualValue = field.getLong(null);
+        assertEquals(1L, actualValue, "Giá trị của serialVersionUID phải khớp cấu hình bằng 1L");
     }
 }
