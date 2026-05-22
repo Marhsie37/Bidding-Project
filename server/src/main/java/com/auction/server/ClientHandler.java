@@ -36,6 +36,7 @@ public class ClientHandler implements Runnable {
         this.connected = true;
         this.auctionService = AuctionService.getInstance();
         this.notificationService = NotificationService.getInstance();
+        if (socket == null) return;
 
 
         try {
@@ -58,8 +59,8 @@ public class ClientHandler implements Runnable {
                 }
             }
         } catch (SocketException e) {
-            System.err.println("❌ SOCKET EXCEPTION: " + e.getMessage());
-            e.printStackTrace();  // IN CHI TIẾT LỖI
+            System.err.println(" SOCKET EXCEPTION: " + e.getMessage());
+            e.printStackTrace();
         } catch (EOFException e) {
             System.out.println("Client disconnected: " + username);
         } catch (IOException | ClassNotFoundException e) {
@@ -349,6 +350,7 @@ public class ClientHandler implements Runnable {
             AuctionServer.getInstance().unregisterClient(username);
         }
         sendResponse(CommandType.LOGOUT, true, "Logged out", null);
+        connected = false;
         disconnect();
     }
     private boolean isAdmin() {
