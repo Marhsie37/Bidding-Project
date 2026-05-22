@@ -29,18 +29,39 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Base64;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import java.io.ByteArrayInputStream;
 
 public class SellingController implements Initializable {
 
     private static final Logger logger = LoggerFactory.getLogger(SellingController.class);
 
-    @FXML private VBox vboxDisplay;
-    @FXML private TextField txtName;
-    @FXML private TextField txtPrice;
-    @FXML private TextField txtImageUrl;
-    @FXML private TextField txtDuration;
-    @FXML private TextArea txtDescription;
-    @FXML private TextField searchField;
+    @FXML
+    private VBox vboxDisplay;
+    @FXML
+    private TextField txtName;
+    @FXML
+    private TextField txtPrice;
+    @FXML
+    private TextField txtDuration;
+    @FXML
+    private TextArea txtDescription;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private ImageView imagePreview;
+    @FXML
+    private VBox boxAddImage;
+    @FXML
+    private javafx.scene.layout.AnchorPane boxImagePreview;
+
+    private String currentImageUrl = "";
 
     private Product selectedProduct = null;
     private Map<Integer, Timeline> timelines = new HashMap<>();
@@ -115,7 +136,8 @@ public class SellingController implements Initializable {
             Label lblTimer = controller.getLblTimer();
 
             Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-                if (p == null) return;
+                if (p == null)
+                    return;
                 int remaining = p.getRemainingSeconds();
                 if (remaining <= 0) {
                     lblTimer.setText("HẾT HẠN!");
@@ -136,9 +158,23 @@ public class SellingController implements Initializable {
                 selectedProduct = p;
                 txtName.setText(p.getName());
                 txtPrice.setText(String.valueOf(p.getCurrentPrice()));
-                txtImageUrl.setText(p.getImageUrl());
                 txtDuration.setText(String.valueOf(p.getDurationHours()));
                 txtDescription.setText(p.getDescription());
+                updateImageUI(p.getImageUrl());
+
+                // Kiểm tra nếu đã có người đặt giá thì khóa các trường nhạy cảm
+                boolean hasBids = p.getCurrentPrice() > p.getStartingPrice();
+                txtPrice.setDisable(hasBids);
+                txtDuration.setDisable(hasBids);
+                if (hasBids) {
+                    txtPrice.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: #888888;");
+                    txtDuration.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: #888888;");
+                    showAlert("Thông báo", "⚠️ Sản phẩm đã có ngườ đặt giá!\nBạn chỉ có thể sửa Tên và Mô tả sản phẩm.");
+                } else {
+                    txtPrice.setStyle("");
+                    txtDuration.setStyle("");
+                }
+
                 logger.info("Editing product: {}", p.getName());
             });
 
@@ -226,11 +262,67 @@ public class SellingController implements Initializable {
     }
 
     @FXML
+    public void handleChooseImageClick(javafx.scene.input.MouseEvent event) {
+        chooseImageFile(((javafx.scene.Node) event.getSource()).getScene().getWindow());
+    }
+
+    @FXML
+    public void handleChooseImage(ActionEvent event) {
+        chooseImageFile(((javafx.scene.Node) event.getSource()).getScene().getWindow());
+    }
+
+    private void chooseImageFile(Window window) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Chọn ảnh sản phẩm");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif"));
+
+        // 🔥 ÉP FILE CHOOSER MỞ ĐÚNG THƯ MỤC DỰ ÁN HIỆN TẠI ĐỂ KHÔNG BỊ LÚ CACHE
+        try {
+            String projectPath = System.getProperty("user.dir");
+            File initialDir = new File(projectPath);
+            if (initialDir.exists()) {
+                fileChooser.setInitialDirectory(initialDir);
+            }
+        } catch (Exception e) {
+            logger.warn("Không thể set thư mục mặc định cho FileChooser: ", e);
+        }
+
+        File selectedFile = fileChooser.showOpenDialog(window);
+
+        if (selectedFile != null) {
+            logger.info("Người dùng đã chọn ảnh: {}", selectedFile.getAbsolutePath());
+            String base64Image = encodeImageToBase64(selectedFile);
+            if (base64Image != null) {
+                updateImageUI(base64Image);
+            } else {
+                updateImageUI(selectedFile.getAbsolutePath());
+            }
+        }
+    }
+
+    private String encodeImageToBase64(File file) {
+        try (java.io.FileInputStream fis = new java.io.FileInputStream(file)) {
+            byte[] imageBytes = fis.readAllBytes();
+            // Lấy kiểu MIME từ tên file
+            String fileName = file.getName().toLowerCase();
+            String mimeType = "image/jpeg";
+            if (fileName.endsWith(".png")) mimeType = "image/png";
+            else if (fileName.endsWith(".gif")) mimeType = "image/gif";
+            String base64 = Base64.getEncoder().encodeToString(imageBytes);
+            return "data:" + mimeType + ";base64," + base64;
+        } catch (Exception e) {
+            logger.error("Không thể mã hóa ảnh: ", e);
+            return null;
+        }
+    }
+
+    @FXML
     public void handleAddProduct(ActionEvent event) {
         try {
             String name = txtName.getText().trim();
             String priceText = txtPrice.getText().trim();
-            String imageUrl = txtImageUrl.getText().trim();
+            String imageUrl = currentImageUrl != null ? currentImageUrl.trim() : "";
             String durationText = txtDuration.getText().trim();
             String description = txtDescription.getText().trim();
 
@@ -290,7 +382,8 @@ public class SellingController implements Initializable {
                             loadMyProducts();
                         } else {
                             logger.error("Lỗi thêm: {}", response.getMessage());
-                            showAlert("Lỗi", response.getMessage() != null ? response.getMessage() : "Thêm sản phẩm thất bại!");
+                            showAlert("Lỗi",
+                                    response.getMessage() != null ? response.getMessage() : "Thêm sản phẩm thất bại!");
                         }
                     });
                 });
@@ -308,7 +401,8 @@ public class SellingController implements Initializable {
                             loadMyProducts();
                         } else {
                             logger.error("Lỗi cập nhật: {}", response.getMessage());
-                            showAlert("Lỗi", response.getMessage() != null ? response.getMessage() : "Cập nhật thất bại!");
+                            showAlert("Lỗi",
+                                    response.getMessage() != null ? response.getMessage() : "Cập nhật thất bại!");
                         }
                     });
                 });
@@ -322,14 +416,87 @@ public class SellingController implements Initializable {
     private void clearFields() {
         txtName.clear();
         txtPrice.clear();
-        txtImageUrl.clear();
+        updateImageUI("");
         txtDuration.clear();
         txtDescription.clear();
+        // Reset lại trạng thái các trường
+        txtPrice.setDisable(false);
+        txtDuration.setDisable(false);
+        txtPrice.setStyle("");
+        txtDuration.setStyle("");
         selectedProduct = null;
     }
 
+    private void updateImageUI(String imgUrl) {
+        if (imgUrl != null && !imgUrl.isEmpty()) {
+            currentImageUrl = imgUrl;
+            if (boxImagePreview != null) {
+                boxImagePreview.setVisible(true);
+                boxImagePreview.setManaged(true);
+            }
+            if (boxAddImage != null) {
+                boxAddImage.setVisible(false);
+                boxAddImage.setManaged(false);
+            }
+
+            try {
+                Image img = null;
+                // 1. Hỗ trợ hiển thị ảnh Base64 nếu có
+                if (imgUrl.startsWith("data:image") || isBase64(imgUrl)) {
+                    String base64Data = imgUrl.contains(",") ? imgUrl.split(",", 2)[1] : imgUrl;
+                    byte[] imageBytes = Base64.getDecoder().decode(base64Data);
+                    img = new Image(new ByteArrayInputStream(imageBytes));
+                } else {
+                    // 2. Tự động sửa đường dẫn nếu phát hiện dính chữ "New folder" cũ
+                    if (imgUrl.contains("New folder/")) {
+                        imgUrl = imgUrl.replace("New folder/", "New folder - Copy/");
+                    } else if (imgUrl.contains("New folder\\")) {
+                        imgUrl = imgUrl.replace("New folder\\", "New folder - Copy\\");
+                    }
+
+                    File imgFile = new File(imgUrl);
+                    if (imgFile.exists()) {
+                        img = new Image(imgFile.toURI().toString());
+                    } else {
+                        // 3. Nếu file không tồn tại thật, chặn lỗi tuyệt đối không cho ném ra Windows
+                        logger.warn("Không tìm thấy file ảnh cũ tại: {}", imgUrl);
+                        img = null;
+                    }
+                }
+                if (imagePreview != null && img != null) {
+                    imagePreview.setImage(img);
+                }
+            } catch (Exception ex) {
+                logger.error("Không thể load ảnh preview: ", ex);
+                if (imagePreview != null) imagePreview.setImage(null);
+            }
+        } else {
+            currentImageUrl = "";
+            if (boxImagePreview != null) {
+                boxImagePreview.setVisible(false);
+                boxImagePreview.setManaged(false);
+            }
+            if (boxAddImage != null) {
+                boxAddImage.setVisible(true);
+                boxAddImage.setManaged(true);
+            }
+            if (imagePreview != null) imagePreview.setImage(null);
+        }
+    }
+
+    private boolean isBase64(String str) {
+        if (str == null || str.length() < 100) return false;
+        return str.matches("^[A-Za-z0-9+/=]+$");
+    }
+
+    @FXML
+    public void handleRemoveImage(ActionEvent event) {
+        updateImageUI("");
+    }
+
     private String formatTime(int totalSeconds) {
-        if (totalSeconds <= 0) return "HẾT HẠN!";
+        if (totalSeconds <= 0)
+            return "HẾT HẠN!";
         int days = totalSeconds / 86400;
         int hours = (totalSeconds % 86400) / 3600;
         int minutes = (totalSeconds % 3600) / 60;
@@ -386,7 +553,7 @@ public class SellingController implements Initializable {
         try {
             Stage oldStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             oldStage.close();
-            WindowManager.openWindow("/com/auction/client/view/Profile.fxml", SellingController.class);
+            WindowManager.openWindow("/com/auction/client/view/ProfileSeller.fxml", SellingController.class);
         } catch (Exception e) {
             logger.error("Error navigating to Profile: ", e);
         }

@@ -1,0 +1,464 @@
+/* ============================================================
+   AUCTION UI - JavaFX CSS Stylesheet (BẢN GIẢI PHÓNG KÍCH THƯỚC)
+   PHONG CÁCH: TRẮNG SÁNG - HỒNG - TÍM CHỦ ĐẠO
+   ============================================================ */
+
+/* ============================================================
+   1. ROOT - Nền lớn tổng thể sáng ánh tím
+   ============================================================ */
+.root {
+    -fx-background-color: #faf8ff; /* Trắng ngả tím siêu nhẹ, cực sáng */
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+/* ============================================================
+   2. CARD / PANEL - Khung chứa nền trắng bo góc
+   (ĐÃ BỎ PADDING CỐ ĐỊNH - Bạn tự chỉnh padding trong Scene Builder)
+   ============================================================ */
+.card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-border-color: #f1e9f9; /* Viền tím phấn nhạt */
+    -fx-border-radius: 16;
+    -fx-border-width: 1.5;
+    /* Đổ bóng hồng tím mờ mịn sang trọng */
+    -fx-effect: dropshadow(three-pass-box, rgba(217, 70, 239, 0.05), 15, 0, 0, 4);
+}
+
+/* ============================================================
+   3. PRODUCT-IMAGE - Khung ảnh sản phẩm
+   (ĐÃ XÓA KHÓA CỨNG MIN-WIDTH/MIN-HEIGHT - Bạn tự kéo bằng chuột)
+   ============================================================ */
+.product-image {
+    -fx-background-color: #f3e8ff; /* Nền tím pastel nhạt cho khung ảnh trống */
+    -fx-background-radius: 12;
+}
+
+/* ============================================================
+   4. PRODUCT-TITLE - Tên sản phẩm lớn
+   ============================================================ */
+.product-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    /* Chữ chuyển màu Gradient từ Tím đậm sang Hồng rực rỡ */
+    -fx-text-fill: linear-gradient(to right, #6b21a8, #db2777);
+    -fx-wrap-text: true;
+}
+
+/* ============================================================
+   5. COUNTDOWN-BOX - Khung đếm ngược thời gian
+   ============================================================ */
+.countdown-box {
+    -fx-background-color: linear-gradient(to right, #fdf4ff, #fae8ff); /* Tím hồng phấn tươi sáng */
+    -fx-background-radius: 12;
+    -fx-border-color: #f5d0fe;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-alignment: center;
+}
+
+.countdown-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #a21caf; /* Hồng tím đậm */
+    -fx-font-weight: bold;
+}
+
+.countdown-time {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #c026d3; /* Tím Fuchsia sáng rõ */
+}
+
+/* ============================================================
+   6. PRICE-BOX - Khung hiển thị giá
+   ============================================================ */
+.price-box {
+    -fx-background-color: #fff1f2; /* Hồng kem siêu sáng */
+    -fx-background-radius: 10;
+    -fx-border-color: #ffe4e6;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.price-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #be123c; /* Đỏ hồng */
+    -fx-font-weight: bold;
+}
+
+/* Số tiền giá hiện tại */
+.price-value {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e11d48; /* Hồng đỏ tươi */
+}
+
+/* Số tiền mua ngay */
+.price-value-buynow {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #db2777; /* Hồng đậm nổi bật */
+}
+
+/* ============================================================
+   7. SECTION-LABEL - Tiêu đề các khối (Mô tả, Lịch sử...)
+   ============================================================ */
+.section-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #701a75; /* Tím mận sẫm sang trọng */
+}
+
+/* ============================================================
+   8. BID-INPUT - Ô nhập tiền cược
+   ============================================================ */
+.bid-input {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #f0abfc; /* Viền hồng tím nhạt */
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 14px;
+    -fx-text-fill: #4a044e;
+}
+
+.bid-input:focused {
+    -fx-border-color: #db2777; /* Bừng sáng viền hồng đậm khi gõ */
+    -fx-effect: dropshadow(three-pass-box, rgba(219, 39, 119, 0.2), 6, 0, 0, 0);
+}
+
+/* ============================================================
+   9. BTN-BID - Nút "ĐẶT BID NGAY"
+   (ĐÃ XÓA MAX-WIDTH INFINITY - Để bạn tự chỉnh rộng/hẹp bằng tay)
+   ============================================================ */
+.btn-bid {
+    -fx-background-color: linear-gradient(to right, #f43f5e, #ec4899, #d946ef); /* Gradient Hồng Tím */
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-background-radius: 10;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(236, 72, 153, 0.3), 10, 0, 0, 3);
+}
+
+.btn-bid:hover {
+    -fx-background-color: linear-gradient(to right, #e11d48, #db2777, #c026d3);
+}
+
+.btn-bid:pressed {
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* ============================================================
+   10. BTN-ACTIVATE - Nút "KÍCH HOẠT" AutoBid
+   ============================================================ */
+.btn-activate {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #ec4899; /* Viền hồng */
+    -fx-border-radius: 8;
+    -fx-border-width: 1.5;
+    -fx-text-fill: #db2777; /* Chữ hồng đậm */
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.btn-activate:hover {
+    -fx-background-color: #fff1f2;
+}
+
+/* ============================================================
+   11. AUTO-BID-SECTION - Khu vực đấu giá tự động
+   ============================================================ */
+.auto-bid-section {
+    -fx-border-color: #f5e3fb; /* Viền ngăn cách màu tím siêu nhạt */
+    -fx-border-width: 1 0 0 0;
+}
+
+.increment-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #a21caf;
+}
+
+.max-bid-input {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #f0abfc;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 13px;
+    -fx-text-fill: #4a044e;
+}
+
+.max-bid-input:focused {
+    -fx-border-color: #a855f7;
+}
+
+/* ============================================================
+   12. LINE ACCENT - Đường gạch chân trang trí tiêu đề
+   (ĐÃ XÓA MIN/MAX WIDTH - Đường kẻ sẽ dài ngắn tự động theo ô chứa)
+   ============================================================ */
+.underline-accent {
+    -fx-background-color: #ec4899; /* Gạch chân màu hồng */
+    -fx-min-height: 3;
+    -fx-max-height: 3;
+}
+
+/* Nội dung văn bản mô tả */
+/* ============================================================
+   CHUỐT LẠI KIỂU CHỮ CHO CÁC TIÊU ĐỀ SECTION
+   ============================================================ */
+
+/* 1. Tiêu đề "Mô tả sản phẩm" (Phần bên trái) */
+.description-title {
+    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+    -fx-font-size: 20px;         /* Kích thước vừa vặn, không bị quá to thô */
+    -fx-font-weight: 800;         /* Kích bôi đậm dày để nổi bật tiêu đề */
+    -fx-text-fill: #4a044e;      /* Màu tím mận sẫm rất sang, tôn nền trắng */
+    -fx-padding: 0 0 6 0;         /* Tạo khoảng cách nhỏ với đường gạch chân */
+}
+
+/* 2. Tiêu đề "Đấu giá tự động" (Phần bên phải) */
+.auto-bid-header {
+    -fx-font-family: "Segoe UI", "Inter", sans-serif;
+    -fx-font-size: 14px;         /* Nhỏ hơn tiêu đề chính một chút vì là khu vực con */
+    -fx-font-weight: bold;
+    -fx-text-fill: #701a75;      /* Màu tím hồng sẫm hài hòa */
+    -fx-alignment: center-left;  /* Căn lề trái thẳng hàng tăm tắp */
+    -fx-padding: 5 0 10 0;        /* Khoảng cách thông thoáng với các ô nhập phía dưới */
+}
+
+/* ============================================================
+   13. BID-HISTORY - Khung lịch sử bid
+   ============================================================ */
+.bid-history-header {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #701a75;
+}
+
+.bid-count-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #db2777;
+}
+
+/* ============================================================
+   13. BID-HISTORY - Khung lịch sử bid (SỬA LỖI BO GÓC)
+   ============================================================ */
+
+/* Áp dụng class này cho hộp chứa bọc ngoài cùng của Lịch sử bid */
+.bid-history-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-border-color: #f1e9f9;
+    -fx-border-radius: 16;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(three-pass-box, rgba(217, 70, 239, 0.05), 15, 0, 0, 4);
+}
+
+/* ÉP các thành phần con bên trong ListView / ScrollPane phải bo góc theo, không được tràn viền vuông */
+.bid-history-card .list-view,
+.bid-history-card .scroll-pane,
+.bid-history-card .viewport {
+    -fx-background-color: transparent;
+    -fx-background-radius: 16; /* Đồng bộ góc bo 16px */
+    -fx-border-radius: 16;
+}
+
+/* Các dòng trong lịch sử */
+.bid-history-row {
+    -fx-border-color: transparent transparent #fdf4ff transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.bidder-name {
+    -fx-font-size: 13px;
+    -fx-text-fill: #4a044e;
+}
+
+/* Giữ màu xanh lá cho tiền thắng cược để giao diện đúng tính chất tiền tệ */
+.bid-amount {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #10b981;
+}
+
+/* ============================================================
+   14. CHECKBOX - Ô chọn đấu giá tự động
+   ============================================================ */
+.auction-checkbox {
+    -fx-font-size: 13px;
+    -fx-text-fill: #701a75;
+    -fx-font-weight: bold;
+}
+
+.auction-checkbox .box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #f0abfc;
+    -fx-border-width: 1.5;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+}
+
+.auction-checkbox:selected .box {
+    -fx-background-color: #ec4899;
+    -fx-border-color: #ec4899;
+}
+
+.auction-checkbox:selected .mark {
+    -fx-background-color: #ffffff;
+}
+
+/* ============================================================
+   15. SEPARATOR & 16. SCROLLPANE
+   ============================================================ */
+.separator .line {
+    -fx-border-color: #f5e3fb;
+    -fx-border-width: 1;
+}
+
+/* Khung cuộn ngoài cùng và phần nền góc (Corner) */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 1px;               /* Padding nhỏ để viền không bị đè lên nội dung */
+
+    /* Tạo đường viền mỏng màu xám nhạt (bạn có thể đổi màu tùy ý) */
+    -fx-border-color: #DCDDE1;
+    -fx-border-width: 1px;          /* Độ dày 1px mỏng vừa vặn */
+
+    /* Bo góc nhẹ 4px cho viền nếu muốn tinh tế, hoặc để 0px nếu muốn vuông hẳn */
+    -fx-border-radius: 4px;
+}
+
+/* Đảm bảo vùng hiển thị bên trong (Viewport) cũng mượt mà, không lệch màu */
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .corner {
+    -fx-background-color: #F1F1F1;
+}
+
+/* 1. Thanh cuộn dọc (Track) - Quay lại góc vuông phẳng chuẩn Chrome */
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: #F1F1F1;  /* Nền xám nhạt */
+    -fx-width: 12px;                /* Trở lại độ rộng 12px gọn gàng */
+    -fx-padding: 0 1px 0 1px;
+
+    /* Đường viền dọc phân cách thẳng thớm bên trái như cũ */
+    -fx-border-color: transparent transparent transparent #E0E0E0;
+    -fx-border-width: 0 0 0 1px;
+}
+
+/* 2. Cục trượt để kéo (Thumb) */
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #C1C1C1;
+    -fx-background-insets: 1px 2px 1px 2px; /* Thụt lề nhẹ để cục trượt thon gọn */
+    -fx-background-radius: 4px;            /* Bo tròn nhẹ đầu cục trượt như mặc định */
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #A8A8A8;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:pressed {
+    -fx-background-color: #787878;
+}
+
+/* 3. Định hình 2 nút bấm mũi tên tam giác phẳng ở hai đầu */
+.scroll-pane .scroll-bar .increment-button,
+.scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 4px 2px;
+}
+
+.scroll-pane .scroll-bar .increment-button:hover,
+.scroll-pane .scroll-bar .decrement-button:hover {
+    -fx-background-color: #D8D8D8;
+}
+
+.scroll-pane .scroll-bar .decrement-arrow {
+    -fx-background-color: #787878;
+    -fx-shape: "M 0 4 L 4 0 L 8 4 Z"; /* Hình tam giác hướng lên */
+    -fx-padding: 2px 3px;
+}
+
+.scroll-pane .scroll-bar .increment-arrow {
+    -fx-background-color: #787878;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z"; /* Hình tam giác hướng xuống */
+    -fx-padding: 2px 3px;
+}
+
+
+/* ============================================================
+   NÚT QUAY LẠI (PREVIOUS) - BẢN FULL MÀU GRADIENT NỔI BẬT
+   ============================================================ */
+.btn-back {
+    /* Đổ màu nền đặc 100% bằng dải Gradient từ Hồng sang Tím siêu sáng */
+    -fx-background-color: linear-gradient(to right, #f43f5e, #ec4899, #d946ef);
+
+    /* Chữ trắng tinh rực rỡ nổi bật trên nền màu */
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+
+    /* Bo tròn hai đầu cực đẹp */
+    -fx-background-radius: 20;
+    -fx-border-width: 0; /* Bỏ viền thô, dùng nền đặc làm chủ đạo */
+
+    /* Hiệu ứng đổ bóng phát sáng nhẹ màu hồng để nút trông sang chảnh */
+    -fx-effect: dropshadow(three-pass-box, rgba(236, 72, 153, 0.3), 10, 0, 0, 2);
+    -fx-cursor: hand; /* Biến thành hình bàn tay khi di chuột vào */
+}
+
+/* Khi di chuột vào (Hover) - Màu sắc đậm đà, rực rỡ hơn */
+.btn-back:hover {
+    -fx-background-color: linear-gradient(to right, #e11d48, #db2777, #c026d3);
+    -fx-effect: dropshadow(three-pass-box, rgba(236, 72, 153, 0.45), 12, 0, 0, 3);
+}
+
+/* Khi bấm giữ nút (Pressed) - Hiệu ứng lún nút phản hồi thật */
+.btn-back:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+    -fx-effect: dropshadow(three-pass-box, rgba(236, 72, 153, 0.1), 4, 0, 0, 1);
+}
+
+/* ============================================================
+   NHÃN CHỮ CỦA MAX BID VÀ INCREMENT (LABEL)
+   ============================================================ */
+.auto-bid-label {
+    -fx-font-size: 13px;       /* Kích thước chữ vừa vặn, tinh tế */
+    -fx-font-weight: bold;     /* Bôi đậm chữ để nhìn rõ ràng */
+    -fx-text-fill: #701a75;    /* Đổi sang màu Tím mận sẫm cực sang, đồng bộ hệ màu */
+    -fx-padding: 0 5 0 0;      /* Tạo khoảng cách nhỏ bên phải với ô nhập */
+}
+
+/* ============================================================
+   KHUNG MÔ TẢ SẢN PHẨM (BÊN TRÁI) - SỬA LỖI BO GÓC
+   ============================================================ */
+
+/* Áp dụng class này cho chiếc VBox bọc bên ngoài */
+.description-card {
+    -fx-background-color: #ffffff; /* Nền trắng tinh khôi thay cho màu xám thô */
+    -fx-background-radius: 16;     /* Bo tròn 4 góc 16px cực mượt */
+    -fx-border-color: #f1e9f9;     /* Viền tím phấn siêu nhạt */
+    -fx-border-radius: 16;
+    -fx-border-width: 1.5;
+
+    /* Hiệu ứng đổ bóng mờ ảo màu hồng tím nhẹ để khối nổi lên tinh tế */
+    -fx-effect: dropshadow(three-pass-box, rgba(217, 70, 239, 0.05), 15, 0, 0, 4);
+}
+
+/* Áp dụng class này cho cái Label chữ nội dung bên trong */
+.description-body-text {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-text-fill: #581c87; /* Chữ màu tím sẫm quý phái, rất dễ đọc */
+    -fx-wrap-text: true; /* Tự động xuống dòng khi chữ quá dài */
+    -fx-line-spacing: 4; /* Giãn dòng thoáng mắt */
+}

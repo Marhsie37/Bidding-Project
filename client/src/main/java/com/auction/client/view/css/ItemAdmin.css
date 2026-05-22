@@ -1,0 +1,78 @@
+.btn-delete-orange {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: white;
+    -fx-background-color: #e67e22;   /* Màu cam đất ấm, sang trọng */
+    -fx-background-radius: 6px;      /* Bo góc nhẹ đồng bộ với nút Ban */
+    -fx-padding: 6px 16px;
+}
+
+/* Hover: Phóng to nhẹ 8% + Cam đậm đà hơn */
+.btn-delete-orange:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
+    -fx-background-color: #d35400;   /* Cam cháy đậm */
+}
+
+.btn-delete-orange:pressed {
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+
+/* ==========================================
+   1. ĐỊNH DẠNG ĐỒNG BỘ KÍCH THƯỚC & FORM DÁNG (DÙNG CHUNG)
+   ========================================== */
+.btn-base {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: white;
+
+    /* Cố định kích thước để 2 nút luôn bằng nhau */
+    -fx-min-width: 75px;             /* Chiều rộng tối thiểu */
+    -fx-max-width: 75px;             /* Chiều rộng tối đa */
+    -fx-min-height: 32px;            /* Chiều cao chuẩn */
+    -fx-max-height: 32px;
+
+    -fx-background-radius: 6px;      /* Bo góc nhẹ giống nút Ban cũ của bạn */
+    -fx-alignment: center;           /* Căn chữ luôn ở chính giữa nút */
+}
+
+
+/* ==========================================
+   2. HIỆU ỨNG HOVER PHÓNG TO (DÙNG CHUNG)
+   ========================================== */
+.btn-base:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.08;               /* Phóng to đều 8% */
+    -fx-scale-y: 1.08;
+}
+
+.btn-base:pressed {
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+
+.btn-delete-orange {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: white;
+    -fx-background-color: #e67e22;   /* Màu cam đất ấm, sang trọng */
+    -fx-background-radius: 6px;      /* Bo góc nhẹ đồng bộ với nút Ban */
+    -fx-padding: 6px 16px;
+}
+
+/* Hover: Phóng to nhẹ 8% + Cam đậm đà hơn */
+.btn-delete-orange:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
+    -fx-background-color: #d35400;   /* Cam cháy đậm */
+}
+
+.btn-delete-orange:pressed {
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+

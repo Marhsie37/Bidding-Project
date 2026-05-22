@@ -1,5 +1,6 @@
 package com.auction.client.controller;
 
+import com.auction.client.MainApp;
 import com.auction.client.network.SocketClient;
 import com.auction.shared.protocol.Response;
 import javafx.application.Platform;
@@ -96,10 +97,10 @@ public class LoginController {
                     fxmlPath = "/com/auction/client/view/Selling.fxml";
                     break;
                 case "BIDDER":
-                    fxmlPath = "/com/auction/client/view/ProductListController.fxml";
+                    fxmlPath = "/com/auction/client/view/Bidder.fxml";
                     break;
                 default:
-                    fxmlPath = "/com/auction/client/view/ProductListController.fxml";
+                    fxmlPath = "/com/auction/client/view/Bidder.fxml";
                     logger.warn("⚠️ Role không xác định: {}, chuyển về màn hình mặc định", role);
                     break;
             }
@@ -108,6 +109,7 @@ public class LoginController {
             Stage oldStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             oldStage.close();
             WindowManager.openWindow(fxmlPath, this);
+            MainApp.initNotificationManager();
 
         } catch (Exception e) {
             logger.error("Lỗi khi xử lý đăng nhập thành công: ", e);

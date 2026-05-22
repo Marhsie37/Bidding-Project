@@ -1,12 +1,12 @@
 package com.auction.client.controller;
 
 import com.auction.client.network.SocketClient;
+import com.auction.client.utils.NotificationManager;
 import com.auction.shared.model.Product;
 import com.auction.shared.protocol.CommandType;
 import com.auction.shared.protocol.Request;
-import javafx.animation.KeyFrame;
+import com.auction.shared.protocol.Response;
 import javafx.animation.Timeline;
-import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,9 +20,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class ProductListController implements Initializable {
@@ -48,11 +47,11 @@ public class ProductListController implements Initializable {
     private final double slideWidth = 612.0;
     private Timeline autoSlideTimer;
     private List<Product> allProducts = new java.util.ArrayList<>();
+    private Consumer<Response> newProductHandler;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        logger.info("ProductListController initialized");
-        setupImageSlider();
+        logger.info("Bidder initialized");
         refreshGallery();
 
         if (searchField != null) {
@@ -60,7 +59,39 @@ public class ProductListController implements Initializable {
                 searchProducts(newValue);
             });
         }
+
+        // 🟢 CHUYỂN XUỐNG ĐÂY - sau khi mọi thứ đã sẵn sàng
+        Platform.runLater(() -> {
+            Stage currentStage = (Stage) vboxGallery.getScene().getWindow();
+            NotificationManager.getInstance().init(currentStage, SocketClient.getInstance());
+        });
+
+        // Sửa thành addResponseHandler
+        SocketClient.getInstance().addResponseHandler(CommandType.NEW_PRODUCT_ADDED, response -> {
+            logger.info("Nhận được sự kiện NEW_PRODUCT_ADDED, đang tải lại danh sách...");
+            Platform.runLater(this::refreshGallery);
+        });
+
+
+        newProductHandler = response -> {
+            logger.info("Nhận được sự kiện NEW_PRODUCT_ADDED, đang tải lại danh sách...");
+            Platform.runLater(this::refreshGallery);
+        };
+        SocketClient.getInstance().addResponseHandler(CommandType.NEW_PRODUCT_ADDED, newProductHandler);
+
+        Platform.runLater(() -> {
+            Stage currentStage = (Stage) vboxGallery.getScene().getWindow();
+            NotificationManager.getInstance().init(currentStage, SocketClient.getInstance());
+        });
     }
+
+
+    private void cleanupHandlers() {
+        if (newProductHandler != null) {
+            SocketClient.getInstance().removeResponseHandler(CommandType.NEW_PRODUCT_ADDED, newProductHandler);
+        }
+    }
+
 
     private void searchProducts(String keyword) {
         if (vboxGallery == null) return;
@@ -85,43 +116,7 @@ public class ProductListController implements Initializable {
         }
     }
 
-    private void setupImageSlider() {
-        if (imageHBox == null || sliderContainer == null) {
-            logger.warn("Image slider components not found");
-            return;
-        }
 
-        imageHBox.setTranslateX(0);
-
-        Rectangle clip = new Rectangle(slideWidth, 234);
-        sliderContainer.setClip(clip);
-
-        autoSlideTimer = new Timeline(new KeyFrame(Duration.seconds(4), e -> goNext()));
-        autoSlideTimer.setCycleCount(Timeline.INDEFINITE);
-        autoSlideTimer.play();
-
-        sliderContainer.setOnMouseEntered(event -> autoSlideTimer.pause());
-        sliderContainer.setOnMouseExited(event -> autoSlideTimer.play());
-    }
-
-    @FXML
-    public void goNext() {
-        currentSlideIndex = (currentSlideIndex + 1) % totalSlides;
-        updateSliderPosition();
-    }
-
-    @FXML
-    public void goPrevious() {
-        currentSlideIndex = (currentSlideIndex - 1 + totalSlides) % totalSlides;
-        updateSliderPosition();
-    }
-
-    private void updateSliderPosition() {
-        double targetX = -(currentSlideIndex * slideWidth);
-        TranslateTransition transition = new TranslateTransition(Duration.millis(700), imageHBox);
-        transition.setToX(targetX);
-        transition.play();
-    }
 
     public void refreshGallery() {
         if (vboxGallery == null) return;
@@ -168,17 +163,29 @@ public class ProductListController implements Initializable {
         vboxGallery.getChildren().clear();
         vboxGallery.setSpacing(15);
 
-        for (Product p : products) {
+        HBox currentRow = null;
+
+        for (int i = 0; i < products.size(); i++) {
+            Product p = products.get(i);
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/view/ProductItemStage.fxml"));
+                // Sử dụng PurchasedProductItem.fxml cho giao diện người bid (dạng card)
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/view/PurchasedProductItem.fxml"));
                 Parent productCard = loader.load();
 
-                ProductItemController itemController = loader.getController();
+                PurchasedProductItemController itemController = loader.getController();
                 itemController.setData(p);
 
                 productCard.setOnMouseClicked(event -> openProductDetail(p));
 
-                vboxGallery.getChildren().add(productCard);
+                // Chia 4 sản phẩm trên một hàng nằm ngang (dạng card nhỏ gọn)
+                if (i % 4 == 0) {
+                    currentRow = new HBox(15);
+                    vboxGallery.getChildren().add(currentRow);
+                }
+                if (currentRow != null) {
+                    currentRow.getChildren().add(productCard);
+                }
+
                 logger.debug("Đã thêm sản phẩm: {}", p.getName());
 
             } catch (IOException e) {
@@ -207,7 +214,9 @@ public class ProductListController implements Initializable {
 
     @FXML
     private void toSelling(ActionEvent event) {
+        cleanupHandlers();
         try {
+            SocketClient.getInstance().removeNewProductAddedHandler();
             Stage oldStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             oldStage.close();
             WindowManager.openWindow("/com/auction/client/view/Selling.fxml", ProductListController.class);
@@ -229,6 +238,8 @@ public class ProductListController implements Initializable {
 
     @FXML
     private void goToLoginScreen(ActionEvent event) {
+        cleanupHandlers();
+        SocketClient.getInstance().removeNewProductAddedHandler();
         SocketClient.getInstance().logout(response -> {
             Platform.runLater(() -> {
                 try {
@@ -252,4 +263,7 @@ public class ProductListController implements Initializable {
             logger.error("Lỗi khi chuyển sang màn hình profile", e);
         }
     }
+
+
+
 }

@@ -1,0 +1,50 @@
+.btn-action {
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: #444444;          /* Chữ màu xám đậm hiện đại */
+    -fx-background-color: #ffffff;   /* Nền nút màu trắng tinh khôi */
+    -fx-background-radius: 6px;      /* Bo góc nhẹ vuông vắn */
+    -fx-padding: 6px 16px;
+    -fx-border-color: #dddddd;       /* Viền ngoài mảnh xám nhẹ */
+    -fx-border-radius: 6px;
+    -fx-border-width: 1px;
+}
+
+/* Hiệu ứng khi di chuột vào (Hover): Phóng to + Đổi nền xám khói nhẹ */
+.btn-action:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.1;                /* Phóng to lên 1.1 lần */
+    -fx-scale-y: 1.1;
+    -fx-background-color: #f2f2f2;   /* Chuyển sang nền xám khói nhẹ */
+    -fx-border-color: #cccccc;
+}
+
+/* Hiệu ứng khi click giữ chuột (Pressed) */
+.btn-action:pressed {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-background-color: #e5e5e5;
+}
+
+.btn-delete-orange {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: white;
+    -fx-background-color: #e67e22;   /* Màu cam đất ấm, sang trọng */
+    -fx-background-radius: 6px;      /* Bo góc nhẹ đồng bộ với nút Ban */
+    -fx-padding: 6px 16px;
+}
+
+/* Hover: Phóng to nhẹ 8% + Cam đậm đà hơn */
+.btn-delete-orange:hover {
+    -fx-cursor: hand;
+    -fx-scale-x: 1.08;
+    -fx-scale-y: 1.08;
+    -fx-background-color: #d35400;   /* Cam cháy đậm */
+}
+
+.btn-delete-orange:pressed {
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+}
+

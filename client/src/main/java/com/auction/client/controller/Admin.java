@@ -8,8 +8,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -29,10 +27,14 @@ import java.util.Map;
 public class Admin {
     private static final Logger logger = LoggerFactory.getLogger(Admin.class);
 
-    @FXML private VBox vBoxDisplay;
-    @FXML private VBox vBoxProducts;
-    @FXML private TextField searchField;
-    @FXML private Label blTotalActive;
+    @FXML
+    private VBox vBoxDisplay;
+    @FXML
+    private VBox vBoxProducts;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private Label blTotalActive;
 
     private List<Node> allUserRows = new ArrayList<>();
     private List<Node> allProductRows = new ArrayList<>();
@@ -72,27 +74,27 @@ public class Admin {
 
                         for (Object obj : rawList) {
                             try {
-                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/view/UserAdmin.fxml"));
+                                FXMLLoader loader = new FXMLLoader(
+                                        getClass().getResource("/com/auction/client/view/UserAdmin.fxml"));
                                 Node row = loader.load();
                                 UserItemController controller = loader.getController();
                                 int userId = 0;
-                                String role = "";
 
                                 if (obj instanceof Map) {
                                     Map<String, Object> userMap = (Map<String, Object>) obj;
-                                    role = (String) userMap.getOrDefault("role", "");
-                                    if ("ADMIN".equalsIgnoreCase(role)) continue;
-
+                                    String role = (String) userMap.getOrDefault("role", "");
+                                    if ("ADMIN".equalsIgnoreCase(role))
+                                        continue;
                                     controller.setDataFromMap(userMap);
                                     userId = ((Number) userMap.get("id")).intValue();
 
                                 } else if (obj instanceof com.auction.shared.model.User) {
                                     com.auction.shared.model.User user = (com.auction.shared.model.User) obj;
-                                    role = user.getRole();
-                                    if ("ADMIN".equalsIgnoreCase(role)) continue;
-
+                                    if ("ADMIN".equalsIgnoreCase(user.getRole()))
+                                        continue;
                                     controller.setData(user);
                                     userId = user.getId();
+
                                 } else {
                                     logger.warn("Không xử lý được obj type: {}", obj.getClass().getName());
                                     continue;
@@ -164,11 +166,13 @@ public class Admin {
                                 if (pMap.get("id") != null) {
                                     productId = ((Number) pMap.get("id")).intValue();
                                 }
+
                             } else if (obj instanceof com.auction.shared.model.Product) {
                                 com.auction.shared.model.Product p = (com.auction.shared.model.Product) obj;
                                 productName = p.getName();
                                 currentPrice = p.getCurrentPrice();
                                 productId = p.getId();
+
                             } else {
                                 logger.warn("Không xử lý được obj type: {}", obj.getClass().getName());
                                 continue;
@@ -220,9 +224,8 @@ public class Admin {
     // ==================== FILTER ====================
 
     private void filterUsersAndProducts(String keyword) {
-        if (keyword == null) {
+        if (keyword == null)
             keyword = "";
-        }
         String lowerKeyword = keyword.trim().toLowerCase();
 
         if (lowerKeyword.isEmpty()) {
@@ -231,7 +234,6 @@ public class Admin {
             return;
         }
 
-        // Filter users
         List<Node> filteredUsers = new ArrayList<>();
         for (Node row : allUserRows) {
             if (matchesUserKeyword(row, lowerKeyword)) {
@@ -240,7 +242,6 @@ public class Admin {
         }
         vBoxDisplay.getChildren().setAll(filteredUsers);
 
-        // Filter products
         List<Node> filteredProducts = new ArrayList<>();
         for (Node row : allProductRows) {
             if (matchesProductKeyword(row, lowerKeyword)) {
@@ -252,41 +253,32 @@ public class Admin {
 
     private boolean matchesUserKeyword(Node row, String keyword) {
         if (row instanceof HBox) {
-            HBox hbox = (HBox) row;
-            for (Node child : hbox.getChildren()) {
+            for (Node child : ((HBox) row).getChildren()) {
                 if (child instanceof Label) {
                     Label lbl = (Label) child;
-                    if (lbl.getText() != null && lbl.getText().toLowerCase().contains(keyword)) {
+                    if (lbl.getText() != null && lbl.getText().toLowerCase().contains(keyword))
                         return true;
-                    }
                 } else if (child instanceof VBox) {
-                    VBox vbox = (VBox) child;
-                    for (Node inner : vbox.getChildren()) {
+                    for (Node inner : ((VBox) child).getChildren()) {
                         if (inner instanceof Label) {
                             Label lbl = (Label) inner;
-                            if (lbl.getText() != null && lbl.getText().toLowerCase().contains(keyword)) {
+                            if (lbl.getText() != null && lbl.getText().toLowerCase().contains(keyword))
                                 return true;
-                            }
                         }
                     }
                 }
             }
-        } else if (row instanceof Label) {
-            Label lbl = (Label) row;
-            return lbl.getText() != null && lbl.getText().toLowerCase().contains(keyword);
         }
         return false;
     }
 
     private boolean matchesProductKeyword(Node row, String keyword) {
         if (row instanceof HBox) {
-            HBox hbox = (HBox) row;
-            for (Node child : hbox.getChildren()) {
+            for (Node child : ((HBox) row).getChildren()) {
                 if (child instanceof Label) {
                     Label lbl = (Label) child;
-                    if (lbl.getText() != null && lbl.getText().toLowerCase().contains(keyword)) {
+                    if (lbl.getText() != null && lbl.getText().toLowerCase().contains(keyword))
                         return true;
-                    }
                 }
             }
         }
@@ -300,7 +292,6 @@ public class Admin {
 
         boolean currentlyBanned = "Unban".equals(btnBan.getText());
         CommandType cmd = currentlyBanned ? CommandType.ADMIN_UNBAN_USER : CommandType.ADMIN_BAN_USER;
-
         logger.info("toggleBanUser - userId={} | currentlyBanned={}", userId, currentlyBanned);
 
         Map<String, Object> data = new HashMap<>();
@@ -315,21 +306,15 @@ public class Admin {
                     if (currentlyBanned) {
                         btnBan.setText("Ban");
                         btnBan.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;");
-                        if (lblInfo != null) {
-                            String text = lblInfo.getText();
-                            if (text.contains("BANNED")) {
-                                lblInfo.setText(text.replace("BANNED", "ACTIVE"));
-                            }
+                        if (lblInfo != null && lblInfo.getText().contains("BANNED")) {
+                            lblInfo.setText(lblInfo.getText().replace("BANNED", "ACTIVE"));
                         }
                         showAlert("Thành công", "Đã mở khóa người dùng!");
                     } else {
                         btnBan.setText("Unban");
                         btnBan.setStyle("-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-cursor: hand;");
-                        if (lblInfo != null) {
-                            String text = lblInfo.getText();
-                            if (text.contains("ACTIVE")) {
-                                lblInfo.setText(text.replace("ACTIVE", "BANNED"));
-                            }
+                        if (lblInfo != null && lblInfo.getText().contains("ACTIVE")) {
+                            lblInfo.setText(lblInfo.getText().replace("ACTIVE", "BANNED"));
                         }
                         showAlert("Thành công", "Đã khóa người dùng!");
                     }
@@ -378,18 +363,12 @@ public class Admin {
                 if (response.isSuccess()) {
                     vBoxProducts.getChildren().remove(row);
                     allProductRows.remove(row);
-                    showAlert("Thành công", "Đã xóa sản phẩm thành công!");
 
-                    // Update total count
-                    int remaining = 0;
-                    for (Node node : allProductRows) {
-                        if (node instanceof HBox) {
-                            remaining++;
-                        }
-                    }
+                    long remaining = allProductRows.stream().filter(n -> n instanceof HBox).count();
                     if (blTotalActive != null) {
                         blTotalActive.setText("Tổng sản phẩm đang đấu giá: " + remaining);
                     }
+                    showAlert("Thành công", "Đã xóa sản phẩm thành công!");
                 } else {
                     row.setDisable(false);
                     showAlert("Lỗi", response.getMessage() != null ? response.getMessage() : "Xóa thất bại!");
@@ -402,13 +381,13 @@ public class Admin {
 
     @FXML
     public void toLogin(ActionEvent event) {
-        logger.info("Đang gửi yêu cầu đăng xuất an toàn lên Server...");
+        logger.info("Đang gửi yêu cầu đăng xuất...");
         SocketClient.getInstance().logout(response -> {
             Platform.runLater(() -> {
                 try {
                     Stage oldStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                     oldStage.close();
-                    WindowManager.openWindow("/com/auction/client/view/LoginController.fxml", Admin.class);
+                    WindowManager.openWindow("/com/auction/client/view/LoginController.fxml", this);
                 } catch (Exception e) {
                     logger.error("Lỗi khi chuyển về màn hình Login: ", e);
                 }
@@ -421,7 +400,7 @@ public class Admin {
         try {
             Stage oldStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             oldStage.close();
-            WindowManager.openWindow("/com/auction/client/view/Selling.fxml", Admin.class);
+            WindowManager.openWindow("/com/auction/client/view/Selling.fxml", this);
         } catch (Exception e) {
             logger.error("Lỗi khi chuyển sang màn hình Selling: ", e);
         }
@@ -435,5 +414,17 @@ public class Admin {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    @FXML
+    public void goToLoginScreen(ActionEvent event) {
+        try {
+            Stage oldStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            oldStage.close();
+            WindowManager.openWindow("/com/auction/client/view/LoginController.fxml", this);
+        } catch (Exception e) {
+            logger.error("Lỗi khi chuyển về màn hình đăng nhập: ", e);
+            showAlert("Lỗi", "Không thể quay lại màn hình đăng nhập!");
+        }
     }
 }

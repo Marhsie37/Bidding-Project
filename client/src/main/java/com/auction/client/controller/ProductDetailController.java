@@ -6,28 +6,29 @@ import com.auction.shared.model.BidTransaction;
 import com.auction.shared.model.Product;
 import com.auction.shared.protocol.CommandType;
 import com.auction.shared.protocol.Request;
+import com.auction.shared.protocol.Response;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class ProductDetailController {
 
@@ -40,20 +41,15 @@ public class ProductDetailController {
     @FXML private Label lblDescription;
     @FXML private TextField txtMaxAutoPrice;
     @FXML private TextField txtIncrement;
-    @FXML private CheckBox chkSubscribe;
     @FXML private ListView<String> lvBidHistory;
+    @FXML private VBox auctionChart;
+    @FXML private AuctionChartController auctionChartController;
 
     private Product product;
     private Timeline timerTimeline;
-    private boolean isSubscribed = false;
-    private NotificationManager notificationManager;
 
     @FXML
     public void initialize() {
-        notificationManager = NotificationManager.getInstance();
-
-        // 2. Khởi tạo các component khác (nếu cần)
-        // Ví dụ: thiết lập sự kiện, format số, ...
         txtBidAmount.setTextFormatter(new TextFormatter<>(change -> {
             if (change.getText().matches("\\d*")) {
                 return change;
@@ -61,6 +57,7 @@ public class ProductDetailController {
             return null;
         }));
 
+        System.out.println("🔵 [1] ProductDetailController.initialize() - ĐÃ CHẠY");
     }
 
     public void setProductData(Product p) {
@@ -69,6 +66,30 @@ public class ProductDetailController {
         startTimer();
         loadBidHistory();
         registerRealtimeHandlers();
+        System.out.println("🔵 [2] setProductData() - Sản phẩm ID: " + p.getId());
+
+        // 🟢 TỰ ĐỘNG SUBSCRIBE (không cần checkbox)
+        sendSubscribeRequest(true);
+
+        System.out.println("🔍 auctionChartController = " + auctionChartController);
+    }
+
+    // Gửi request subscribe/unsubscribe
+    private void sendSubscribeRequest(boolean subscribe) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("productId", product.getId());
+        CommandType cmd = subscribe ? CommandType.SUBSCRIBE_AUCTION : CommandType.UNSUBSCRIBE_AUCTION;
+
+        Request req = new Request(cmd, data);
+        SocketClient.getInstance().sendRequestAsync(req, response -> {
+            Platform.runLater(() -> {
+                if (response.isSuccess()) {
+                    logger.info("{} sản phẩm thành công", subscribe ? "Theo dõi" : "Hủy theo dõi");
+                } else {
+                    logger.error("Lỗi khi {} sản phẩm: {}", subscribe ? "theo dõi" : "hủy theo dõi", response.getMessage());
+                }
+            });
+        });
     }
 
     private void startTimer() {
@@ -103,7 +124,11 @@ public class ProductDetailController {
                     Map<String, Object> resData = response.getData();
                     Object historyObj = resData.get("history");
 
+                    System.out.println("🔵 [3] loadBidHistory() - Số bid nhận được: " +
+                            (historyObj instanceof List ? ((List<?>) historyObj).size() : 0));
+
                     lvBidHistory.getItems().clear();
+                    List<BidTransaction> bidHistoryList = new java.util.ArrayList<>();
 
                     if (historyObj instanceof List) {
                         List<?> rawList = (List<?>) historyObj;
@@ -114,8 +139,16 @@ public class ProductDetailController {
                                 double amount = bid.getBidAmount();
                                 String time = bid.getBidTime() != null ? bid.getBidTime().toString() : "";
                                 lvBidHistory.getItems().add(String.format("%s: %,.0f VNĐ - %s", bidder, amount, time));
+                                bidHistoryList.add(bid);
                             }
                         }
+                    }
+
+                    if (auctionChartController != null) {
+                        auctionChartController.loadChartData(bidHistoryList);
+                        System.out.println("📊 Đã gửi " + bidHistoryList.size() + " bid cho biểu đồ");
+                    } else {
+                        System.out.println("❌ auctionChartController = NULL! Không thể vẽ biểu đồ");
                     }
 
                     if (lvBidHistory.getItems().isEmpty()) {
@@ -129,7 +162,7 @@ public class ProductDetailController {
     }
 
     @FXML
-    public void  handlePlaceBid() {
+    public void handlePlaceBid() {
         if (product == null) {
             showAlert("Lỗi", "Không có thông tin sản phẩm!");
             return;
@@ -147,21 +180,18 @@ public class ProductDetailController {
             data.put("productId", product.getId());
             data.put("bidAmount", amount);
 
-
             Request req = new Request(CommandType.PLACE_BID, data);
             SocketClient.getInstance().sendRequestAsync(req, response -> {
                 Platform.runLater(() -> {
                     if (response.isSuccess()) {
                         Map<String, Object> resData = response.getData();
 
-                        // Xử lý an toàn currentPrice
                         Object priceObj = resData.get("currentPrice");
                         if (priceObj instanceof Number) {
                             double newPrice = ((Number) priceObj).doubleValue();
                             product.setCurrentPrice(newPrice);
                         }
 
-                        // Xử lý gia hạn thời gian
                         if (resData.containsKey("newEndTime")) {
                             String newEndTimeStr = (String) resData.get("newEndTime");
                             try {
@@ -175,7 +205,6 @@ public class ProductDetailController {
 
                         updateDisplay();
                         loadBidHistory();
-                        showAlert("Thành công", "Đặt giá thành công!");
                         txtBidAmount.clear();
                     } else {
                         showAlert("Lỗi", response.getMessage() != null ? response.getMessage() : "Đặt giá thất bại!");
@@ -226,37 +255,6 @@ public class ProductDetailController {
         }
     }
 
-    @FXML
-    public void handleSubscribeAction(ActionEvent event) {
-        if (product == null) return;
-
-        isSubscribed = chkSubscribe.isSelected();
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("productId", product.getId());
-        CommandType cmd = isSubscribed ? CommandType.SUBSCRIBE_AUCTION : CommandType.UNSUBSCRIBE_AUCTION;
-
-        Request req = new Request(cmd, data);
-        SocketClient.getInstance().sendRequestAsync(req, response -> {
-            Platform.runLater(() -> {
-                if (response.isSuccess()) {
-                    logger.info("{} sản phẩm thành công", isSubscribed ? "Theo dõi" : "Hủy theo dõi");
-
-                    //  bỏ showAlert, dùng NotificationToast
-                    if (isSubscribed) {
-                        NotificationManager.getInstance().showSubscribeNotification(product.getId());
-                    } else {
-                        NotificationManager.getInstance().showUnsubscribeNotification(product.getId());
-                    }
-                } else {
-                    chkSubscribe.setSelected(!isSubscribed);
-                    // Giữ nguyên showAlert cho lỗi (hoặc cũng có thể đổi thành toast)
-                    showAlert("Lỗi", response.getMessage());
-                }
-            });
-        });
-    }
-
     private String formatTime(int totalSeconds) {
         if (totalSeconds <= 0) return "HẾT HẠN!";
         int days = totalSeconds / 86400;
@@ -275,14 +273,21 @@ public class ProductDetailController {
         lblDetailPrice.setText(String.format("%,.0f VNĐ", product.getCurrentPrice()));
         lblDescription.setText(product.getDescription() != null ? product.getDescription() : "Không có mô tả.");
 
-        if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
+        String url = product.getImageUrl();
+        if (url != null && !url.isEmpty()) {
             try {
-                String url = product.getImageUrl();
-                if (!url.startsWith("http") && !url.startsWith("file:")) {
-                    url = "file:" + url;
+                if (url.startsWith("data:image") || isBase64(url)) {
+                    String base64Data = url.contains(",") ? url.split(",", 2)[1] : url;
+                    byte[] imageBytes = Base64.getDecoder().decode(base64Data);
+                    Image image = new Image(new ByteArrayInputStream(imageBytes));
+                    imgDetail.setImage(image);
+                } else {
+                    if (!url.startsWith("http") && !url.startsWith("file:")) {
+                        url = "file:" + url;
+                    }
+                    Image image = new Image(url, true);
+                    imgDetail.setImage(image);
                 }
-                Image image = new Image(url, true);
-                imgDetail.setImage(image);
             } catch (Exception e) {
                 logger.error("Lỗi tải ảnh: ", e);
                 imgDetail.setImage(null);
@@ -290,61 +295,52 @@ public class ProductDetailController {
         }
     }
 
+    private boolean isBase64(String str) {
+        if (str == null || str.length() < 100) return false;
+        return str.matches("^[A-Za-z0-9+/=]+$");
+    }
+
+    private Consumer<Response> bidUpdateHandler;
+    private Consumer<Response> auctionEndHandler;
+    private Consumer<Response> auctionExtendedHandler;
+
     private void registerRealtimeHandlers() {
         if (product == null) return;
-
         int productId = product.getId();
 
-        // BID_UPDATE: Có người đặt giá mới
-        SocketClient.getInstance().setBidUpdateHandler(response -> {
+        bidUpdateHandler = response -> {
             if (response.getData() == null || product == null) return;
             Map<String, Object> data = response.getData();
-
-            int updatedProductId = ((Number) data.get("productId")).intValue();
-            if (updatedProductId != productId) return;
+            if (((Number) data.get("productId")).intValue() != productId) return;
 
             double newPrice = ((Number) data.get("bidAmount")).doubleValue();
-            String bidderName = (String) data.get("bidderName");
-
             Platform.runLater(() -> {
                 product.setCurrentPrice(newPrice);
                 updateDisplay();
                 loadBidHistory();
-                showNotification("💰 Có giá mới!", bidderName + " vừa đặt " + String.format("%,.0f VNĐ", newPrice));
             });
-        });
+        };
+        SocketClient.getInstance().addResponseHandler(CommandType.BID_UPDATE, bidUpdateHandler);
 
-        // AUCTION_END: Phiên kết thúc
-        SocketClient.getInstance().setAuctionEndHandler(response -> {
+        auctionEndHandler = response -> {
             if (response.getData() == null || product == null) return;
             Map<String, Object> data = response.getData();
-
-            int endedProductId = ((Number) data.get("productId")).intValue();
-            if (endedProductId != productId) return;
+            if (((Number) data.get("productId")).intValue() != productId) return;
 
             String winnerName = (String) data.get("winnerName");
             double finalPrice = ((Number) data.get("finalPrice")).doubleValue();
-
             Platform.runLater(() -> {
                 if (timerTimeline != null) timerTimeline.stop();
                 lblDetailTimer.setText("ĐÃ KẾT THÚC");
                 lblDetailTimer.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
-
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Phiên đấu giá kết thúc");
-                alert.setHeaderText("🏆 Kết quả đấu giá");
-                alert.setContentText("Người thắng: " + winnerName + "\nGiá cuối: " + String.format("%,.0f VNĐ", finalPrice));
-                alert.showAndWait();
             });
-        });
+        };
+        SocketClient.getInstance().addResponseHandler(CommandType.AUCTION_END, auctionEndHandler);
 
-        // AUCTION_EXTENDED: Phiên được gia hạn
-        SocketClient.getInstance().setAuctionExtendedHandler(response -> {
+        auctionExtendedHandler = response -> {
             if (response.getData() == null || product == null) return;
             Map<String, Object> data = response.getData();
-
-            int extendedProductId = ((Number) data.get("productId")).intValue();
-            if (extendedProductId != productId) return;
+            if (((Number) data.get("productId")).intValue() != productId) return;
 
             String newEndTimeStr = (String) data.get("newEndTime");
             try {
@@ -352,32 +348,34 @@ public class ProductDetailController {
                 Platform.runLater(() -> {
                     product.setEndTime(newEndTime);
                     startTimer();
-                    showNotification("⏰ Gia hạn!", "Phiên đấu giá được gia hạn thêm 60 giây!");
                 });
-            } catch (Exception e) {
-                logger.error("Lỗi parse newEndTime: {}", e.getMessage());
-            }
-        });
+            } catch (Exception e) { logger.error("Lỗi parse: {}", e.getMessage()); }
+        };
+        SocketClient.getInstance().addResponseHandler(CommandType.AUCTION_EXTENDED, auctionExtendedHandler);
+    }
+
+    private void unregisterHandlers() {
+        if (bidUpdateHandler != null) SocketClient.getInstance().removeResponseHandler(CommandType.BID_UPDATE, bidUpdateHandler);
+        if (auctionEndHandler != null) SocketClient.getInstance().removeResponseHandler(CommandType.AUCTION_END, auctionEndHandler);
+        if (auctionExtendedHandler != null) SocketClient.getInstance().removeResponseHandler(CommandType.AUCTION_EXTENDED, auctionExtendedHandler);
     }
 
     @FXML
     public void goToMain(ActionEvent event) {
         if (timerTimeline != null) {
             timerTimeline.stop();
+            unregisterHandlers();
         }
 
-        // Hủy đăng ký nhận thông báo nếu đang theo dõi
-        if (isSubscribed && product != null) {
-            Map<String, Object> data = new HashMap<>();
-            data.put("productId", product.getId());
-            Request req = new Request(CommandType.UNSUBSCRIBE_AUCTION, data);
-            SocketClient.getInstance().sendRequestAsync(req, response -> {});
+        // Hủy subscribe khi thoát
+        if (product != null) {
+            sendSubscribeRequest(false);
         }
 
         try {
             Stage oldStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             oldStage.close();
-            WindowManager.openWindow("/com/auction/client/view/ProductListController.fxml", this);
+            WindowManager.openWindow("/com/auction/client/view/Bidder.fxml", this);
         } catch (Exception e) {
             logger.error("Lỗi khi quay về màn hình chính: ", e);
         }
@@ -389,15 +387,5 @@ public class ProductDetailController {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
-    }
-
-    private void showNotification(String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.show();
-        });
     }
 }

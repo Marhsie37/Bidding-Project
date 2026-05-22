@@ -3,11 +3,17 @@ package com.auction.client.utils;
 import com.auction.client.network.SocketClient;
 import com.auction.shared.protocol.CommandType;
 import com.auction.shared.protocol.Response;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
 import java.util.function.Consumer;
 
 public class NotificationManager {
@@ -16,7 +22,24 @@ public class NotificationManager {
     private Stage mainStage;
     private SocketClient socketClient;
 
-    // Lưu handlers cũ để restore sau (nếu cần)
+    // Hàng đợi thông báo
+    private Queue<QueuedNotification> notificationQueue = new LinkedList<>();
+    private boolean isShowing = false;
+
+    // 🟢 CHỐNG SPAM: Lưu lần cuối thông báo cho mỗi loại + key
+    private Map<String, Long> lastNotifiedTime = new HashMap<>();
+    private static final int SPAM_DELAY_MS = 3000; // 3 giây
+
+    private static class QueuedNotification {
+        String message;
+        NotificationToast.NotificationType type;
+
+        QueuedNotification(String message, NotificationToast.NotificationType type) {
+            this.message = message;
+            this.type = type;
+        }
+    }
+
     private Consumer<Response> oldBidHandler;
     private Consumer<Response> oldAuctionEndHandler;
     private Consumer<Response> oldExtendedHandler;
@@ -34,22 +57,55 @@ public class NotificationManager {
         this.mainStage = stage;
         this.socketClient = client;
         setupNotificationListeners();
+        System.out.println("✅✅✅ NotificationManager.init() ĐƯỢC GỌI!");
+    }
+
+    // 🟢 Kiểm tra có bị spam không
+    private boolean isSpam(String uniqueKey) {
+        long now = System.currentTimeMillis();
+        Long lastTime = lastNotifiedTime.get(uniqueKey);
+        if (lastTime != null && (now - lastTime) < SPAM_DELAY_MS) {
+            System.out.println("🚫 Bỏ qua thông báo trùng: " + uniqueKey);
+            return true;
+        }
+        lastNotifiedTime.put(uniqueKey, now);
+        return false;
+    }
+
+    public void showNotification(String message, NotificationToast.NotificationType type) {
+        notificationQueue.add(new QueuedNotification(message, type));
+        processNextNotification();
+    }
+
+    private void processNextNotification() {
+        if (isShowing) return;
+        if (notificationQueue.isEmpty()) return;
+
+        isShowing = true;
+        QueuedNotification notif = notificationQueue.poll();
+
+        NotificationToast.show(mainStage, notif.message, notif.type);
+
+        PauseTransition pause = new PauseTransition(Duration.millis(800));
+        pause.setOnFinished(e -> {
+            isShowing = false;
+            processNextNotification();
+        });
+        pause.play();
     }
 
     private void setupNotificationListeners() {
-        // Lưu handler cũ nếu có
         oldBidHandler = socketClient.getResponseHandler(CommandType.BID_UPDATE);
         oldAuctionEndHandler = socketClient.getResponseHandler(CommandType.AUCTION_END);
         oldExtendedHandler = socketClient.getResponseHandler(CommandType.AUCTION_EXTENDED);
 
-        // Đăng ký handler mới (ghi đè lên)
-        socketClient.registerResponseHandler(CommandType.BID_UPDATE, this::handleBidResponse);
-        socketClient.registerResponseHandler(CommandType.AUCTION_END, this::handleAuctionEndResponse);
-        socketClient.registerResponseHandler(CommandType.AUCTION_EXTENDED, this::handleExtendedResponse);
+        socketClient.addResponseHandler(CommandType.BID_UPDATE, this::handleBidResponse);
+        socketClient.addResponseHandler(CommandType.AUCTION_END, this::handleAuctionEndResponse);
+        socketClient.addResponseHandler(CommandType.AUCTION_EXTENDED, this::handleExtendedResponse);
     }
 
+    // 🟢 XỬ LÝ BID_UPDATE
     private void handleBidResponse(Response response) {
-        // Gọi handler cũ nếu có
         if (oldBidHandler != null) {
             oldBidHandler.accept(response);
         }
@@ -61,14 +117,17 @@ public class NotificationManager {
                 String bidderName = (String) data.get("bidderName");
                 double bidAmount = ((Number) data.get("bidAmount")).doubleValue();
 
-                String message = String.format("🔔 Người dùng %s vừa đặt giá %,d VNĐ cho phiên đấu giá #%d",
-                        bidderName, (long) bidAmount, productId);
+                // 🟢 Tạo key duy nhất: productId + bidderName + bidAmount
+                String uniqueKey = "BID_" + productId + "_" + bidderName + "_" + bidAmount;
+                if (isSpam(uniqueKey)) return;
 
-                NotificationToast.show(mainStage, message, NotificationToast.NotificationType.BID);
+                String message = String.format("💰 %s vừa đặt %,d VNĐ", bidderName, (long) bidAmount);
+                showNotification(message, NotificationToast.NotificationType.BID);
             });
         }
     }
 
+    // 🟢 XỬ LÝ AUCTION_END - KHÔNG BỊ SPAM
     private void handleAuctionEndResponse(Response response) {
         if (oldAuctionEndHandler != null) {
             oldAuctionEndHandler.accept(response);
@@ -81,14 +140,18 @@ public class NotificationManager {
                 String winnerName = (String) data.get("winnerName");
                 double finalPrice = ((Number) data.get("finalPrice")).doubleValue();
 
-                String message = String.format("🏆 Phiên đấu giá #%d đã kết thúc. Người thắng: %s với giá %,d VNĐ",
-                        productId, winnerName, (long) finalPrice);
+                // 🟢 Tạo key duy nhất cho AUCTION_END
+                String uniqueKey = "END_" + productId;
+                if (isSpam(uniqueKey)) return;
 
-                NotificationToast.show(mainStage, message, NotificationToast.NotificationType.AUCTION_END);
+                String message = String.format("🏆 Kết thúc #%d - %s thắng với %,d VNĐ",
+                        productId, winnerName, (long) finalPrice);
+                showNotification(message, NotificationToast.NotificationType.AUCTION_END);
             });
         }
     }
 
+    // 🟢 XỬ LÝ AUCTION_EXTENDED
     private void handleExtendedResponse(Response response) {
         if (oldExtendedHandler != null) {
             oldExtendedHandler.accept(response);
@@ -100,42 +163,50 @@ public class NotificationManager {
                 int productId = ((Number) data.get("productId")).intValue();
                 String newEndTimeStr = (String) data.get("newEndTime");
 
+                // 🟢 Tạo key duy nhất cho EXTENDED
+                String uniqueKey = "EXTEND_" + productId;
+                if (isSpam(uniqueKey)) return;
+
                 String message;
                 try {
                     LocalDateTime newEndTime = LocalDateTime.parse(newEndTimeStr);
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy");
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
                     String formattedTime = newEndTime.format(formatter);
-                    message = String.format("⏰ Phiên đấu giá #%d được gia hạn đến %s", productId, formattedTime);
+                    message = String.format("⏰ Phiên #%d gia hạn đến %s", productId, formattedTime);
                 } catch (Exception e) {
-                    message = String.format("⏰ Phiên đấu giá #%d được gia hạn", productId);
+                    message = String.format("⏰ Phiên #%d được gia hạn 60s!", productId);
                 }
 
-                NotificationToast.show(mainStage, message, NotificationToast.NotificationType.TIME_EXTEND);
+                showNotification(message, NotificationToast.NotificationType.TIME_EXTEND);
             });
         }
     }
 
     public void showSubscribeNotification(int auctionId) {
-        String message = String.format("✅ Bạn đã theo dõi phiên đấu giá #%d", auctionId);
-        NotificationToast.show(mainStage, message, NotificationToast.NotificationType.SUBSCRIBE);
+        String uniqueKey = "SUBSCRIBE_" + auctionId;
+        if (isSpam(uniqueKey)) return;
+
+        String message = String.format("✅ Đã theo dõi phiên #%d", auctionId);
+        showNotification(message, NotificationToast.NotificationType.SUBSCRIBE);
     }
 
     public void showUnsubscribeNotification(int auctionId) {
-        String message = String.format("❌ Bạn đã ngừng theo dõi phiên đấu giá #%d", auctionId);
-        NotificationToast.show(mainStage, message, NotificationToast.NotificationType.UNSUBSCRIBE);
+        String uniqueKey = "UNSUBSCRIBE_" + auctionId;
+        if (isSpam(uniqueKey)) return;
+
+        String message = String.format("❌ Đã ngừng theo dõi phiên #%d", auctionId);
+        showNotification(message, NotificationToast.NotificationType.UNSUBSCRIBE);
     }
 
-    // Optional: cleanup khi thoát app
     public void shutdown() {
-        // Restore lại handlers cũ nếu muốn
         if (oldBidHandler != null) {
-            socketClient.registerResponseHandler(CommandType.BID_UPDATE, oldBidHandler);
+            socketClient.addResponseHandler(CommandType.BID_UPDATE, oldBidHandler);
         }
         if (oldAuctionEndHandler != null) {
-            socketClient.registerResponseHandler(CommandType.AUCTION_END, oldAuctionEndHandler);
+            socketClient.addResponseHandler(CommandType.AUCTION_END, oldAuctionEndHandler);
         }
         if (oldExtendedHandler != null) {
-            socketClient.registerResponseHandler(CommandType.AUCTION_EXTENDED, oldExtendedHandler);
+            socketClient.addResponseHandler(CommandType.AUCTION_EXTENDED, oldExtendedHandler);
         }
     }
 }

@@ -9,6 +9,9 @@ import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.util.Base64;
+
 public class PurchasedProductItemController {
 
     private static final Logger logger = LoggerFactory.getLogger(PurchasedProductItemController.class);
@@ -45,7 +48,17 @@ public class PurchasedProductItemController {
         logger.info("🔍 URL ảnh: {}", url);
 
         try {
-            // Xử lý đường dẫn ảnh
+            // Hỗ trợ ảnh dạng Base64
+            if (url.startsWith("data:image") || isBase64(url)) {
+                String base64Data = url.contains(",") ? url.split(",", 2)[1] : url;
+                byte[] imageBytes = Base64.getDecoder().decode(base64Data);
+                Image img = new Image(new ByteArrayInputStream(imageBytes));
+                imgProduct.setImage(img);
+                logger.info("✅ Đã load ảnh Base64 thành công");
+                return;
+            }
+
+            // Xử lý đường dẫn ảnh thông thường
             String imageUrl = url;
             if (!imageUrl.startsWith("http") && !imageUrl.startsWith("file:")) {
                 imageUrl = "file:" + imageUrl;
@@ -68,6 +81,12 @@ public class PurchasedProductItemController {
             logger.error("❌ Lỗi load ảnh: {} - {}", url, e.getMessage());
             imgProduct.setImage(null);
         }
+    }
+
+    private boolean isBase64(String str) {
+        if (str == null || str.length() < 100) return false;
+        // Base64 strings only contain A-Z, a-z, 0-9, +, /, =
+        return str.matches("^[A-Za-z0-9+/=]+$");
     }
 
     public void updateProductInfo(Product p) {

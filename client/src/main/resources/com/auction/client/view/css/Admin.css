@@ -1,0 +1,275 @@
+.dashboard-btn {
+    -fx-font-weight: bold;               /* Làm chữ đậm nét hơn */
+    -fx-text-fill: #1A1D2D;               /* Màu chữ xám đậm cứng cáp để nổi bật trên nền tím oải hương */
+    -fx-background-radius: 8px;          /* Bo góc nhẹ cho nút mượt mà hơn */
+    -fx-cursor: hand;                    /* Chuột biến thành hình bàn tay khi rê vào */
+    -fx-background-color: transparent;   /* Mặc định là nền trong suốt để hòa vào nền sidebar */
+}
+
+/*
+ * Hiệu ứng khi di chuột vào (HOVER) nút "Dashboard"
+ * (Tạo sự khác biệt rõ rệt)
+ */
+.dashboard-btn:hover {
+    -fx-background-color: rgba(139, 92, 246, 0.1); /* Nền TÍM NHẠT CỰC MỎNG khi rê chuột */
+    -fx-text-fill: #8B5CF6;                          /* Đổi màu chữ sang TÍM SÁNG khi rê chuột */
+}
+
+/*
+ * (Tùy chọn) Style cho nút Dashboard khi được CHỌN (Active)
+ * Thường nút "Dashboard" sẽ luôn được đánh dấu là "đang được chọn".
+ * Nếu bạn gán một ID cụ thể cho nó (ví dụ: dashboard-selected), bạn có thể dùng cách này:
+ */
+#dashboard-selected {
+    -fx-background-color: #8B5CF6;       /* Nền TÍM ĐẬM chuyên nghiệp (Đây là màu liên quan đến màu tím của bạn) */
+    -fx-text-fill: white;                 /* Đổi màu chữ sang màu trắng để nổi bật */
+}
+
+/* style.css */
+
+/*
+ * Tạo một lớp kiểu cụ thể cho nhãn 'Admin'
+ */
+.quit-button {
+    -fx-background-color: #8E44AD; -fx-background-radius: 8px; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;
+}
+
+.no-border {
+    /* Phương pháp 1: Làm màu viền trong suốt */
+    -fx-border-color: transparent;
+
+    /* Phương pháp 2: Hoặc đặt độ rộng viền bằng 0 (cũng hiệu quả)
+       -fx-border-width: 0;
+    */
+
+    /*
+     * Để Button/ComboBox thực sự hòa vào nền (nhìn "tàng hình"),
+     * bạn thường cũng muốn loại bỏ màu nền mặc định hoặc làm nó trong suốt
+     * trừ khi bạn muốn nó vẫn hiển thị một nền khác.
+     */
+    -fx-background-color: transparent; /* Tùy chọn: làm nền trong suốt */
+
+    /*
+     * Một số control như Button hoặc text area trong ComboBox có thể có padding
+     * mặc định trông như một phần viền. Bạn có thể giảm nó nếu cần:
+     * -fx-padding: 5 5 5 5; /* Tùy chọn: chỉnh sửa padding nếu cần
+     */
+}
+
+/*
+ * Đối với ComboBox hoặc MenuButton, mặc dù bạn ẩn viền chính,
+ * mũi tên tam giác vẫn sẽ hiển thị.
+ * Để đảm bảo control hoàn toàn không viền (trừ mũi tên),
+ * ta có thể đảm bảo phần thân nút cũng trong suốt nếu có.
+ */
+.no-border .combo-box-button-box {
+    -fx-background-color: transparent;
+}
+
+/* style.css */
+
+/*
+ * Base Style cho nút Dashboard để đảm bảo nó đậm và có khoảng cách đẹp
+ * (Chưa thay đổi màu nền)
+ */
+.admin-header {
+    /*
+     * 1. Tăng kích thước phông chữ để nổi bật hơn so với văn bản menu.
+     * Hãy thử các giá trị như 18px, 20px, hoặc 22px tùy theo sở thích của bạn.
+     */
+    -fx-font-size: 20px;
+
+    /*
+     * 2. Làm chữ đậm để tạo cảm giác quan trọng và mạnh mẽ hơn.
+     */
+    -fx-font-weight: bold;
+
+    /*
+     * 3. (Tùy chọn) Làm tối màu văn bản một chút để tăng độ tương phản với nền.
+     * Sử dụng một màu xám rất đậm thay vì màu đen hoàn toàn để trông chuyên nghiệp hơn.
+     */
+    -fx-text-fill: #1a1a1a; /* Màu xám đậm */
+
+    /*
+     * 4. (Tùy chọn) Thêm một chút khoảng cách phía trên và dưới để văn bản không bị dính.
+     */
+    -fx-padding: 15px 0; /* Khoảng cách trên-dưới là 15px, trái-phải là 0 */
+}
+
+/*
+ * (Tùy chọn bổ sung) Bạn có thể sử dụng ID nếu bạn gán ID cho nhãn 'Admin'
+ * (ví dụ: #admin-label) trong Scene Builder.
+ */
+#admin-label {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1a1a1a;
+    -fx-padding: 15px 0;
+}
+
+
+/* style.css */
+
+/* ==========================================================================
+   1. ĐỊNH DẠNG HỘP CHỨA MENU THẢ XUỐNG (CONTEXT MENU)
+   ========================================================================== */
+.card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-border-color: #f1e9f9; /* Viền tím phấn nhạt */
+    -fx-border-radius: 16;
+    -fx-border-width: 1.5;
+    /* Đổ bóng hồng tím mờ mịn sang trọng */
+    -fx-effect: dropshadow(three-pass-box, rgba(217, 70, 239, 0.05), 15, 0, 0, 4);
+}
+
+/* ============================================================
+   3. PRODUCT-IMAGE - Khung ảnh sản phẩm
+   (ĐÃ XÓA KHÓA CỨNG MIN-WIDTH/MIN-HEIGHT - Bạn tự kéo bằng chuột)
+   ============================================================ */
+.card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-border-color: #f1e9f9; /* Viền tím phấn nhạt */
+    -fx-border-radius: 16;
+    -fx-border-width: 1.5;
+    /* Đổ bóng hồng tím mờ mịn sang trọng */
+    -fx-effect: dropshadow(three-pass-box, rgba(217, 70, 239, 0.05), 15, 0, 0, 4);
+}
+
+/* ============================================================
+   DANH CHO TABPANE - PHONG CÁCH "VIÊN THUỐC" (PILLS STYLE)
+   Giống kiểu dáng của Chợ Tốt nhưng đồng bộ hệ màu Trắng-Hồng-Tím
+   ============================================================ */
+
+/* 1. Xóa bỏ hoàn toàn nền và đường kẻ ngang mặc định của JavaFX */
+.tab-pane {
+    -fx-background-color: transparent;
+}
+.tab-pane .tab-header-area {
+    -fx-padding: 0 0 15 0;          /* Tạo khoảng cách từ thanh tab xuống nội dung */
+}
+.tab-pane .tab-header-background {
+    -fx-background-color: transparent; /* Ẩn dải nền xám/xanh mặc định */
+}
+
+/* 2. Tạo hình "Viên Thuốc" cho từng nút Tab chưa chọn */
+.tab-pane .tab {
+    /* Nền màu hồng tím pastel siêu nhạt khi chưa click */
+    -fx-background-color: #fdf4ff;
+
+    /* Tạo khoảng cách trống giữa các viên thuốc với nhau */
+    -fx-background-insets: 0 6 0 6;
+
+    /* Bo tròn tuyệt đối hai đầu giống hình mẫu */
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+
+    /* Khoảng cách chữ lùi vào trong để nút thon dài */
+    -fx-padding: 6 18 6 18;
+    -fx-cursor: hand;
+}
+
+/* Chữ bên trong Tab chưa chọn */
+.tab-pane .tab .tab-label {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #701a75;         /* Màu chữ tím mận nhẹ nhàng */
+}
+
+/* Khi di chuột qua nút Tab (Hover) */
+.tab-pane .tab:hover {
+    -fx-background-color: #f5d0fe;  /* Hồng tím đậm hơn một chút kích thích thị giác */
+}
+
+/* 3. KHI TAB ĐƯỢC CLICK CHỌN (SELECTED) - Nổi bật hoàn toàn */
+.tab-pane .tab:selected {
+    /* Đổ màu đặc sang trọng (Giống khối màu đen xám của Chợ Tốt nhưng dùng Tím Hồng) */
+    -fx-background-color: linear-gradient(to right, #db2777, #701a75);
+
+    /* Hiệu ứng bóng đổ nhẹ cho viên thuốc đang chọn nổi lên */
+    -fx-effect: dropshadow(three-pass-box, rgba(112, 26, 117, 0.2), 8, 0, 0, 2);
+}
+
+/* Chữ bên trong viên thuốc ĐƯỢC CHỌN */
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #ffffff;         /* Chữ chuyển sang màu trắng tinh rực rỡ */
+}
+
+/* 4. Khung chứa nội dung hiển thị phía dưới Tab */
+.tab-pane .tab-content-area {
+    -fx-background-color: #ffffff; /* Nền trắng tinh khôi giống hình mẫu */
+    -fx-background-radius: 16;
+}
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 1px;               /* Padding nhỏ để viền không bị đè lên nội dung */
+
+    /* Tạo đường viền mỏng màu xám nhạt (bạn có thể đổi màu tùy ý) */
+    -fx-border-color: #DCDDE1;
+    -fx-border-width: 1px;          /* Độ dày 1px mỏng vừa vặn */
+
+    /* Bo góc nhẹ 4px cho viền nếu muốn tinh tế, hoặc để 0px nếu muốn vuông hẳn */
+    -fx-border-radius: 4px;
+}
+
+/* Đảm bảo vùng hiển thị bên trong (Viewport) cũng mượt mà, không lệch màu */
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .corner {
+    -fx-background-color: #F1F1F1;
+}
+
+/* 1. Thanh cuộn dọc (Track) - Quay lại góc vuông phẳng chuẩn Chrome */
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: #F1F1F1;  /* Nền xám nhạt */
+    -fx-width: 12px;                /* Trở lại độ rộng 12px gọn gàng */
+    -fx-padding: 0 1px 0 1px;
+
+    /* Đường viền dọc phân cách thẳng thớm bên trái như cũ */
+    -fx-border-color: transparent transparent transparent #E0E0E0;
+    -fx-border-width: 0 0 0 1px;
+}
+
+/* 2. Cục trượt để kéo (Thumb) */
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #C1C1C1;
+    -fx-background-insets: 1px 2px 1px 2px; /* Thụt lề nhẹ để cục trượt thon gọn */
+    -fx-background-radius: 4px;            /* Bo tròn nhẹ đầu cục trượt như mặc định */
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #A8A8A8;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:pressed {
+    -fx-background-color: #787878;
+}
+
+/* 3. Định hình 2 nút bấm mũi tên tam giác phẳng ở hai đầu */
+.scroll-pane .scroll-bar .increment-button,
+.scroll-pane .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 4px 2px;
+}
+
+.scroll-pane .scroll-bar .increment-button:hover,
+.scroll-pane .scroll-bar .decrement-button:hover {
+    -fx-background-color: #D8D8D8;
+}
+
+.scroll-pane .scroll-bar .decrement-arrow {
+    -fx-background-color: #787878;
+    -fx-shape: "M 0 4 L 4 0 L 8 4 Z"; /* Hình tam giác hướng lên */
+    -fx-padding: 2px 3px;
+}
+
+.scroll-pane .scroll-bar .increment-arrow {
+    -fx-background-color: #787878;
+    -fx-shape: "M 0 0 L 4 4 L 8 0 Z"; /* Hình tam giác hướng xuống */
+    -fx-padding: 2px 3px;
+}

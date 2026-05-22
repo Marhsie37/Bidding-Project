@@ -10,6 +10,9 @@ import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.util.Base64;
+
 public class ProductItemController {
     private static final Logger logger = LoggerFactory.getLogger(ProductItemController.class);
 
@@ -48,29 +51,40 @@ public class ProductItemController {
 
     private void loadImage(String url) {
         try {
-            // Xử lý đường dẫn ảnh
+            // Hỗ trợ ảnh dạng Base64
+            if (url.startsWith("data:image") || isBase64(url)) {
+                String base64Data = url.contains(",") ? url.split(",", 2)[1] : url;
+                byte[] imageBytes = Base64.getDecoder().decode(base64Data);
+                Image img = new Image(new ByteArrayInputStream(imageBytes));
+                imgView.setImage(img);
+                return;
+            }
+
+            // Xử lý đường dẫn file thông thường
             String imageUrl = url;
             if (!imageUrl.startsWith("http") && !imageUrl.startsWith("file:")) {
                 imageUrl = "file:" + imageUrl;
             }
 
             Image img = new Image(imageUrl, true);
-
-            // Xử lý lỗi load ảnh
             img.errorProperty().addListener((obs, oldErr, newErr) -> {
                 if (newErr) {
-                    logger.error("Không thể tải ảnh từ URL: {}", url);
+                    logger.error("În không thể tải ảnh từ URL: {}", url);
                     Platform.runLater(() -> imgView.setImage(null));
                 }
             });
-
             imgView.setImage(img);
-            logger.debug("Đã tải ảnh thành công: {}", url);
 
         } catch (Exception e) {
             logger.error("Lỗi khi tải ảnh: {} - {}", url, e.getMessage());
             imgView.setImage(null);
         }
+    }
+
+    private boolean isBase64(String str) {
+        if (str == null || str.length() < 100) return false;
+        // Base64 strings only contain A-Z, a-z, 0-9, +, /, =
+        return str.matches("^[A-Za-z0-9+/=]+$");
     }
 
     public void updatePrice(double newPrice) {

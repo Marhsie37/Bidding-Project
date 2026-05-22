@@ -34,7 +34,10 @@ public class UserProductDAO {
 
     public List<Product> getPurchasedProducts(int userId) {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT product_id, product_name, product_price FROM user_products WHERE user_id = ? ORDER BY purchased_at DESC";
+        String sql = "SELECT up.product_id, up.product_name, up.product_price, p.image_url, p.description " +
+                     "FROM user_products up " +
+                     "INNER JOIN products p ON up.product_id = p.id " +
+                     "WHERE up.user_id = ? ORDER BY up.purchased_at DESC";
 
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -48,8 +51,10 @@ public class UserProductDAO {
                     p.setId(rs.getInt("product_id"));
                     p.setName(rs.getString("product_name"));
                     p.setCurrentPrice(rs.getDouble("product_price"));
+                    p.setImageUrl(rs.getString("image_url"));
+                    p.setDescription(rs.getString("description"));
                     products.add(p);
-                    logger.info("✅ [DEBUG] Đã lấy sản phẩm: " + p.getName());
+                    logger.info("✅ [DEBUG] Đã lấy sản phẩm: " + p.getName() + " có ảnh: " + (p.getImageUrl() != null && !p.getImageUrl().isEmpty()));
                 }
             }
         } catch (SQLException e) {

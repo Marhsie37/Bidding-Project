@@ -1,0 +1,115 @@
+/* ========================================================================
+   GIAO DIỆN TRANG ĐĂNG KÝ (REGISTER) - KHÔNG DÙNG CHUNG CLASS GỐC
+   ======================================================================== */
+
+/* 1. KHUNG KÍNH MỜ BỌC FORM ĐĂNG KÝ (Glassmorphism) */
+.pane-dangky-glass {
+    /* Nền tím đen trong suốt nhìn xuyên thấu tinh vân */
+    -fx-background-color: rgba(15, 10, 35, 0.6);
+    -fx-background-radius: 25px;
+    -fx-border-radius: 25px;
+    /* Viền mỏng như sợi chỉ phản chiếu ánh sáng */
+    -fx-border-color: rgba(255, 255, 255, 0.15);
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.4), 15, 0, 0, 5);
+}
+
+/* 2. TIÊU ĐỀ "Create Your Account" */
+.label-dangky-title {
+    -fx-text-fill: white;
+    -fx-font-family: "Segoe UI Semibold", sans-serif;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    /* Đổ bóng nhẹ phía sau để chữ nổi bật trên mây tinh vân */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.6), 8, 0, 0, 0);
+}
+
+/* 3. CÁC Ô NHẬP LIỆU (Username, Password, Email, Fullname...) */
+.input-dangky-field {
+    -fx-background-color: rgba(255, 255, 255, 0.07);
+    /* Nền trong suốt mờ */
+    -fx-background-radius: 20px;
+    -fx-border-color: rgba(255, 255, 255, 0.25);
+    /* Viền mờ tinh tế */
+    -fx-border-radius: 20px;
+    -fx-text-fill: white;
+    /* Chữ gõ vào màu trắng rực rõ */
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.5);
+    /* Chữ gợi ý ẩn hiện mượt mà */
+    -fx-padding: 8px 15px 8px 15px;
+}
+
+/* Hiệu ứng khi nhấn chuột vào ô nhập liệu (Focused) */
+.input-dangky-field:focused {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    /* Viền chuyển sang màu hồng neon tiệp với dải mây hồng tím bên phải ảnh */
+    -fx-border-color: #ff5e97;
+}
+
+/* 4. Ô CHỌN QUYỀN HẠN (MenuButton Role) */
+.menu-dangky-role {
+    -fx-background-color: rgba(255, 255, 255, 0.09);
+    -fx-background-radius: 15px;
+    -fx-border-color: rgba(255, 255, 255, 0.25);
+    -fx-border-radius: 15px;
+    -fx-padding: 5px 15px;
+    -fx-cursor: hand;
+}
+
+/* Chữ hiển thị bên trong ô Role */
+.menu-dangky-role .label {
+    -fx-text-fill: #e0e0e0;
+    -fx-font-family: "Segoe UI Semibold";
+}
+
+/* Mũi tên nhỏ của ô Role */
+.menu-dangky-role .arrow {
+    -fx-background-color: #ff5e97;
+    /* Mũi tên màu hồng neon làm điểm nhấn */
+}
+
+.menu-dangky-role:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.18);
+}
+
+/* 5. NÚT "REGISTER" CHÍNH (Đã bỏ màu cam đỏ - Đổi sang dải Neon hợp nền) */
+.btn-dangky-submit {
+    /* Gradient chuyển màu cực mượt từ Hồng Tím sang Xanh Cyan kiểu Aurora Vũ Trụ */
+    -fx-background-color: linear-gradient(to right, #e84393, #ae44ff);
+    -fx-text-fill: white;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 25px;
+    -fx-cursor: hand;
+    /* Hiệu ứng phát sáng nhẹ (Glow) lan tỏa ra nền */
+    -fx-effect: dropshadow(three-pass-box, rgba(232, 67, 147, 0.5), 12, 0, 0, 0);
+}
+
+.btn-dangky-submit:hover {
+    /* Khi trỏ chuột vào, nút đảo sắc độ và sáng rực rỡ hơn */
+    -fx-background-color: linear-gradient(to right, #ff5e97, #c16eff);
+    -fx-effect: dropshadow(three-pass-box, rgba(232, 67, 147, 0.8), 18, 0, 0, 0);
+}
+
+/* 6. NÚT "BACK" PHỤ */
+.btn-dangky-back {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-text-fill: #dcdde1;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-width: 1px;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 14px;
+    -fx-padding: 8px 25px;
+    -fx-cursor: hand;
+}
+
+.btn-dangky-back:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-text-fill: white;
+    -fx-border-color: rgba(255, 255, 255, 0.4);
+}

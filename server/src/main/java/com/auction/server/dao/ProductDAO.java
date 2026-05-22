@@ -1,6 +1,7 @@
 package com.auction.server.dao;
 
 import com.auction.shared.model.Product;
+
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -254,6 +255,13 @@ public class ProductDAO {
         if (!rs.wasNull()) {
             product.setWinnerId(winnerId);
         }
+        try {
+            String winnerName = rs.getString("winner_name");
+            if (winnerName != null) product.setWinnerName(winnerName);
+        } catch (SQLException ignored) {
+            // Column winner_name không có trong một số queries
+        }
+
         Timestamp createdAt = rs.getTimestamp("created_at");
         if (createdAt != null) product.setCreatedAt(createdAt.toLocalDateTime());
         return product;
