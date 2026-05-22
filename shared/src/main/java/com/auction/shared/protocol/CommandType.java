@@ -50,6 +50,11 @@ public enum CommandType {
     ADMIN_UNBAN_USER,
     ADMIN_BAN_USER,
 
+    // Thông báo từ server đẩy xuống client
+    NOTIFY_NEW_BID,
+    NOTIFY_AUCTION_END,
+    NOTIFY_AUCTION_EXTENDED,
+
     NEW_PRODUCT_ADDED, // thong bao san pham moi toi tat ca client
 
 
