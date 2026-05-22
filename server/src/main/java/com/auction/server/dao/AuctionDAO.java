@@ -2,7 +2,6 @@ package com.auction.server.dao;
 
 import com.auction.shared.model.AuctionSession;
 import com.auction.shared.model.BidTransaction;
-
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,9 +11,22 @@ import org.slf4j.LoggerFactory;
 
 public class AuctionDAO {
     private DatabaseConnection dbConnection;
+    private Connection conn;
     private static final Logger logger = LoggerFactory.getLogger(AuctionDAO.class);
+
     public AuctionDAO() {
         this.dbConnection = DatabaseConnection.getInstance();
+    }
+
+    public AuctionDAO(Connection conn) {
+        this.conn = conn;
+    }
+
+    private Connection getConnection() throws SQLException {
+        if (this.conn != null) {
+            return this.conn;
+        }
+        return dbConnection.getConnection();
     }
 
     public AuctionSession getAuctionSession(int productId) {
@@ -23,7 +35,7 @@ public class AuctionDAO {
                 "FROM products p " +
                 "LEFT JOIN users u ON p.winner_id = u.id " +
                 "WHERE p.id = ?";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, productId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -31,19 +43,15 @@ public class AuctionDAO {
                     session.setProductId(rs.getInt("id"));
                     session.setProductName(rs.getString("name"));
                     session.setCurrentPrice(rs.getDouble("current_price"));
-
                     Timestamp endTime = rs.getTimestamp("end_time");
                     if (endTime != null) {
                         session.setEndTime(endTime.toLocalDateTime());
                     }
-
                     session.setStatus(rs.getString("status"));
-
                     int winnerId = rs.getInt("winner_id");
                     if (!rs.wasNull()) {
                         session.setCurrentWinnerId(winnerId);
                     }
-
                     session.setCurrentWinnerName(rs.getString("winner_name"));
                     return session;
                 }
@@ -56,12 +64,11 @@ public class AuctionDAO {
 
     public boolean saveBid(BidTransaction bid) {
         String sql = "INSERT INTO bids (product_id, bidder_id, bid_amount, is_auto_bid) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, bid.getAuctionId());
             pstmt.setInt(2, bid.getBidderId());
             pstmt.setDouble(3, bid.getBidAmount());
             pstmt.setBoolean(4, bid.isAutoBid());
-
             int affected = pstmt.executeUpdate();
             if (affected > 0) {
                 try (ResultSet rs = pstmt.getGeneratedKeys()) {
@@ -82,7 +89,7 @@ public class AuctionDAO {
         String sql = "SELECT b.*, u.username as bidder_name " +
                 "FROM bids b LEFT JOIN users u ON b.bidder_id = u.id " +
                 "WHERE b.product_id = ? ORDER BY b.bid_time DESC LIMIT ?";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, productId);
             pstmt.setInt(2, limit);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -93,12 +100,10 @@ public class AuctionDAO {
                     bid.setBidderId(rs.getInt("bidder_id"));
                     bid.setBidderName(rs.getString("bidder_name"));
                     bid.setBidAmount(rs.getDouble("bid_amount"));
-
                     Timestamp bidTime = rs.getTimestamp("bid_time");
                     if (bidTime != null) {
                         bid.setBidTime(bidTime.toLocalDateTime());
                     }
-
                     bid.setAutoBid(rs.getBoolean("is_auto_bid"));
                     bids.add(bid);
                 }
@@ -111,7 +116,7 @@ public class AuctionDAO {
 
     public double getHighestBid(int productId) {
         String sql = "SELECT MAX(bid_amount) as max_bid FROM bids WHERE product_id = ?";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, productId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -126,7 +131,7 @@ public class AuctionDAO {
 
     public int getHighestBidder(int productId) {
         String sql = "SELECT bidder_id FROM bids WHERE product_id = ? ORDER BY bid_amount DESC LIMIT 1";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, productId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -141,7 +146,7 @@ public class AuctionDAO {
 
     public boolean endAuction(int productId, int winnerId, double finalPrice) {
         String sql = "UPDATE products SET status = 'ENDED', winner_id = ?, current_price = ? WHERE id = ?";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             if (winnerId > 0) {
                 pstmt.setInt(1, winnerId);
             } else {
@@ -161,7 +166,7 @@ public class AuctionDAO {
         String sql = "SELECT b.*, u.username as bidder_name " +
                 "FROM bids b LEFT JOIN users u ON b.bidder_id = u.id " +
                 "WHERE b.product_id = ? AND b.bid_time > ? ORDER BY b.bid_time ASC";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+        try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
             pstmt.setInt(1, productId);
             pstmt.setTimestamp(2, Timestamp.valueOf(afterTime));
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -172,12 +177,10 @@ public class AuctionDAO {
                     bid.setBidderId(rs.getInt("bidder_id"));
                     bid.setBidderName(rs.getString("bidder_name"));
                     bid.setBidAmount(rs.getDouble("bid_amount"));
-
                     Timestamp bidTime = rs.getTimestamp("bid_time");
                     if (bidTime != null) {
                         bid.setBidTime(bidTime.toLocalDateTime());
                     }
-
                     bid.setAutoBid(rs.getBoolean("is_auto_bid"));
                     bids.add(bid);
                 }

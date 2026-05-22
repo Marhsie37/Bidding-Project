@@ -19,9 +19,9 @@ public class UserDAO {
     }
     private Connection getConnection() throws SQLException {
         if (this.conn != null) {
-            return this.conn; // Trả về kết nối ảo H2 nếu đang chạy Test
+            return this.conn;
         }
-        return dbConnection.getConnection(); // Trả về kết nối MySQL thật
+        return dbConnection.getConnection();
     }
 
     public User findByUsername(String username) {
