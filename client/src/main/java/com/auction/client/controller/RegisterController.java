@@ -103,6 +103,21 @@ public class RegisterController {
             showAlert(Alert.AlertType.WARNING, "Lỗi", "Email không hợp lệ!");
             return;
         }
+// 🔌 Kiểm tra, nếu socket đã bị đóng (do vừa nhấn Đăng xuất) thì phải chủ động kết nối lại
+        // Luôn disconnect sạch rồi reconnect — giống LoginController
+        SocketClient socketClient = SocketClient.getInstance();
+        if (socketClient.isConnected()) {
+            socketClient.disconnect();
+        }
+        try {
+            logger.info("🔌 Đang kết nối đến server cho màn hình Đăng ký...");
+            socketClient.connect();
+            logger.info("✅ Đã kết nối server");
+        } catch (IOException e) {
+            logger.error("❌ Lỗi kết nối: ", e);
+            showAlert(Alert.AlertType.ERROR, "Lỗi kết nối", "Không thể kết nối đến server: " + e.getMessage());
+            return;
+        }
 
         // Gửi dữ liệu lên server
         Map<String, Object> data = new HashMap<>();

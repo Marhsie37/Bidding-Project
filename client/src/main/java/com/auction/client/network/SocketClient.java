@@ -85,8 +85,12 @@ public class SocketClient {
                         }
 
                         if (handler == null && (handlers == null || handlers.isEmpty())) {
-                            logger.warn("⚠️ Không có handler cho: {} (requestId={})",
-                                    response.getCommand(), requestId);
+                            if (response.getCommand() != null && response.getCommand().toString().equals("NEW_PRODUCT_ADDED")) {
+                                logger.info("📩 Đã nhận thông báo sản phẩm mới [Real-time] từ Server (Hệ thống bỏ qua an toàn)");
+                            } else {
+                                logger.warn("⚠️ Không có handler cho: {} (requestId={})",
+                                        response.getCommand(), requestId);
+                            }
                         }
                     }
                 }

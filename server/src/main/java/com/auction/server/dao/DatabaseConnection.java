@@ -19,11 +19,6 @@ public class DatabaseConnection {
 
     private boolean isTestMode = false;
 
-    private static final String H2_URL = "jdbc:h2:mem:auction_test;DB_CLOSE_DELAY=-1;MODE=MySQL";
-    private static final String H2_USER = "sa";
-    private static final String H2_PASSWORD = "";
-
-    private boolean isTestMode = false;
 
     private DatabaseConnection() {
         try {

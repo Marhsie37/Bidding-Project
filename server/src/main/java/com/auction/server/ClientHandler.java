@@ -198,7 +198,9 @@ public class ClientHandler implements Runnable {
         if ((boolean) result.get("success")) {
             // 🟢 LẤY USER ID
             Map<String,Object> userInfo = (Map<String,Object>) result.get("user");
-            int userId = (int) userInfo.get("id");
+
+            // 🛠️ SỬA DÒNG NÀY ĐỂ FIX LỖI SẬP KẾT NỐI:
+            int userId = ((Number) userInfo.get("id")).intValue();
 
             // 🟢🟢🟢 KIỂM TRA TÀI KHOẢN ĐANG ĐƯỢC DÙNG Ở NƠI KHÁC 🟢🟢🟢
             if (onlineUsers.containsKey(userId)) {
@@ -208,7 +210,7 @@ public class ClientHandler implements Runnable {
 
             // 🟢 LƯU USER ID VÀO MAP VÀ BIẾN INSTANCE
             onlineUsers.put(userId, true);
-            this.currentUserId = userId;  // Cần thêm biến này ở đầu class
+            this.currentUserId = userId;
             this.username = username;
             this.role = (String) result.get("role");
 
@@ -346,12 +348,13 @@ public class ClientHandler implements Runnable {
                 (String) result.get("message"), null);
     }
     private void handleLogout() {
-        if (username != null) {
-            AuctionServer.getInstance().unregisterClient(username);
-        }
         sendResponse(CommandType.LOGOUT, true, "Logged out", null);
         connected = false;
-        disconnect();
+        try {
+            if (socket != null && !socket.isClosed()) socket.close(); // đóng socket để client biết
+        } catch (IOException e) {
+            logger.error("Error closing socket on logout: ", e);
+        }
     }
     private boolean isAdmin() {
         if (!"ADMIN".equals(role)) {
@@ -405,24 +408,24 @@ public class ClientHandler implements Runnable {
     private void sendError(String message) {
         sendResponse(CommandType.ERROR, false, message, null);
     }
-    private void disconnect(){
+    private void disconnect() {
+        if (!connected && currentUserId < 0 && username == null) return; // đã cleanup rồi
         connected = false;
-        try{
-            // 🟢🟢🟢 XÓA USER ID KHỎI MAP ĐANG ONLINE 🟢🟢🟢
+        try {
             if (currentUserId > 0) {
                 onlineUsers.remove(currentUserId);
                 logger.info("User {} đã logout, xóa khỏi danh sách online", currentUserId);
+                currentUserId = -1; // ← reset để lần gọi sau không log lại
             }
-
-            if (username != null){
+            if (username != null) {
                 AuctionServer.getInstance().unregisterClient(username);
+                username = null; // ← reset để lần gọi sau không unregister lại
             }
             if (inputStream != null) inputStream.close();
             if (outputStream != null) outputStream.close();
             if (socket != null && !socket.isClosed()) socket.close();
-
-        } catch (IOException e){
-            logger.error("Error disconnecting: " ,e);
+        } catch (IOException e) {
+            logger.error("Error disconnecting: ", e);
         }
     }
     public String getUsername(){
