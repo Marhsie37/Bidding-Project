@@ -42,7 +42,7 @@ public class AuctionServiceTest {
         Map<String, Object> productData = new HashMap<>();
         productData.put("sellerId", "admin");
         productData.put("name", "Laptop Gaming Skibidi");
-        productData.put("startingPrice", 10000.0); // Ép giá khởi điểm lên 10k cho qua mức tối thiểu
+        productData.put("startingPrice", 10000.0);
         productData.put("durationHours", 24);
 
         Map<String, Object> result = auctionService.addProduct(productData);
@@ -54,7 +54,7 @@ public class AuctionServiceTest {
         Map<String, Object> productData = new HashMap<>();
         productData.put("sellerId", "admin");
         productData.put("name", "Chuột Razer");
-        productData.put("startingPrice", 10000.0); // Tối thiểu 10k giá khởi điểm
+        productData.put("startingPrice", 10000.0);
         Map<String, Object> addResult = auctionService.addProduct(productData);
         int productId = (int) addResult.get("productId");
 
@@ -117,7 +117,7 @@ public class AuctionServiceTest {
         Map<String, Object> productData = new HashMap<>();
         productData.put("sellerId", "admin");
         productData.put("name", "Đồng hồ Rolex");
-        productData.put("startingPrice", 10000.0); // Nâng khởi điểm lên 10,000 VNĐ
+        productData.put("startingPrice", 10000.0);
         Map<String, Object> addResult = auctionService.addProduct(productData);
         int productId = (int) addResult.get("productId");
 
@@ -129,7 +129,7 @@ public class AuctionServiceTest {
         int user1Id = (int) ((Map<String, Object>) auctionService.login(v1, "123").get("user")).get("id");
         int user2Id = (int) ((Map<String, Object>) auctionService.login(v2, "123").get("user")).get("id");
 
-        auctionService.addFunds(user1Id, 100000.0); // Cho hẳn 100k quẩy xông xênh
+        auctionService.addFunds(user1Id, 100000.0);
         auctionService.addFunds(user2Id, 100000.0);
 
         Map<String, Object> bid1 = auctionService.placeBid(productId, v2, 15000.0);
