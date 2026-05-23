@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.net.Socket;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -379,24 +380,32 @@ class ClientHandlerTest {
 
     // ================================================================ handleLogout
     @Test
-    @DisplayName("handleLogout – đã đăng nhập → unregister 2 lần (trong handleLogout và disconnect)")
+    @DisplayName("handleLogout – đã đăng nhập → không gọi unregisterClient (chỉ đóng socket)")
     void testHandleLogout_withUsername() throws Exception {
         setField(handler, "username", "alice");
         setField(handler, "connected", true);
-
-        // Set currentRequestId để tránh null pointer
         setField(handler, "currentRequestId", "logout-request-id");
+
+        // Mock socket để tránh NPE khi đóng
+        Socket mockSocket = mock(Socket.class);
+        when(mockSocket.isClosed()).thenReturn(false);
+        setField(handler, "socket", mockSocket);
 
         invokePrivate("handleLogout");
 
-        // Verify gọi 2 lần (hoặc ít nhất 1 lần)
-        verify(mockAuctionServer, atLeastOnce()).unregisterClient("alice");
-        // Hoặc verify chính xác 2 lần:
-        // verify(mockAuctionServer, times(2)).unregisterClient("alice");
+        // handleLogout KHÔNG gọi unregisterClient
+        verify(mockAuctionServer, never()).unregisterClient(anyString());
 
         Response resp = readResponse();
         assertEquals(CommandType.LOGOUT, resp.getCommand());
         assertTrue(resp.isSuccess());
+
+        // Kiểm tra connected đã được set false
+        boolean connected = (boolean) getField(handler, "connected");
+        assertFalse(connected);
+
+        // Kiểm tra socket đã được đóng
+        verify(mockSocket).close();
     }
 
     @Test
@@ -412,30 +421,28 @@ class ClientHandlerTest {
     @Test
     @DisplayName("handleAddFunds – nạp tiền thành công")
     void testHandleAddFunds() throws Exception {
-        // FIX: Set username trước
         setField(handler, "username", "testuser");
 
-        // Tạo mock User object (nếu chưa có)
+        // Tạo mock User object
         User mockUser = mock(User.class);
         when(mockUser.getId()).thenReturn(1);
 
         // Mock getUserByUsername để trả về user object
         when(mockAuctionService.getUserByUsername("testuser")).thenReturn(mockUser);
-        when(mockAuctionService.addFunds(1, 200.0))
-                .thenReturn(Map.of("success", true, "message", "Funds added", "newBalance", 200.0));
+        when(mockAuctionService.addFunds(1, 10000.0))  // FIX: 10000 >= 5000
+                .thenReturn(Map.of("success", true, "message", "Funds added", "newBalance", 10000.0));
 
         Map<String, Object> data = new HashMap<>();
-        data.put("amount", 200.0);
-        // FIX: Không truyền userId, chỉ truyền amount
+        data.put("amount", 10000.0);  // FIX: amount >= 5000
         invokePrivate("handleAddFunds", data);
 
-        verify(mockAuctionService).addFunds(1, 200.0);
+        verify(mockAuctionService).addFunds(1, 10000.0);
         Response resp = readResponse();
         assertTrue(resp.isSuccess());
         assertEquals(CommandType.ADD_FUNDS, resp.getCommand());
     }
 
-    // ============================================================ handleProcessPayment
+
     @Test
     @DisplayName("handleProcessPayment – thanh toán thành công")
     void testHandleProcessPayment() throws Exception {
