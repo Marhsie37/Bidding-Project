@@ -18,17 +18,25 @@ public class UserProductDAO {
         this.dbConnection = DatabaseConnection.getInstance();
     }
 
-    public boolean addPurchasedProduct(int userId, int productId, String productName, double price) {
-        String sql = "INSERT INTO user_products (user_id, product_id, product_name, product_price) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement pstmt = dbConnection.getConnection().prepareStatement(sql)) {
+    public void addPurchasedProduct(int userId, int productId, String productName, double finalPrice) {
+        String sql = "INSERT INTO user_products (user_id, product_id, product_name, product_price, purchased_at) " +
+                "VALUES (?, ?, ?, ?, NOW()) " +
+                "ON DUPLICATE KEY UPDATE product_price = ?, purchased_at = NOW()";
+
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setInt(1, userId);
             pstmt.setInt(2, productId);
             pstmt.setString(3, productName);
-            pstmt.setDouble(4, price);
-            return pstmt.executeUpdate() > 0;
+            pstmt.setDouble(4, finalPrice);
+            pstmt.setDouble(5, finalPrice); // cho ON DUPLICATE KEY
+            pstmt.executeUpdate();
+
+            logger.info("✅ Đã thêm vào user_products: userId={}, productId={}, price={}", userId, productId, finalPrice);
+
         } catch (SQLException e) {
-            logger.error("Error adding purchased product: " ,e);
-            return false;
+            logger.error("❌ Lỗi thêm vào user_products: ", e);
         }
     }
 

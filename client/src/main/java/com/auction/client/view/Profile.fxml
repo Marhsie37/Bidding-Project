@@ -77,7 +77,7 @@
             </children></AnchorPane>
         <ScrollPane layoutX="318.0" layoutY="433.0" prefHeight="298.0" prefWidth="550.0" stylesheets="@css/Profile.css">
             <content>
-                <VBox fx:id="vboxPurchasedProducts" prefHeight="283.0" prefWidth="898.0" spacing="10.0" styleClass="products-section" stylesheets="@css/Profile.css" />
+                <HBox fx:id="hboxPurchasedProducts" prefHeight="283.0" prefWidth="898.0" spacing="10.0" styleClass="products-section" stylesheets="@css/Profile.css" />
             </content>
         </ScrollPane>
       <Label layoutX="514.0" layoutY="385.0" styleClass="text1" stylesheets="@css/Profile.css" text="Sản phẩm nhận được" />

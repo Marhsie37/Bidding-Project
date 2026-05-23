@@ -65,7 +65,7 @@ public class AutoBidService {
 
     // Đăng ký auto bid cho user (backward compatibility)
     public void registerAutoBid(int productId, String username, double maxBid) {
-        registerAutoBid(productId, username, maxBid, 1000.0);
+        registerAutoBid(productId, username, maxBid, 5000.0);
     }
 
     // Hủy auto bid của user
@@ -125,7 +125,8 @@ public class AutoBidService {
                         }
 
                         // Tính giá đặt tiếp theo dựa trên bước giá của người đặt
-                        double nextBid = currentPrice + config.getIncrement();
+                        double step = Math.max(config.getIncrement(), 5000.0);
+                        double nextBid = currentPrice + step;
 
                         // Đảm bảo giá đặt tiếp theo không vượt quá mức tối đa (maxBid) của người đó
                         if (nextBid <= config.getMaxBid()) {
@@ -139,7 +140,8 @@ public class AutoBidService {
                     }
 
                     if (eligibleBidder != null) {
-                        double nextBid = currentPrice + eligibleConfig.getIncrement();
+                        double step = Math.max(eligibleConfig.getIncrement(), 5000.0);
+                        double nextBid = currentPrice + step;
                         logger.info("[AUTO-BID] " + eligibleBidder + " tự động đặt giá " + nextBid + " cho sản phẩm " + productId);
                         auctionService.placeBid(productId, eligibleBidder, nextBid);
                         bidPlaced = true;

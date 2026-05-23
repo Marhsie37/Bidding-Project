@@ -150,8 +150,8 @@ public class Profile {
     public void handleRecharge() {
         try {
             double amount = Double.parseDouble(txtAmount.getText().trim());
-            if (amount <= 0) {
-                showAlert("Lỗi", "Số tiền nạp phải lớn hơn 0!");
+            if (amount < 5000) {
+                showAlert("Lỗi", "Số tiền nạp không được dưới 5,000 VNĐ!");
                 return;
             }
 
