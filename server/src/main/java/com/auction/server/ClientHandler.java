@@ -448,6 +448,10 @@ public class ClientHandler implements Runnable {
             return;
         }
         double amount = ((Number) data.get("amount")).doubleValue();
+        if (amount < 5000) {
+            sendResponse(CommandType.ADD_FUNDS, false, "Số tiền nạp không được dưới 5,000 VNĐ!", null);
+            return;
+        }
         Map<String, Object> result = auctionService.addFunds(user.getId(), amount);
         sendResponse(CommandType.ADD_FUNDS,
                 (boolean) result.get("success"),

@@ -422,10 +422,10 @@ public class AuctionService {
                 return result;
             }
 
-            // 3. Kiểm tra giá đặt phải cao hơn giá hiện tại
-            if (bidAmount <= session.getCurrentPrice()) {
+            // 3. Kiểm tra giá đặt phải cao hơn giá hiện tại ít nhất 5000
+            if (bidAmount < session.getCurrentPrice() + 5000) {
                 result.put("success", false);
-                result.put("message", "Giá đặt phải cao hơn giá hiện tại (" + session.getCurrentPrice() + ")!");
+                result.put("message", "Giá đặt phải lớn hơn hoặc bằng giá hiện tại cộng thêm 5,000 VNĐ (tối thiểu " + (session.getCurrentPrice() + 5000) + " VNĐ)!");
                 return result;
             }
 
@@ -513,6 +513,11 @@ public class AuctionService {
 
     public Map<String, Object> setAutoBid(int productId, String username, double maxBid, double increment) {
         Map<String, Object> result = new HashMap<>();
+        if (increment < 5000) {
+            result.put("success", false);
+            result.put("message", "Bước giá tự động không được dưới 5,000 VNĐ!");
+            return result;
+        }
         AuctionSession session = sessions.get(productId);
         if (session != null) {
             session.addAutoBid(username, maxBid);
@@ -682,9 +687,9 @@ public class AuctionService {
     public synchronized Map<String, Object> addFunds(int userId, double amount) {
         Map<String, Object> result = new HashMap<>();
         try {
-            if (amount <= 0) {
+            if (amount < 5000) {
                 result.put("success", false);
-                result.put("message", "Số tiền nạp phải lớn hơn 0");
+                result.put("message", "Số tiền nạp không được dưới 5,000 VNĐ!");
                 return result;
             }
 
@@ -916,18 +921,19 @@ public class AuctionService {
 
     public void checkAndEndAuctions() {
         LocalDateTime now = LocalDateTime.now();
+        List<Integer> endedProductIds = new ArrayList<>();
+
         for (Map.Entry<Integer, AuctionSession> entry : sessions.entrySet()) {
             AuctionSession session = entry.getValue();
             if ("ACTIVE".equals(session.getStatus()) && now.isAfter(session.getEndTime())) {
-                session.setStatus("FINISHED");
-                logger.info("Chốt phiên [" + session.getProductName() + "]. Winner: " + session.getCurrentWinnerName());
-
-                // Dọn dẹp cấu hình Auto-bid của sản phẩm này
-                AutoBidService.getInstance().removeProductAutoBids(session.getProductId());
-                if (notificationService != null) {
-                    notificationService.notifyAuctionEnd(session.getProductId(), session.getCurrentWinnerId(), session.getCurrentWinnerName(), session.getCurrentPrice());
-                }
+                endedProductIds.add(session.getProductId());
             }
+        }
+
+        // 🟢 GỌI endAuction() CHO TỪNG SẢN PHẨM ĐÃ KẾT THÚC
+        for (int productId : endedProductIds) {
+            endAuction(productId);  // ← THÊM DÒNG NÀY
+            logger.info("✅ Đã kết thúc phiên đấu giá cho sản phẩm ID: {}", productId);
         }
     }
 }

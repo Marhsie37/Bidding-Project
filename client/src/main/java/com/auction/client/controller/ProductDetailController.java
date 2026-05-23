@@ -171,8 +171,8 @@ public class ProductDetailController {
         try {
             double amount = Double.parseDouble(txtBidAmount.getText().trim());
 
-            if (amount <= product.getCurrentPrice()) {
-                showAlert("Lỗi", "Giá đặt phải cao hơn giá hiện tại (" + String.format("%,.0f", product.getCurrentPrice()) + " VNĐ)!");
+            if (amount < product.getCurrentPrice() + 5000) {
+                showAlert("Lỗi", "Giá đặt phải lớn hơn hoặc bằng giá hiện tại cộng thêm 5,000 VNĐ (tối thiểu " + String.format("%,.0f", product.getCurrentPrice() + 5000) + " VNĐ)!");
                 return;
             }
 
