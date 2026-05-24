@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -15,26 +16,31 @@ public class FxmlLoadTest {
 
     @BeforeAll
     static void initJavaFX() throws InterruptedException {
-        // Khởi động JavaFX Platform nếu chưa chạy
+        // Chỉ gọi Platform.startup() nếu toolkit CHƯA được khởi động
+        // (ApplicationTest trong cùng test suite sẽ khởi động nó trước)
+        AtomicBoolean started = new AtomicBoolean(false);
         try {
             CountDownLatch latch = new CountDownLatch(1);
-            Platform.startup(latch::countDown);
+            Platform.startup(() -> {
+                started.set(true);
+                latch.countDown();
+            });
             latch.await();
         } catch (IllegalStateException e) {
-            // Platform đã được khởi động rồi, bỏ qua
+            // Toolkit đã chạy (do ApplicationTest khởi động trước) — OK
         }
     }
 
     private Parent loadFxml(String path) throws Exception {
         AtomicReference<Parent> result = new AtomicReference<>();
-        AtomicReference<Exception> error = new AtomicReference<>();
+        AtomicReference<Throwable> error = new AtomicReference<>();
         CountDownLatch latch = new CountDownLatch(1);
 
         Platform.runLater(() -> {
             try {
                 Parent root = FXMLLoader.load(getClass().getResource(path));
                 result.set(root);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 error.set(e);
             } finally {
                 latch.countDown();
@@ -42,7 +48,10 @@ public class FxmlLoadTest {
         });
 
         latch.await();
-        if (error.get() != null) throw error.get();
+        if (error.get() != null) {
+            if (error.get() instanceof Exception ex) throw ex;
+            throw new RuntimeException(error.get());
+        }
         return result.get();
     }
 

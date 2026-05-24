@@ -25,18 +25,32 @@ jobs:
       - name: Install xvfb & graphics dependencies
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y xvfb libgtk-3-0 libglu1-mesa libpango-1.0-0 libasound2t64
+          sudo apt-get install -y \
+            xvfb \
+            libgtk-3-0 \
+            libglu1-mesa \
+            libpango-1.0-0 \
+            libasound2t64 \
+            libgl1-mesa-dri \
+            libgl1-mesa-glx \
+            x11-utils
+
+      - name: Start Xvfb virtual display
+        run: |
+          export DISPLAY=:99
+          Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset &
+          sleep 3
+          echo "DISPLAY=:99" >> $GITHUB_ENV
 
       - name: Build and Run Tests
+        env:
+          DISPLAY: :99
         run: |
-          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
-            mvn -B test \
-            -Dglass.platform=Monocle \
-            -Dmonocle.platform=Headless \
+          mvn -B test \
             -Dprism.order=sw \
-            -Dtestfx.robot=glass \
-            -Dtestfx.headless=true \
-            -Djava.awt.headless=true
+            -Dprism.verbose=false \
+            -Djava.awt.headless=false \
+            -Dtestfx.headless=false
 
       - name: Package Application
         if: success()
