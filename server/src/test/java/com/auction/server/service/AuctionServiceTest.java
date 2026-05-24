@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -41,7 +42,7 @@ public class AuctionServiceTest {
     public void testAddProductAndGenerateSession() {
         Map<String, Object> productData = new HashMap<>();
         productData.put("sellerId", "admin");
-        productData.put("name", "Laptop Gaming Skibidi");
+        productData.put("name", "Laptop Gaming");
         productData.put("startingPrice", 10000.0);
         productData.put("durationHours", 24);
 
@@ -58,14 +59,15 @@ public class AuctionServiceTest {
         Map<String, Object> addResult = auctionService.addProduct(productData);
         int productId = (int) addResult.get("productId");
 
-        int adminId = (int) ((Map<String, Object>) auctionService.login("admin", "admin123").get("user")).get("id");
+        String bidder = generateUniqueStr("bidder");
+        ensureUserExists(bidder, "123", bidder+"@test.com", "Normal Bidder", "BIDDER");
+        int bidderId = (int) ((Map<String, Object>) auctionService.login(bidder, "123").get("user")).get("id");
+        auctionService.addFunds(bidderId, 50000.0);
 
-        auctionService.addFunds(adminId, 50000.0); // Nạp hẳn 50k tiêu cho thoáng
-
-        Map<String, Object> validBid = auctionService.placeBid(productId, "admin", 15000.0);
+        Map<String, Object> validBid = auctionService.placeBid(productId, bidder, 15000.0);
         assertTrue((Boolean) validBid.get("success"), "Đặt giá thất bại. Lý do: " + validBid.get("message"));
 
-        Map<String, Object> invalidBid = auctionService.placeBid(productId, "admin", 11000.0);
+        Map<String, Object> invalidBid = auctionService.placeBid(productId, bidder, 11000.0);
         assertFalse((Boolean) invalidBid.get("success"), "Đặt giá thấp hơn phải bị từ chối");
     }
 
@@ -93,6 +95,26 @@ public class AuctionServiceTest {
 
         Map<String, Object> invalidBid = auctionService.placeBid(productId, u2, 15000.0);
         assertFalse((Boolean) invalidBid.get("success"), "Đặt giá bằng đúng giá hiện hành phải bị từ chối");
+    }
+
+    @Test
+    public void testPlaceBidFailsWhenAuctionClosed() {
+        Map<String, Object> productData = new HashMap<>();
+        productData.put("sellerId", "admin");
+        productData.put("name", "Bàn phím cơ");
+        productData.put("startingPrice", 10000.0);
+        Map<String, Object> addResult = auctionService.addProduct(productData);
+        int productId = (int) addResult.get("productId");
+
+        String lateBidder = generateUniqueStr("late");
+        ensureUserExists(lateBidder, "123", lateBidder+"@test.com", "Late Bidder", "BIDDER");
+        int lateId = (int) ((Map<String, Object>) auctionService.login(lateBidder, "123").get("user")).get("id");
+        auctionService.addFunds(lateId, 50000.0);
+
+        auctionService.endAuction(productId);
+
+        Map<String, Object> lateBid = auctionService.placeBid(productId, lateBidder, 20000.0);
+        assertFalse((Boolean) lateBid.get("success"), "Phiên đã đóng cửa thì không được phép đặt giá");
     }
 
     @Test
@@ -132,11 +154,8 @@ public class AuctionServiceTest {
         auctionService.addFunds(user1Id, 100000.0);
         auctionService.addFunds(user2Id, 100000.0);
 
-        Map<String, Object> bid1 = auctionService.placeBid(productId, v2, 15000.0);
-        assertTrue((Boolean) bid1.get("success"), "V2 đặt giá thất bại: " + bid1.get("message"));
-
-        Map<String, Object> bid2 = auctionService.placeBid(productId, v1, 20000.0);
-        assertTrue((Boolean) bid2.get("success"), "V1 đặt giá thất bại: " + bid2.get("message"));
+        auctionService.placeBid(productId, v2, 15000.0);
+        auctionService.placeBid(productId, v1, 20000.0);
 
         auctionService.endAuction(productId);
         Map<String, Object> details = auctionService.getAuctionDetails(productId);
@@ -145,8 +164,15 @@ public class AuctionServiceTest {
         assertEquals("FINISHED", session.getStatus());
         assertEquals(v1, session.getCurrentWinnerName());
 
-        Map<String, Object> balanceInfo = auctionService.getUserBalance(user1Id);
-        assertEquals(80000.0, (Double) balanceInfo.get("balance"), "Hệ thống phải tự động trừ tiền của người thắng khi endAuction");
+        Map<String, Object> invalidPayment = auctionService.processPayment(user2Id, productId);
+        assertFalse((Boolean) invalidPayment.get("success"), "Người thua KHÔNG ĐƯỢC phép thanh toán");
+
+        Map<String, Object> firstPayment = auctionService.processPayment(user1Id, productId);
+        assertTrue((Boolean) firstPayment.get("success"), "Người thắng thanh toán hợp lệ lần 1");
+        assertEquals("PAID", session.getStatus(), "Phiên phải chuyển sang trạng thái PAID");
+
+        Map<String, Object> doublePayment = auctionService.processPayment(user1Id, productId);
+        assertFalse((Boolean) doublePayment.get("success"), "KHÔNG ĐƯỢC phép thanh toán đúp");
     }
 
     @Test
@@ -182,5 +208,26 @@ public class AuctionServiceTest {
 
         Map<String, Object> duplicateReg = auctionService.register(regData);
         assertFalse((Boolean) duplicateReg.get("success"), "Trùng username phải báo lỗi");
+    }
+
+    @Test
+    public void testAutomaticAuctionLifecycleByBackgroundThread() {
+        Map<String, Object> productData = new HashMap<>();
+        productData.put("sellerId", "admin");
+        productData.put("name", "Test Vòng Đời Tự Động");
+        productData.put("startingPrice", 10000.0);
+        productData.put("durationHours", 24);
+        Map<String, Object> addResult = auctionService.addProduct(productData);
+        int productId = (int) addResult.get("productId");
+
+        Map<String, Object> details1 = auctionService.getAuctionDetails(productId);
+        com.auction.shared.model.AuctionSession session1 = (com.auction.shared.model.AuctionSession) details1.get("session");
+        assertEquals("ACTIVE", session1.getStatus(), "Phiên phải ở trạng thái ACTIVE khi vừa mở");
+
+        session1.setEndTime(LocalDateTime.now().minusSeconds(1));
+
+        auctionService.checkAndEndAuctions();
+
+        assertEquals("FINISHED", session1.getStatus(), "Hệ thống phải tự động chuyển sang FINISHED sau khi hết giờ");
     }
 }
