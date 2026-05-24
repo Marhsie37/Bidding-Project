@@ -32,12 +32,10 @@ jobs:
             libpango-1.0-0 \
             libasound2t64 \
             libgl1-mesa-dri \
-            libgl1-mesa-glx \
             x11-utils
 
       - name: Start Xvfb virtual display
         run: |
-          export DISPLAY=:99
           Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset &
           sleep 3
           echo "DISPLAY=:99" >> $GITHUB_ENV
