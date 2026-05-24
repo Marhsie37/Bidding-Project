@@ -22,11 +22,14 @@ jobs:
           java-package: jdk+fx
           cache: maven
 
-      - name: Install xvfb (Tạo màn hình ảo cho JavaFX)
-        run: sudo apt-get update && sudo apt-get install -y xvfb
+      # --- ĐÃ BỔ SUNG CÁC THƯ VIỆN ĐỒ HỌA NỀN TẢNG CHO JAVAFX TẠI ĐÂY ---
+      - name: Install xvfb & graphics dependencies (Tạo màn hình ảo và thư viện cho JavaFX)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgtk-3-0 libglu1-mesa libpango-1.0-0 libasound2
 
       - name: Build and Run Tests
-        run: xvfb-run mvn -B test
+        run: xvfb-run --auto-servernum mvn -B test
 
       - name: Package Application
         if: success()
