@@ -29,7 +29,6 @@ public class AutoBidService {
     private ScheduledExecutorService scheduler;
     private AuctionService auctionService;
     private static final Logger logger = LoggerFactory.getLogger(AutoBidService.class);
-    // Lưu auto bid: productId -> (username -> AutoBidConfig)
     private Map<Integer, Map<String, AutoBidConfig>> autoBidConfigs = new ConcurrentHashMap<>();
     private final java.util.concurrent.atomic.AtomicBoolean processing = new java.util.concurrent.atomic.AtomicBoolean(false);
 
@@ -56,19 +55,16 @@ public class AutoBidService {
         }
     }
 
-    // Đăng ký auto bid cho user với increment
     public void registerAutoBid(int productId, String username, double maxBid, double increment) {
         autoBidConfigs.computeIfAbsent(productId, k -> new ConcurrentHashMap<>())
                 .put(username, new AutoBidConfig(maxBid, increment));
         logger.info("✅ AutoBid đăng ký: user=" + username + ", product=" + productId + ", max=" + maxBid + ", inc=" + increment);
     }
 
-    // Đăng ký auto bid cho user (backward compatibility)
     public void registerAutoBid(int productId, String username, double maxBid) {
         registerAutoBid(productId, username, maxBid, 5000.0);
     }
 
-    // Hủy auto bid của user
     public void unregisterAutoBid(int productId, String username) {
         Map<String, AutoBidConfig> bids = autoBidConfigs.get(productId);
         if (bids != null) {
@@ -79,17 +75,14 @@ public class AutoBidService {
         }
     }
 
-    // Xóa toàn bộ auto bid của một sản phẩm khi phiên đấu giá kết thúc
     public void removeProductAutoBids(int productId) {
         autoBidConfigs.remove(productId);
         logger.info("🧹 Đã dọn dẹp Auto-bid cho sản phẩm: " + productId);
     }
 
-    // Xử lý tất cả auto bid
     public void processAllAutoBids() {
         if (auctionService == null) return;
         if (!processing.compareAndSet(false, true)) {
-            // Đang xử lý, tránh gọi đệ quy lặp lại
             return;
         }
 
@@ -101,7 +94,6 @@ public class AutoBidService {
                     int productId = entry.getKey();
                     Map<String, AutoBidConfig> bidders = entry.getValue();
 
-                    // Lấy thông tin session hiện tại
                     Map<String, Object> details = auctionService.getAuctionDetails(productId);
                     AuctionSession session = (AuctionSession) details.get("session");
                     if (session == null) continue;
@@ -110,7 +102,6 @@ public class AutoBidService {
                     double currentPrice = session.getCurrentPrice();
                     String currentWinner = session.getCurrentWinnerName();
 
-                    // Tìm người có maxBid cao nhất đang không phải là currentWinner và đủ điều kiện đặt giá tiếp theo
                     String eligibleBidder = null;
                     AutoBidConfig eligibleConfig = null;
                     double highestMaxBid = 0;
@@ -119,18 +110,14 @@ public class AutoBidService {
                         String username = bidder.getKey();
                         AutoBidConfig config = bidder.getValue();
 
-                        // Người đang dẫn đầu không cần tự đấu với chính mình
                         if (username.equals(currentWinner)) {
                             continue;
                         }
 
-                        // Tính giá đặt tiếp theo dựa trên bước giá của người đặt
                         double step = Math.max(config.getIncrement(), 5000.0);
                         double nextBid = currentPrice + step;
 
-                        // Đảm bảo giá đặt tiếp theo không vượt quá mức tối đa (maxBid) của người đó
                         if (nextBid <= config.getMaxBid()) {
-                            // Chọn người có maxBid cao nhất để đặt giá
                             if (config.getMaxBid() > highestMaxBid) {
                                 highestMaxBid = config.getMaxBid();
                                 eligibleBidder = username;
@@ -153,7 +140,6 @@ public class AutoBidService {
         }
     }
 
-    // Lấy danh sách auto bid của sản phẩm (backward compatibility)
     public Map<String, Double> getAutoBids(int productId) {
         Map<String, AutoBidConfig> configs = autoBidConfigs.get(productId);
         if (configs == null) {
