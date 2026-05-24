@@ -22,7 +22,7 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
-        <!-- ===== SERVER DEPENDENCY CHO TEST (CHỈ DÙNG TRONG TEST) ===== -->
+        <!-- SERVER DEPENDENCY CHO TEST -->
         <dependency>
             <groupId>com.auction</groupId>
             <artifactId>server</artifactId>
@@ -71,19 +71,32 @@
             <version>4.0.18</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.testfx</groupId>
             <artifactId>testfx-junit5</artifactId>
             <version>4.0.18</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>3.24.2</version>
             <scope>test</scope>
         </dependency>
-        <!-- openjfx-monocle REMOVED - Liberica JDK+FX has Monocle built-in -->
+
+        <!--
+            openjfx-monocle: cần thiết cho TestFX headless (ApplicationTest).
+            Phiên bản jdk-12.0.1+2 không tương thích JavaFX 25.
+            Dùng artifact từ fork mới hơn hỗ trợ JavaFX 17+.
+        -->
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>openjfx-monocle</artifactId>
+            <version>17.0.10</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -95,6 +108,11 @@
                 <version>3.0.0-M7</version>
                 <configuration>
                     <useModulePath>false</useModulePath>
+                    <!--
+                        argLine truyền thẳng vào JVM của forked test process.
+                        Đây là cách duy nhất đảm bảo -D flags được đọc
+                        TRƯỚC khi JavaFX toolkit khởi tạo.
+                    -->
                     <argLine>
                         -Dglass.platform=Monocle
                         -Dmonocle.platform=Headless
@@ -113,6 +131,7 @@
                     <failIfNoTests>false</failIfNoTests>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
