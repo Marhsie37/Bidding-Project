@@ -22,14 +22,21 @@ jobs:
           java-package: jdk+fx
           cache: maven
 
-      # --- ĐÃ SỬA LÀM MỚI TÊN THƯ VIỆN ĐỂ TƯƠNG THÍCH UBUNTU 24.04 ---
       - name: Install xvfb & graphics dependencies (Tạo màn hình ảo và thư viện cho JavaFX)
         run: |
           sudo apt-get update -y
           sudo apt-get install -y xvfb libgtk-3-0 libglu1-mesa libpango-1.0-0 libasound2t64
 
+      # --- CẬP NHẬT: THÊM CÁC THAM SỐ ĐỒ HỌA ẢO KHI CHẠY TEST ---
       - name: Build and Run Tests
-        run: xvfb-run --auto-servernum mvn -B test
+        run: |
+          xvfb-run --auto-servernum mvn -B test \
+            -Dglass.platform=Monocle \
+            -Dmonocle.platform=Headless \
+            -Dprism.order=sw \
+            -Dtestfx.robot=glass \
+            -Dtestfx.headless=true \
+            -Djava.awt.headless=true
 
       - name: Package Application
         if: success()
