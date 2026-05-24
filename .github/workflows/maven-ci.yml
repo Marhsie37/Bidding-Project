@@ -36,7 +36,14 @@ jobs:
             -Dprism.order=sw \
             -Dtestfx.robot=glass \
             -Dtestfx.headless=true \
-            -Djava.awt.headless=true
+            -Djava.awt.headless=true \
+            -Dsurefire.useModulePath=false \
+            -Dsurefire.argLine="\
+              --add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED \
+              --add-opens javafx.graphics/com.sun.glass.ui=ALL-UNNAMED \
+              --add-opens javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED \
+              --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED \
+              --add-exports javafx.graphics/com.sun.glass.ui.monocle=ALL-UNNAMED"
 
       - name: Package Application
         if: success()
