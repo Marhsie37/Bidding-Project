@@ -12,23 +12,21 @@ import static org.testfx.matcher.base.NodeMatchers.isVisible;
 
 public class SellingControllerTest extends ApplicationTest {
 
-    private SellingController controller;
-
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/auction/client/view/Selling.fxml"));
         Parent root = loader.load();
-        controller = loader.getController();
         stage.setScene(new Scene(root));
         stage.show();
     }
 
     // Test 1: Kiểm tra form thêm sản phẩm hiển thị
+    // fx:id thực tế trong Selling.fxml: txtName, txtPrice, txtDuration
+    // Không có txtImageUrl — FXML dùng image picker (boxAddImage), không phải text field
     @Test
     void testAddProductFormVisible() {
         verifyThat("#txtName", isVisible());
         verifyThat("#txtPrice", isVisible());
-        verifyThat("#txtImageUrl", isVisible());
         verifyThat("#txtDuration", isVisible());
     }
 

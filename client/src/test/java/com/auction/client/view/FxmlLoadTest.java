@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,18 +15,12 @@ public class FxmlLoadTest {
 
     @BeforeAll
     static void initJavaFX() throws InterruptedException {
-        // Chỉ gọi Platform.startup() nếu toolkit CHƯA được khởi động
-        // (ApplicationTest trong cùng test suite sẽ khởi động nó trước)
-        AtomicBoolean started = new AtomicBoolean(false);
         try {
             CountDownLatch latch = new CountDownLatch(1);
-            Platform.startup(() -> {
-                started.set(true);
-                latch.countDown();
-            });
+            Platform.startup(latch::countDown);
             latch.await();
         } catch (IllegalStateException e) {
-            // Toolkit đã chạy (do ApplicationTest khởi động trước) — OK
+            // Toolkit đã chạy — OK
         }
     }
 
@@ -73,9 +66,10 @@ public class FxmlLoadTest {
         assertNotNull(root);
     }
 
+    // Đổi từ ProductListController.fxml → ProductItem.fxml (file thực tế tồn tại)
     @Test
-    void testProductListFxmlLoads() throws Exception {
-        Parent root = loadFxml("/com/auction/client/view/ProductListController.fxml");
+    void testProductItemFxmlLoads() throws Exception {
+        Parent root = loadFxml("/com/auction/client/view/ProductItem.fxml");
         assertNotNull(root);
     }
 
