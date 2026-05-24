@@ -2,12 +2,13 @@ package com.auction.server.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AuctionServiceTest {
     private AuctionService auctionService;
@@ -82,8 +83,8 @@ public class AuctionServiceTest {
 
         String u1 = generateUniqueStr("user1");
         String u2 = generateUniqueStr("user2");
-        ensureUserExists(u1, "123", u1+"@test.com", "User 1", "BIDDER");
-        ensureUserExists(u2, "123", u2+"@test.com", "User 2", "BIDDER");
+        ensureUserExists(u1, "123", u1 + "@test.com", "User 1", "BIDDER");
+        ensureUserExists(u2, "123", u2 + "@test.com", "User 2", "BIDDER");
 
         int id1 = (int) ((Map<String, Object>) auctionService.login(u1, "123").get("user")).get("id");
         int id2 = (int) ((Map<String, Object>) auctionService.login(u2, "123").get("user")).get("id");
@@ -145,8 +146,8 @@ public class AuctionServiceTest {
 
         String v1 = generateUniqueStr("vip1");
         String v2 = generateUniqueStr("vip2");
-        ensureUserExists(v1, "123", v1+"@test.com", "Vip 1", "BIDDER");
-        ensureUserExists(v2, "123", v2+"@test.com", "Vip 2", "BIDDER");
+        ensureUserExists(v1, "123", v1 + "@test.com", "Vip 1", "BIDDER");
+        ensureUserExists(v2, "123", v2 + "@test.com", "Vip 2", "BIDDER");
 
         int user1Id = (int) ((Map<String, Object>) auctionService.login(v1, "123").get("user")).get("id");
         int user2Id = (int) ((Map<String, Object>) auctionService.login(v2, "123").get("user")).get("id");

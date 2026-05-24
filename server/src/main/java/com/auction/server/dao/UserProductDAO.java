@@ -1,6 +1,8 @@
 package com.auction.server.dao;
 
 import com.auction.shared.model.Product;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,12 +10,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UserProductDAO {
     private DatabaseConnection dbConnection;
     private static final Logger logger = LoggerFactory.getLogger(UserProductDAO.class);
+
     public UserProductDAO() {
         this.dbConnection = DatabaseConnection.getInstance();
     }
@@ -43,9 +44,9 @@ public class UserProductDAO {
     public List<Product> getPurchasedProducts(int userId) {
         List<Product> products = new ArrayList<>();
         String sql = "SELECT up.product_id, up.product_name, up.product_price, p.image_url, p.description " +
-                     "FROM user_products up " +
-                     "INNER JOIN products p ON up.product_id = p.id " +
-                     "WHERE up.user_id = ? ORDER BY up.purchased_at DESC";
+                "FROM user_products up " +
+                "INNER JOIN products p ON up.product_id = p.id " +
+                "WHERE up.user_id = ? ORDER BY up.purchased_at DESC";
 
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -66,7 +67,7 @@ public class UserProductDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("❌ [DEBUG] Lỗi SQL trong getPurchasedProducts: " ,e);
+            logger.error("❌ [DEBUG] Lỗi SQL trong getPurchasedProducts: ", e);
             e.printStackTrace();
         }
 

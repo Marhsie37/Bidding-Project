@@ -1,37 +1,47 @@
 package com.auction.test.network;
 
-import com.auction.shared.protocol.*;
-import com.auction.server.service.NotificationService;
 import com.auction.server.ClientHandler;
-
+import com.auction.server.service.NotificationService;
+import com.auction.shared.protocol.CommandType;
+import com.auction.shared.protocol.Request;
+import com.auction.shared.protocol.Response;
 import org.junit.jupiter.api.*;
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Stress test: 100 người đấu giá cùng lúc
- *
+ * <p>
  * Các kịch bản được kiểm tra:
- *  TC-S01  – 100 client kết nối đồng thời (bare socket)
- *  TC-S02  – 100 client đặt bid ngẫu nhiên cùng lúc, không lỗi / không deadlock
- *  TC-S03  – Throughput: tất cả 100 bid phải hoàn thành trong 20 giây
- *  TC-S04  – Tính nhất quán: không có 2 bid nào ghi đúng cùng giá trị vào highestBid
- *            (mô phỏng CAS / AtomicReference race)
- *  TC-S05  – 100 subscriber nhận đủ notification khi có bid mới
- *  TC-S06  – FixedThreadPool(20) xử lý 100 bid task – không task nào bị bỏ sót
- *  TC-S07  – 100 client LOGIN → SUBSCRIBE → PLACE_BID → LOGOUT (full flow)
- *  TC-S08  – Latency P95: 95% request phải hoàn thành trong 2000 ms
- *  TC-S09  – Graceful shutdown: executor tắt gọn sau khi 100 task xong
- *  TC-S10  – Không memory-leak: sau 100 kết nối đóng, không còn socket nào mở
+ * TC-S01  – 100 client kết nối đồng thời (bare socket)
+ * TC-S02  – 100 client đặt bid ngẫu nhiên cùng lúc, không lỗi / không deadlock
+ * TC-S03  – Throughput: tất cả 100 bid phải hoàn thành trong 20 giây
+ * TC-S04  – Tính nhất quán: không có 2 bid nào ghi đúng cùng giá trị vào highestBid
+ * (mô phỏng CAS / AtomicReference race)
+ * TC-S05  – 100 subscriber nhận đủ notification khi có bid mới
+ * TC-S06  – FixedThreadPool(20) xử lý 100 bid task – không task nào bị bỏ sót
+ * TC-S07  – 100 client LOGIN → SUBSCRIBE → PLACE_BID → LOGOUT (full flow)
+ * TC-S08  – Latency P95: 95% request phải hoàn thành trong 2000 ms
+ * TC-S09  – Graceful shutdown: executor tắt gọn sau khi 100 task xong
+ * TC-S10  – Không memory-leak: sau 100 kết nối đóng, không còn socket nào mở
  */
 @TestMethodOrder(MethodOrderer.DisplayName.class)
 public class ConcurrentBiddingStressTest {
@@ -39,17 +49,17 @@ public class ConcurrentBiddingStressTest {
     // ------------------------------------------------------------------ //
     //  Hằng số
     // ------------------------------------------------------------------ //
-    private static final int    MOCK_PORT     = 19999;
-    private static final int    BIDDER_COUNT  = 100;
-    private static final int    PRODUCT_ID    = 1;
-    private static final double BASE_BID      = 1_000.0;
+    private static final int MOCK_PORT = 19999;
+    private static final int BIDDER_COUNT = 100;
+    private static final int PRODUCT_ID = 1;
+    private static final double BASE_BID = 1_000.0;
     private static final Logger log = LoggerFactory.getLogger(ConcurrentBiddingStressTest.class);
 
     // ------------------------------------------------------------------ //
     //  Mock server
     // ------------------------------------------------------------------ //
     private static ServerSocket mockServer;
-    private static Thread       serverThread;
+    private static Thread serverThread;
 
     @BeforeAll
     static void startServer() throws IOException {
@@ -72,7 +82,7 @@ public class ConcurrentBiddingStressTest {
     private static void serveClient(Socket client) {
         try (
                 ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
-                ObjectInputStream   in = new ObjectInputStream(client.getInputStream())
+                ObjectInputStream in = new ObjectInputStream(client.getInputStream())
         ) {
             while (!client.isClosed()) {
                 Object obj = in.readObject();
@@ -97,8 +107,8 @@ public class ConcurrentBiddingStressTest {
             case SUBSCRIBE_AUCTION:
                 return new Response(CommandType.SUBSCRIBE_AUCTION, true, "Subscribed", null);
             case PLACE_BID:
-                data.put("productId",  req.getData().get("productId"));
-                data.put("bidAmount",  req.getData().get("bidAmount"));
+                data.put("productId", req.getData().get("productId"));
+                data.put("bidAmount", req.getData().get("bidAmount"));
                 data.put("bidderName", req.getData().get("bidderName"));
                 return new Response(CommandType.PLACE_BID, true, "Bid placed", data);
             case LOGOUT:
@@ -116,6 +126,7 @@ public class ConcurrentBiddingStressTest {
         if (mockServer != null && !mockServer.isClosed()) mockServer.close();
         log.info("[MockServer] Stopped");
     }
+
     // Thêm method này vào class
     private void waitForServerReady() throws InterruptedException {
         int maxRetries = 10;
@@ -155,11 +166,11 @@ public class ConcurrentBiddingStressTest {
         // Đợi server sẵn sàng
         waitForServerReady();
 
-        CountDownLatch ready   = new CountDownLatch(BIDDER_COUNT);
-        CountDownLatch done    = new CountDownLatch(BIDDER_COUNT);
-        AtomicInteger  success = new AtomicInteger();
-        List<Socket>   sockets = Collections.synchronizedList(new ArrayList<>());
-        AtomicInteger  errorCount = new AtomicInteger(0);
+        CountDownLatch ready = new CountDownLatch(BIDDER_COUNT);
+        CountDownLatch done = new CountDownLatch(BIDDER_COUNT);
+        AtomicInteger success = new AtomicInteger();
+        List<Socket> sockets = Collections.synchronizedList(new ArrayList<>());
+        AtomicInteger errorCount = new AtomicInteger(0);
 
         for (int i = 0; i < BIDDER_COUNT; i++) {
             final int threadId = i;
@@ -197,7 +208,8 @@ public class ConcurrentBiddingStressTest {
                 if (s != null && !s.isClosed()) {
                     s.close();
                 }
-            } catch (IOException ignored) {}
+            } catch (IOException ignored) {
+            }
         }
     }
 
@@ -208,22 +220,22 @@ public class ConcurrentBiddingStressTest {
     @DisplayName("TC-S02: 100 client đặt bid ngẫu nhiên cùng lúc không lỗi / deadlock")
     void testHundredConcurrentBids() throws InterruptedException {
         CountDownLatch startGun = new CountDownLatch(1);
-        CountDownLatch done     = new CountDownLatch(BIDDER_COUNT);
-        AtomicInteger  success  = new AtomicInteger();
-        AtomicInteger  errors   = new AtomicInteger();
-        Random         rng      = new Random();
+        CountDownLatch done = new CountDownLatch(BIDDER_COUNT);
+        AtomicInteger success = new AtomicInteger();
+        AtomicInteger errors = new AtomicInteger();
+        Random rng = new Random();
 
         for (int i = 0; i < BIDDER_COUNT; i++) {
             final int idx = i;
             new Thread(() -> {
                 try (Socket s = connect()) {
                     ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                    ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+                    ObjectInputStream in = new ObjectInputStream(s.getInputStream());
                     startGun.await();
 
                     Map<String, Object> data = new HashMap<>();
-                    data.put("productId",  PRODUCT_ID);
-                    data.put("bidAmount",  BASE_BID + rng.nextInt(10_000));
+                    data.put("productId", PRODUCT_ID);
+                    data.put("bidAmount", BASE_BID + rng.nextInt(10_000));
                     data.put("bidderName", "bidder_" + idx);
 
                     out.writeObject(new Request(CommandType.PLACE_BID, data));
@@ -254,20 +266,20 @@ public class ConcurrentBiddingStressTest {
     @Test
     @DisplayName("TC-S03: Throughput – 100 bid hoàn thành trong 20 giây")
     void testThroughputHundredBids() throws InterruptedException {
-        CountDownLatch done    = new CountDownLatch(BIDDER_COUNT);
-        AtomicInteger  success = new AtomicInteger();
-        long           start   = System.currentTimeMillis();
+        CountDownLatch done = new CountDownLatch(BIDDER_COUNT);
+        AtomicInteger success = new AtomicInteger();
+        long start = System.currentTimeMillis();
 
         for (int i = 0; i < BIDDER_COUNT; i++) {
             final int idx = i;
             new Thread(() -> {
                 try (Socket s = connect()) {
                     ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                    ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+                    ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 
                     Map<String, Object> data = new HashMap<>();
-                    data.put("productId",  PRODUCT_ID);
-                    data.put("bidAmount",  BASE_BID + idx * 10);
+                    data.put("productId", PRODUCT_ID);
+                    data.put("bidAmount", BASE_BID + idx * 10);
                     data.put("bidderName", "bidder_" + idx);
 
                     out.writeObject(new Request(CommandType.PLACE_BID, data));
@@ -298,9 +310,9 @@ public class ConcurrentBiddingStressTest {
     @DisplayName("TC-S04: Race condition – AtomicReference giữ đúng highest bid")
     void testHighestBidAtomicConsistency() throws InterruptedException {
         AtomicReference<Double> highestBid = new AtomicReference<>(0.0);
-        CountDownLatch done    = new CountDownLatch(BIDDER_COUNT);
-        Random         rng     = new Random();
-        List<Double>   allBids = Collections.synchronizedList(new ArrayList<>());
+        CountDownLatch done = new CountDownLatch(BIDDER_COUNT);
+        Random rng = new Random();
+        List<Double> allBids = Collections.synchronizedList(new ArrayList<>());
 
         for (int i = 0; i < BIDDER_COUNT; i++) {
             new Thread(() -> {
@@ -325,9 +337,9 @@ public class ConcurrentBiddingStressTest {
     @Test
     @DisplayName("TC-S05: 100 subscriber đều nhận notification khi có bid mới")
     void testHundredSubscribersReceiveNotification() throws InterruptedException {
-        NotificationService service    = NotificationService.getInstance();
-        int                 auctionId  = 9001;
-        CountDownLatch      latch      = new CountDownLatch(BIDDER_COUNT);
+        NotificationService service = NotificationService.getInstance();
+        int auctionId = 9001;
+        CountDownLatch latch = new CountDownLatch(BIDDER_COUNT);
 
         List<MockClientHandler> handlers = new ArrayList<>();
         for (int i = 0; i < BIDDER_COUNT; i++) {
@@ -368,22 +380,22 @@ public class ConcurrentBiddingStressTest {
     @Test
     @DisplayName("TC-S06: FixedThreadPool(20) xử lý đủ 100 bid task, không task bị bỏ sót")
     void testFixedThreadPoolHundredBids() throws InterruptedException {
-        int             poolSize = 20;
-        ExecutorService pool     = Executors.newFixedThreadPool(poolSize);
-        CountDownLatch  done     = new CountDownLatch(BIDDER_COUNT);
-        AtomicInteger   success  = new AtomicInteger();
-        AtomicInteger   errors   = new AtomicInteger();
+        int poolSize = 20;
+        ExecutorService pool = Executors.newFixedThreadPool(poolSize);
+        CountDownLatch done = new CountDownLatch(BIDDER_COUNT);
+        AtomicInteger success = new AtomicInteger();
+        AtomicInteger errors = new AtomicInteger();
 
         for (int i = 0; i < BIDDER_COUNT; i++) {
             final int idx = i;
             pool.submit(() -> {
                 try (Socket s = connect()) {
                     ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                    ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+                    ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 
                     Map<String, Object> data = new HashMap<>();
-                    data.put("productId",  PRODUCT_ID);
-                    data.put("bidAmount",  BASE_BID + idx * 5);
+                    data.put("productId", PRODUCT_ID);
+                    data.put("bidAmount", BASE_BID + idx * 5);
                     data.put("bidderName", "pool_bidder_" + idx);
 
                     out.writeObject(new Request(CommandType.PLACE_BID, data));
@@ -417,17 +429,17 @@ public class ConcurrentBiddingStressTest {
     @Test
     @DisplayName("TC-S07: 100 client thực hiện full flow LOGIN→SUBSCRIBE→BID→LOGOUT")
     void testHundredClientsFullFlow() throws InterruptedException {
-        CountDownLatch startGun    = new CountDownLatch(1);
-        CountDownLatch done        = new CountDownLatch(BIDDER_COUNT);
-        AtomicInteger  fullSuccess = new AtomicInteger();
-        AtomicInteger  failures    = new AtomicInteger();
+        CountDownLatch startGun = new CountDownLatch(1);
+        CountDownLatch done = new CountDownLatch(BIDDER_COUNT);
+        AtomicInteger fullSuccess = new AtomicInteger();
+        AtomicInteger failures = new AtomicInteger();
 
         for (int i = 0; i < BIDDER_COUNT; i++) {
             final int idx = i;
             new Thread(() -> {
                 try (Socket s = connect()) {
                     ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                    ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+                    ObjectInputStream in = new ObjectInputStream(s.getInputStream());
                     startGun.await();
 
                     // --- LOGIN ---
@@ -437,7 +449,10 @@ public class ConcurrentBiddingStressTest {
                     out.writeObject(new Request(CommandType.LOGIN, loginData));
                     out.flush();
                     Response loginRes = (Response) in.readObject();
-                    if (!loginRes.isSuccess()) { failures.incrementAndGet(); return; }
+                    if (!loginRes.isSuccess()) {
+                        failures.incrementAndGet();
+                        return;
+                    }
 
                     // --- SUBSCRIBE ---
                     Map<String, Object> subData = new HashMap<>();
@@ -445,17 +460,23 @@ public class ConcurrentBiddingStressTest {
                     out.writeObject(new Request(CommandType.SUBSCRIBE_AUCTION, subData));
                     out.flush();
                     Response subRes = (Response) in.readObject();
-                    if (!subRes.isSuccess()) { failures.incrementAndGet(); return; }
+                    if (!subRes.isSuccess()) {
+                        failures.incrementAndGet();
+                        return;
+                    }
 
                     // --- PLACE_BID ---
                     Map<String, Object> bidData = new HashMap<>();
-                    bidData.put("productId",  PRODUCT_ID);
-                    bidData.put("bidAmount",  BASE_BID + idx * 7);
+                    bidData.put("productId", PRODUCT_ID);
+                    bidData.put("bidAmount", BASE_BID + idx * 7);
                     bidData.put("bidderName", "user_" + idx);
                     out.writeObject(new Request(CommandType.PLACE_BID, bidData));
                     out.flush();
                     Response bidRes = (Response) in.readObject();
-                    if (!bidRes.isSuccess()) { failures.incrementAndGet(); return; }
+                    if (!bidRes.isSuccess()) {
+                        failures.incrementAndGet();
+                        return;
+                    }
 
                     // Kiểm tra data phản hồi bid
                     assertEquals(PRODUCT_ID,
@@ -465,7 +486,10 @@ public class ConcurrentBiddingStressTest {
                     out.writeObject(new Request(CommandType.LOGOUT, new HashMap<>()));
                     out.flush();
                     Response logoutRes = (Response) in.readObject();
-                    if (!logoutRes.isSuccess()) { failures.incrementAndGet(); return; }
+                    if (!logoutRes.isSuccess()) {
+                        failures.incrementAndGet();
+                        return;
+                    }
 
                     fullSuccess.incrementAndGet();
                 } catch (Exception e) {
@@ -491,8 +515,8 @@ public class ConcurrentBiddingStressTest {
     @Test
     @DisplayName("TC-S08: Latency P95 – 95% request hoàn thành trong 2000 ms")
     void testLatencyP95Under2000ms() throws InterruptedException {
-        List<Long>    latencies = Collections.synchronizedList(new ArrayList<>());
-        CountDownLatch done     = new CountDownLatch(BIDDER_COUNT);
+        List<Long> latencies = Collections.synchronizedList(new ArrayList<>());
+        CountDownLatch done = new CountDownLatch(BIDDER_COUNT);
 
         for (int i = 0; i < BIDDER_COUNT; i++) {
             final int idx = i;
@@ -500,11 +524,11 @@ public class ConcurrentBiddingStressTest {
                 long t0 = System.currentTimeMillis();
                 try (Socket s = connect()) {
                     ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                    ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+                    ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 
                     Map<String, Object> data = new HashMap<>();
-                    data.put("productId",  PRODUCT_ID);
-                    data.put("bidAmount",  BASE_BID + idx);
+                    data.put("productId", PRODUCT_ID);
+                    data.put("bidAmount", BASE_BID + idx);
                     data.put("bidderName", "latency_bidder_" + idx);
 
                     out.writeObject(new Request(CommandType.PLACE_BID, data));
@@ -540,20 +564,20 @@ public class ConcurrentBiddingStressTest {
     @Test
     @DisplayName("TC-S09: Graceful shutdown – executor tắt gọn sau khi 100 task xong")
     void testGracefulShutdownAfterHundredTasks() throws InterruptedException {
-        ExecutorService executor   = Executors.newFixedThreadPool(25);
-        CountDownLatch  done       = new CountDownLatch(BIDDER_COUNT);
-        AtomicInteger   completed  = new AtomicInteger();
+        ExecutorService executor = Executors.newFixedThreadPool(25);
+        CountDownLatch done = new CountDownLatch(BIDDER_COUNT);
+        AtomicInteger completed = new AtomicInteger();
 
         for (int i = 0; i < BIDDER_COUNT; i++) {
             final int idx = i;
             executor.submit(() -> {
                 try (Socket s = connect()) {
                     ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                    ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+                    ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 
                     Map<String, Object> data = new HashMap<>();
-                    data.put("productId",  PRODUCT_ID);
-                    data.put("bidAmount",  BASE_BID + idx * 3);
+                    data.put("productId", PRODUCT_ID);
+                    data.put("bidAmount", BASE_BID + idx * 3);
                     data.put("bidderName", "shutdown_bidder_" + idx);
 
                     out.writeObject(new Request(CommandType.PLACE_BID, data));
@@ -573,7 +597,7 @@ public class ConcurrentBiddingStressTest {
         executor.shutdown();
         boolean terminated = executor.awaitTermination(5, TimeUnit.SECONDS);
 
-        assertTrue(terminated,        "Executor phải shutdown gọn gàng trong 5 giây");
+        assertTrue(terminated, "Executor phải shutdown gọn gàng trong 5 giây");
         assertTrue(executor.isShutdown(), "Executor phải ở trạng thái shutdown");
         assertEquals(BIDDER_COUNT, completed.get(), "Phải hoàn thành đủ 100 task");
         log.info("[TC-S09] completed={} terminated={}", completed.get(), terminated);
@@ -585,10 +609,10 @@ public class ConcurrentBiddingStressTest {
     @Test
     @DisplayName("TC-S10: Không memory-leak – 100 socket đóng đúng, không còn mở")
     void testNoSocketLeakAfterHundredConnections() throws InterruptedException {
-        List<Socket>  sockets   = Collections.synchronizedList(new ArrayList<>());
+        List<Socket> sockets = Collections.synchronizedList(new ArrayList<>());
         CountDownLatch connected = new CountDownLatch(BIDDER_COUNT);
-        CountDownLatch done      = new CountDownLatch(BIDDER_COUNT);
-        AtomicInteger  success   = new AtomicInteger();
+        CountDownLatch done = new CountDownLatch(BIDDER_COUNT);
+        AtomicInteger success = new AtomicInteger();
 
         for (int i = 0; i < BIDDER_COUNT; i++) {
             new Thread(() -> {
@@ -601,7 +625,7 @@ public class ConcurrentBiddingStressTest {
 
                     // Gửi 1 request trước khi đóng
                     ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                    ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+                    ObjectInputStream in = new ObjectInputStream(s.getInputStream());
                     out.writeObject(new Request(CommandType.GET_PRODUCTS, new HashMap<>()));
                     out.flush();
                     in.readObject();
@@ -618,7 +642,10 @@ public class ConcurrentBiddingStressTest {
 
         // Đóng tất cả socket
         for (Socket s : sockets) {
-            try { s.close(); } catch (IOException ignored) {}
+            try {
+                s.close();
+            } catch (IOException ignored) {
+            }
         }
         done.await(10, TimeUnit.SECONDS);
 
@@ -663,7 +690,12 @@ public class ConcurrentBiddingStressTest {
             return mockUsername;
         }
 
-        public int getBidUpdateCallCount() { return bidUpdateCallCount; }
-        public int getAuctionEndCallCount() { return auctionEndCallCount; }
+        public int getBidUpdateCallCount() {
+            return bidUpdateCallCount;
+        }
+
+        public int getAuctionEndCallCount() {
+            return auctionEndCallCount;
+        }
     }
 }

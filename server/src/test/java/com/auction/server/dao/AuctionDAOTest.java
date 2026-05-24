@@ -3,15 +3,16 @@ package com.auction.server.dao;
 import com.auction.shared.model.AuctionSession;
 import com.auction.shared.model.BidTransaction;
 import com.auction.shared.model.Product;
-import com.auction.shared.model.User;
 import org.junit.jupiter.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

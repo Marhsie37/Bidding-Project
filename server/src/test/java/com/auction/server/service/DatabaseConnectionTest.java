@@ -1,7 +1,9 @@
 package com.auction.server.service; // Đổi lại tên package nếu file này bác để ở thư mục khác
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DatabaseConnectionTest {
 

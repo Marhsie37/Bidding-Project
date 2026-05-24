@@ -1,9 +1,0 @@
-com\auction\shared\model\Product.class
-com\auction\shared\model\User.class
-com\auction\shared\utils\JsonUtils.class
-com\auction\shared\model\AuctionSession.class
-com\auction\shared\utils\JsonUtils$LocalDateTimeAdapter.class
-com\auction\shared\model\BidTransaction.class
-com\auction\shared\protocol\CommandType.class
-com\auction\shared\protocol\Request.class
-com\auction\shared\protocol\Response.class

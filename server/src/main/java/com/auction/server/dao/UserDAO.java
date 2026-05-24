@@ -1,22 +1,26 @@
 package com.auction.server.dao;
 
 import com.auction.shared.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UserDAO {
     private DatabaseConnection dbConnection;
     private Connection conn;
     private static final Logger logger = LoggerFactory.getLogger(UserDAO.class);
+
     public UserDAO(Connection conn) {
         this.conn = conn;
     }
+
     public UserDAO() {
         this.dbConnection = DatabaseConnection.getInstance();
     }
+
     private Connection getConnection() throws SQLException {
         if (this.conn != null) {
             return this.conn;
@@ -34,7 +38,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error finding user: " ,e);
+            logger.error("Error finding user: ", e);
         }
         return null;
     }
@@ -49,7 +53,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error finding user by email: " ,e);
+            logger.error("Error finding user by email: ", e);
         }
         return null;
     }
@@ -65,7 +69,7 @@ public class UserDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            logger.error("Error creating user: " ,e);
+            logger.error("Error creating user: ", e);
             return false;
         }
     }
@@ -81,7 +85,7 @@ public class UserDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            logger.error("Error updating user: " ,e);
+            logger.error("Error updating user: ", e);
             return false;
         }
     }
@@ -98,7 +102,7 @@ public class UserDAO {
                 return affected > 0;
             }
         } catch (SQLException e) {
-            logger.error("❌ SQL Error in updateBalance: " ,e);
+            logger.error("❌ SQL Error in updateBalance: ", e);
             e.printStackTrace();
             return false;
         }
@@ -110,7 +114,7 @@ public class UserDAO {
             pstmt.setInt(1, userId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            logger.error("Error deleting user: " ,e);
+            logger.error("Error deleting user: ", e);
             return false;
         }
     }
@@ -124,7 +128,7 @@ public class UserDAO {
                 users.add(mapResultSetToUser(rs));
             }
         } catch (SQLException e) {
-            logger.error("Error getting all users: " ,e);
+            logger.error("Error getting all users: ", e);
         }
         return users;
     }
@@ -140,7 +144,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error getting users by role: " ,e);
+            logger.error("Error getting users by role: ", e);
         }
         return users;
     }
@@ -174,7 +178,7 @@ public class UserDAO {
             pstmt.setInt(1, userId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            logger.error("Error banning user: " ,e);
+            logger.error("Error banning user: ", e);
             return false;
         }
     }
@@ -185,7 +189,7 @@ public class UserDAO {
             pstmt.setInt(1, userId);
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            logger.error("Error unbanning user: " ,e);
+            logger.error("Error unbanning user: ", e);
             return false;
         }
     }

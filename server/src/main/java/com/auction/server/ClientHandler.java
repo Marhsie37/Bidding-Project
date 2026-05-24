@@ -1,21 +1,28 @@
 package com.auction.server;
 
 import com.auction.server.dao.BidDAO;
-import com.auction.shared.model.BidTransaction;
-import com.auction.shared.protocol.*;
 import com.auction.server.service.AuctionService;
 import com.auction.server.service.NotificationService;
-
-
-import java.io.*;
-import java.net.*;
-import java.time.LocalDateTime;
-import java.util.*;
+import com.auction.shared.model.BidTransaction;
+import com.auction.shared.protocol.CommandType;
+import com.auction.shared.protocol.Request;
+import com.auction.shared.protocol.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.SocketException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ClientHandler implements Runnable {
-    private  Socket socket;
+    private Socket socket;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
     private String username;
@@ -44,7 +51,7 @@ public class ClientHandler implements Runnable {
             this.outputStream = new ObjectOutputStream(socket.getOutputStream());
             this.inputStream = new ObjectInputStream((socket.getInputStream()));
         } catch (IOException e) {
-            logger.error("Error creating streams: ",e);
+            logger.error("Error creating streams: ", e);
             connected = false; //Nên thêm cái này lỡ nếu tạo stream thất bại, connected vẫn là true, run() vẫn chạy, nhưng inputStream/outputStream là null → sẽ bị NullPointerException khi đọc/ghi.
         }
 
@@ -70,12 +77,13 @@ public class ClientHandler implements Runnable {
             disconnect();
         }
     }
-    public void handleRequest(Request request){
+
+    public void handleRequest(Request request) {
         this.currentRequestId = request.getRequestId();
         CommandType command = request.getCommand();
-        Map<String,Object> data = request.getData();
-        switch (command){
-            case LOGIN :
+        Map<String, Object> data = request.getData();
+        switch (command) {
+            case LOGIN:
                 handleLogin(data);
                 break;
             case REGISTER:
@@ -190,14 +198,14 @@ public class ClientHandler implements Runnable {
         }
     }*/
 
-    public void handleLogin(Map<String,Object> data) {
+    public void handleLogin(Map<String, Object> data) {
         String username = (String) data.get("username");
         String password = (String) data.get("password");
-        Map<String,Object> result = auctionService.login(username, password);
+        Map<String, Object> result = auctionService.login(username, password);
 
         if ((boolean) result.get("success")) {
             // 🟢 LẤY USER ID
-            Map<String,Object> userInfo = (Map<String,Object>) result.get("user");
+            Map<String, Object> userInfo = (Map<String, Object>) result.get("user");
 
             // 🛠️ SỬA DÒNG NÀY ĐỂ FIX LỖI SẬP KẾT NỐI:
             int userId = ((Number) userInfo.get("id")).intValue();
@@ -216,7 +224,7 @@ public class ClientHandler implements Runnable {
 
             AuctionServer.getInstance().registerClient(username, this);
 
-            Map<String,Object> responseData = new HashMap<>();
+            Map<String, Object> responseData = new HashMap<>();
             responseData.put("userData", userInfo);
             responseData.put("role", this.role);
 
@@ -227,11 +235,12 @@ public class ClientHandler implements Runnable {
     }
 
 
-    private void handleRegister(Map<String,Object> data){
+    private void handleRegister(Map<String, Object> data) {
         Map<String, Object> result = auctionService.register(data);
         sendResponse(CommandType.REGISTER, (boolean) result.get("success"), (String) result.get("message"), null);
 
     }
+
     private void handleGetProducts(Map<String, Object> data) {
         Map<String, Object> result = auctionService.getActiveProducts();
         sendResponse(CommandType.GET_PRODUCTS, true, "Success", result);
@@ -242,6 +251,7 @@ public class ClientHandler implements Runnable {
         Map<String, Object> result = auctionService.getProductDetails(productId);
         sendResponse(CommandType.GET_PRODUCT_DETAILS, true, "Success", result);
     }
+
     private void handleAddProduct(Map<String, Object> data) {
         data.put("sellerId", username);
         Map<String, Object> result = auctionService.addProduct(data);
@@ -270,7 +280,8 @@ public class ClientHandler implements Runnable {
         sendResponse(CommandType.DELETE_PRODUCT, (boolean) result.get("success"),
                 (String) result.get("message"), null);
     }
-    private void handlePlaceBid(Map<String,Object> data){
+
+    private void handlePlaceBid(Map<String, Object> data) {
         int productId = ((Number) data.get("productId")).intValue();
         double bidAmount = ((Number) data.get("bidAmount")).doubleValue();
         Map<String, Object> result = auctionService.placeBid(productId, username, bidAmount);
@@ -282,6 +293,7 @@ public class ClientHandler implements Runnable {
 
         sendResponse(CommandType.PLACE_BID, (boolean) result.get("success"), (String) result.get("message"), result);
     }
+
     private void handleGetAuctionDetails(Map<String, Object> data) {
         int productId = ((Number) data.get("productId")).intValue();
         Map<String, Object> result = auctionService.getAuctionDetails(productId);
@@ -293,24 +305,28 @@ public class ClientHandler implements Runnable {
         notificationService.subscribe(productId, username, this); // this la clienthandler
         sendResponse(CommandType.SUBSCRIBE_AUCTION, true, "Subscribed", null);
     }
+
     private void handleUnsubscribeAuction(Map<String, Object> data) {
         int productId = ((Number) data.get("productId")).intValue();
         notificationService.unsubscribe(productId, username);
         sendResponse(CommandType.UNSUBSCRIBE_AUCTION, true, "Unsubscribed", null);
     }
-    private void handleSetAutoBid(Map<String,Object> data){
+
+    private void handleSetAutoBid(Map<String, Object> data) {
         int productId = ((Number) data.get("productId")).intValue();
         double maxBid = ((Number) data.get("maxBid")).doubleValue();
         double increment = ((Number) data.get("increment")).doubleValue();
-        Map<String,Object> result = auctionService.setAutoBid(productId, username, maxBid, increment);
+        Map<String, Object> result = auctionService.setAutoBid(productId, username, maxBid, increment);
         sendResponse(CommandType.SET_AUTO_BID, (boolean) result.get("success"), (String) result.get("message"), result);
 
     }
+
     private void handleRemoveAutoBid(Map<String, Object> data) {
         int productId = ((Number) data.get("productId")).intValue();
         Map<String, Object> result = auctionService.removeAutoBid(productId, username);
         sendResponse(CommandType.REMOVE_AUTO_BID, (boolean) result.get("success"), (String) result.get("message"), null);
     }
+
     private void handleGetMyProducts(Map<String, Object> data) {
         Map<String, Object> result = auctionService.getSellerProducts(username);
         sendResponse(CommandType.GET_MY_PRODUCTS, true, "Success", result);
@@ -321,12 +337,14 @@ public class ClientHandler implements Runnable {
         Map<String, Object> result = auctionService.getAllUsers();
         sendResponse(CommandType.ADMIN_GET_ALL_USERS, true, "Success", result);
     }
+
     private void handleAdminUpdateUser(Map<String, Object> data) {
         if (!isAdmin()) return;
         Map<String, Object> result = auctionService.adminUpdateUser(data);
         sendResponse(CommandType.ADMIN_UPDATE_USER, (boolean) result.get("success"),
                 (String) result.get("message"), result);
     }
+
     private void handleAdminDeleteUser(Map<String, Object> data) {
         if (!isAdmin()) return;
         int userId = ((Number) data.get("userId")).intValue();
@@ -334,6 +352,7 @@ public class ClientHandler implements Runnable {
         sendResponse(CommandType.ADMIN_DELETE_USER, (boolean) result.get("success"),
                 (String) result.get("message"), null);
     }
+
     private void handleAdminGetAllProducts(Map<String, Object> data) {
         if (!isAdmin()) return;
         Map<String, Object> result = auctionService.getAllProducts();
@@ -347,6 +366,7 @@ public class ClientHandler implements Runnable {
         sendResponse(CommandType.ADMIN_DELETE_PRODUCT, (boolean) result.get("success"),
                 (String) result.get("message"), null);
     }
+
     private void handleLogout() {
         sendResponse(CommandType.LOGOUT, true, "Logged out", null);
         connected = false;
@@ -356,6 +376,7 @@ public class ClientHandler implements Runnable {
             logger.error("Error closing socket on logout: ", e);
         }
     }
+
     private boolean isAdmin() {
         if (!"ADMIN".equals(role)) {
             sendError("Access denied: Admin role required");
@@ -363,6 +384,7 @@ public class ClientHandler implements Runnable {
         }
         return true;
     }
+
     public void sendBidUpdate(int productId, String bidderName, double bidAmount) {
         Map<String, Object> data = new HashMap<>();
         data.put("productId", productId);
@@ -372,6 +394,7 @@ public class ClientHandler implements Runnable {
 
         sendResponse(CommandType.BID_UPDATE, true, "New bid placed", data);
     }
+
     public void sendAuctionEnd(int productId, int winnerId, String winnerName, double finalPrice) {
         Map<String, Object> data = new HashMap<>();
         data.put("productId", productId);
@@ -382,15 +405,15 @@ public class ClientHandler implements Runnable {
         sendResponse(CommandType.AUCTION_END, true, "Auction ended", data);
     }
 
-    private void sendResponse(CommandType command, boolean success, String message, Map<String,Object> data){
-        try{
-            Response response = new Response(command,success,message,data);
+    private void sendResponse(CommandType command, boolean success, String message, Map<String, Object> data) {
+        try {
+            Response response = new Response(command, success, message, data);
             response.setRequestId(currentRequestId);
             outputStream.writeObject(response);
             outputStream.flush();
 
-        }catch (IOException e){
-            logger.error("Error sending response: " ,e);
+        } catch (IOException e) {
+            logger.error("Error sending response: ", e);
         }
     }
 
@@ -405,9 +428,11 @@ public class ClientHandler implements Runnable {
             logger.error("Error broadcasting to client {}: ", username, e);
         }
     }
+
     private void sendError(String message) {
         sendResponse(CommandType.ERROR, false, message, null);
     }
+
     private void disconnect() {
         if (!connected && currentUserId < 0 && username == null) return; // đã cleanup rồi
         connected = false;
@@ -428,7 +453,8 @@ public class ClientHandler implements Runnable {
             logger.error("Error disconnecting: ", e);
         }
     }
-    public String getUsername(){
+
+    public String getUsername() {
         return username;
     }
 
@@ -479,8 +505,6 @@ public class ClientHandler implements Runnable {
     }
 
 
-
-
     private void handleAdminBanUser(Map<String, Object> data) {
         if (!isAdmin()) return;
         int userId = ((Number) data.get("userId")).intValue();
@@ -518,10 +542,6 @@ public class ClientHandler implements Runnable {
             sendResponse(CommandType.GET_PURCHASED_PRODUCTS, false, "Error: " + e.getMessage(), null);
         }
     }
-
-
-
-
 
 
     // Thêm method coi lịch sử bid

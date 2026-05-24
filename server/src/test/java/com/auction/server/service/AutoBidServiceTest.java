@@ -3,13 +3,14 @@ package com.auction.server.service;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AutoBidServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(AutoBidServiceTest.class);
@@ -109,8 +110,8 @@ public class AutoBidServiceTest {
 
         String botNgheo = generateUniqueStr("bot_ngheo");
         String botGiau = generateUniqueStr("bot_giau");
-        ensureUserExists(botNgheo, "123", botNgheo+"@mail.com", "Bot Nghèo", "BIDDER");
-        ensureUserExists(botGiau, "123", botGiau+"@mail.com", "Bot Giàu", "BIDDER");
+        ensureUserExists(botNgheo, "123", botNgheo + "@mail.com", "Bot Nghèo", "BIDDER");
+        ensureUserExists(botGiau, "123", botGiau + "@mail.com", "Bot Giàu", "BIDDER");
 
         int idNgheo = (int) ((Map<String, Object>) auctionService.login(botNgheo, "123").get("user")).get("id");
         int idGiau = (int) ((Map<String, Object>) auctionService.login(botGiau, "123").get("user")).get("id");

@@ -6,19 +6,18 @@ import com.auction.server.dao.UserDAO;
 import com.auction.server.dao.UserProductDAO;
 import com.auction.shared.model.AuctionSession;
 import com.auction.shared.model.BidTransaction;
-
-import java.util.stream.Collectors;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.auction.shared.model.Product;
 import com.auction.shared.model.User;
-import com.auction.shared.protocol.CommandType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class AuctionService {
 
@@ -457,8 +456,6 @@ public class AuctionService {
             bidDAO.createBid(bid);
 
 
-
-
             // 10. Gửi thông báo realtime
             if (notificationService != null) {
                 notificationService.notifyBidUpdate(productId, username, bidAmount);
@@ -478,6 +475,7 @@ public class AuctionService {
         }
         return result;
     }
+
     private void checkAndExtendAuctionIfNeeded(AuctionSession auction) {
         LocalDateTime endTime = auction.getEndTime();
         LocalDateTime now = LocalDateTime.now();
@@ -522,10 +520,10 @@ public class AuctionService {
         if (session != null) {
             session.addAutoBid(username, maxBid);
             AutoBidService.getInstance().registerAutoBid(productId, username, maxBid, increment);
-            
+
             // Kích hoạt xử lý Auto-bid ngay lập tức
             AutoBidService.getInstance().processAllAutoBids();
-            
+
             result.put("success", true);
             result.put("message", "Đã bật chế độ Auto-bid (Tối đa: " + maxBid + ")");
         } else {
@@ -635,7 +633,7 @@ public class AuctionService {
         AuctionSession session = sessions.get(productId);
         if (session != null && "ACTIVE".equals(session.getStatus())) {
             session.setStatus("FINISHED");
-            
+
             // Dọn dẹp cấu hình Auto-bid của sản phẩm này
             AutoBidService.getInstance().removeProductAutoBids(productId);
 
@@ -681,7 +679,6 @@ public class AuctionService {
             }
         }
     }
-
 
 
     public synchronized Map<String, Object> addFunds(int userId, double amount) {
@@ -832,9 +829,6 @@ public class AuctionService {
     }
 
 
-
-
-
     // Lấy User theo username (dùng nội bộ bởi ClientHandler)
     public User getUserByUsername(String username) {
         return userDAO.findByUsername(username);
@@ -898,9 +892,6 @@ public class AuctionService {
         }
         return result;
     }
-
-
-
 
 
     private void loadActiveSessions() {

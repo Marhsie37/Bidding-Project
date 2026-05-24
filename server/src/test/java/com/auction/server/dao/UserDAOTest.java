@@ -2,6 +2,7 @@ package com.auction.server.dao;
 
 import com.auction.shared.model.User;
 import org.junit.jupiter.api.*;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;

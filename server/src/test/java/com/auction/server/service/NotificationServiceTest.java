@@ -3,12 +3,13 @@ package com.auction.server.service;
 import com.auction.server.ClientHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.time.LocalDateTime;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,24 +52,24 @@ class NotificationServiceTest {
         public boolean hasBidUpdate(int productId, double bidAmount) {
             return receivedUpdates.stream().anyMatch(update ->
                     update[0].equals("BID_UPDATE") &&
-                            (int)update[1] == productId &&
-                            (double)update[3] == bidAmount
+                            (int) update[1] == productId &&
+                            (double) update[3] == bidAmount
             );
         }
 
         public boolean hasAuctionEnd(int productId, int winnerId, double finalPrice) {
             return receivedUpdates.stream().anyMatch(update ->
                     update[0].equals("AUCTION_END") &&
-                            (int)update[1] == productId &&
-                            (int)update[2] == winnerId &&
-                            (double)update[4] == finalPrice
+                            (int) update[1] == productId &&
+                            (int) update[2] == winnerId &&
+                            (double) update[4] == finalPrice
             );
         }
 
         public boolean hasAuctionExtended(int productId) {
             return receivedUpdates.stream().anyMatch(update ->
                     update[0].equals("AUCTION_EXTENDED") &&
-                            (int)update[1] == productId
+                            (int) update[1] == productId
             );
         }
 

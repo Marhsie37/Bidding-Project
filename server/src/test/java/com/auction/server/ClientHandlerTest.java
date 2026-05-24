@@ -1,20 +1,31 @@
 package com.auction.server;
 
-import com.auction.shared.model.User;
-import com.auction.shared.protocol.*;
 import com.auction.server.service.AuctionService;
 import com.auction.server.service.NotificationService;
-
-import org.junit.jupiter.api.*;
+import com.auction.shared.model.User;
+import com.auction.shared.protocol.CommandType;
+import com.auction.shared.protocol.Request;
+import com.auction.shared.protocol.Response;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.*;
-import java.lang.reflect.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.Socket;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -24,13 +35,16 @@ class ClientHandlerTest {
 
     // ------------------------------------------------------------------ mocks
     // Không @Mock Socket vì Java 26 + Byte Buddy không instrument được system class
-    @Mock private AuctionService mockAuctionService;
-    @Mock private NotificationService mockNotificationService;
-    @Mock private AuctionServer mockAuctionServer;
+    @Mock
+    private AuctionService mockAuctionService;
+    @Mock
+    private NotificationService mockNotificationService;
+    @Mock
+    private AuctionServer mockAuctionServer;
 
     // MockedStatic phải được mở/đóng thủ công trong BeforeEach/AfterEach
-    private MockedStatic<AuctionServer>    mockedAuctionServer;
-    private MockedStatic<AuctionService>   mockedAuctionService;
+    private MockedStatic<AuctionServer> mockedAuctionServer;
+    private MockedStatic<AuctionService> mockedAuctionService;
     private MockedStatic<NotificationService> mockedNotificationService;
 
     private ByteArrayOutputStream baos;
@@ -41,11 +55,11 @@ class ClientHandlerTest {
     @BeforeEach
     void setUp() throws Exception {
         baos = new ByteArrayOutputStream();
-        oos  = new ObjectOutputStream(baos);
+        oos = new ObjectOutputStream(baos);
 
         // Mở static mock TRƯỚC khi constructor chạy
-        mockedAuctionServer      = mockStatic(AuctionServer.class);
-        mockedAuctionService     = mockStatic(AuctionService.class);
+        mockedAuctionServer = mockStatic(AuctionServer.class);
+        mockedAuctionService = mockStatic(AuctionService.class);
         mockedNotificationService = mockStatic(NotificationService.class);
 
         mockedAuctionServer.when(AuctionServer::getInstance).thenReturn(mockAuctionServer);
@@ -55,16 +69,16 @@ class ClientHandlerTest {
         // null socket vì stream được inject sau bằng reflection
         handler = new ClientHandler(null);
 
-        setField(handler, "outputStream",        oos);
-        setField(handler, "auctionService",      mockAuctionService);
+        setField(handler, "outputStream", oos);
+        setField(handler, "auctionService", mockAuctionService);
         setField(handler, "notificationService", mockNotificationService);
     }
 
     @AfterEach
     void tearDown() {
         // Bắt buộc close, nếu không Mockito sẽ báo NotAMockException
-        if (mockedAuctionServer      != null) mockedAuctionServer.close();
-        if (mockedAuctionService     != null) mockedAuctionService.close();
+        if (mockedAuctionServer != null) mockedAuctionServer.close();
+        if (mockedAuctionService != null) mockedAuctionService.close();
         if (mockedNotificationService != null) mockedNotificationService.close();
     }
 
@@ -479,9 +493,9 @@ class ClientHandlerTest {
         Response resp = readResponse();
         assertEquals(CommandType.BID_UPDATE, resp.getCommand());
         assertTrue(resp.isSuccess());
-        assertEquals(10,        resp.getData().get("productId"));
+        assertEquals(10, resp.getData().get("productId"));
         assertEquals("bidder1", resp.getData().get("bidderName"));
-        assertEquals(300.0,     resp.getData().get("bidAmount"));
+        assertEquals(300.0, resp.getData().get("bidAmount"));
     }
 
     // =============================================================== sendAuctionEnd
@@ -492,9 +506,9 @@ class ClientHandlerTest {
 
         Response resp = readResponse();
         assertEquals(CommandType.AUCTION_END, resp.getCommand());
-        assertEquals(99,       resp.getData().get("winnerId"));
+        assertEquals(99, resp.getData().get("winnerId"));
         assertEquals("winner", resp.getData().get("winnerName"));
-        assertEquals(1500.0,   resp.getData().get("finalPrice"));
+        assertEquals(1500.0, resp.getData().get("finalPrice"));
     }
 
     // ============================================================ sendAuctionExtended

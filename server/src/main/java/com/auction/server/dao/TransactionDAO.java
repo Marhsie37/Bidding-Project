@@ -2,6 +2,7 @@ package com.auction.server.dao;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -10,7 +11,8 @@ public class TransactionDAO {
     private static final Logger logger = LoggerFactory.getLogger(TransactionDAO.class);
     private Connection conn;
 
-    public TransactionDAO() {}
+    public TransactionDAO() {
+    }
 
     public TransactionDAO(Connection conn) {
         this.conn = conn;

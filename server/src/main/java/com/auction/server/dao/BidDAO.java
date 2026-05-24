@@ -1,11 +1,12 @@
 package com.auction.server.dao;
 
 import com.auction.shared.model.BidTransaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class BidDAO {
     private DatabaseConnection dbConnection;
@@ -45,7 +46,7 @@ public class BidDAO {
                 return true;
             }
         } catch (SQLException e) {
-            logger.error("Error creating bid: " ,e);
+            logger.error("Error creating bid: ", e);
         }
         return false;
     }
@@ -63,7 +64,7 @@ public class BidDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error getting bids by product: " ,e);
+            logger.error("Error getting bids by product: ", e);
         }
         return bids;
     }
@@ -81,7 +82,7 @@ public class BidDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error getting bids by user: " ,e);
+            logger.error("Error getting bids by user: ", e);
         }
         return bids;
     }
@@ -96,7 +97,7 @@ public class BidDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error getting current highest bid: ",e);
+            logger.error("Error getting current highest bid: ", e);
         }
         return 0;
     }
@@ -111,7 +112,7 @@ public class BidDAO {
                 }
             }
         } catch (SQLException e) {
-            logger.error("Error getting current highest bidder: " ,e);
+            logger.error("Error getting current highest bidder: ", e);
         }
         return 0;
     }

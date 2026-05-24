@@ -1,19 +1,25 @@
 package com.auction.test.network;
 
-import com.auction.shared.protocol.*;
 import com.auction.server.ClientHandler;
 import com.auction.server.service.NotificationService;
-
-import org.junit.jupiter.api.*;
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-import java.util.function.Consumer;
+import com.auction.shared.protocol.CommandType;
+import com.auction.shared.protocol.Request;
+import com.auction.shared.protocol.Response;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,7 +30,8 @@ public class NetWorkTest {
     private static ServerSocket mockServerSocket;
     private static Thread mockServerThread;
     private static final Logger logger = LoggerFactory.getLogger(NetWorkTest.class);
-   //Mock server
+
+    //Mock server
     @BeforeAll
     static void startMockServer() throws IOException {
         mockServerSocket = new ServerSocket(MOCK_PORT);
@@ -35,7 +42,7 @@ public class NetWorkTest {
                     new Thread(() -> handleMockClient(client)).start();
                 } catch (IOException e) {
                     if (!mockServerSocket.isClosed()) {
-                        logger.error("[MockServer] accept error: " ,e);
+                        logger.error("[MockServer] accept error: ", e);
                     }
                 }
             }
@@ -48,7 +55,7 @@ public class NetWorkTest {
     private static void handleMockClient(Socket client) {
         try (
                 ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
-                ObjectInputStream  in  = new ObjectInputStream(client.getInputStream())
+                ObjectInputStream in = new ObjectInputStream(client.getInputStream())
         ) {
             while (!client.isClosed()) {
                 Object obj = in.readObject();
@@ -60,7 +67,7 @@ public class NetWorkTest {
             }
         } catch (EOFException ignored) {
         } catch (Exception e) {
-            logger.error("[MockServer] client error: " ,e);
+            logger.error("[MockServer] client error: ", e);
         }
     }
 
@@ -135,10 +142,10 @@ public class NetWorkTest {
     @DisplayName("TC-04: 10 client kết nối đồng thời không lỗi")
     void testMultipleClientsConnect() throws InterruptedException {
         int clientCount = 10;
-        CountDownLatch connected   = new CountDownLatch(clientCount);
-        CountDownLatch done        = new CountDownLatch(clientCount);
+        CountDownLatch connected = new CountDownLatch(clientCount);
+        CountDownLatch done = new CountDownLatch(clientCount);
         AtomicInteger successCount = new AtomicInteger(0);
-        List<Socket>  sockets      = Collections.synchronizedList(new ArrayList<>());
+        List<Socket> sockets = Collections.synchronizedList(new ArrayList<>());
 
         for (int i = 0; i < clientCount; i++) {
             new Thread(() -> {
@@ -149,7 +156,7 @@ public class NetWorkTest {
                     connected.countDown();
                     connected.await(3, TimeUnit.SECONDS);
                 } catch (Exception e) {
-                    logger.error("[TC-04] " ,e);
+                    logger.error("[TC-04] ", e);
                 } finally {
                     done.countDown();
                 }
@@ -158,7 +165,10 @@ public class NetWorkTest {
 
         boolean allDone = done.await(5, TimeUnit.SECONDS);
         for (Socket s : sockets) {
-            try { s.close(); } catch (IOException ignored) {}
+            try {
+                s.close();
+            } catch (IOException ignored) {
+            }
         }
 
         assertTrue(allDone, "Tất cả thread phải hoàn thành");
@@ -169,15 +179,15 @@ public class NetWorkTest {
     @DisplayName("TC-05: 20 client gửi request đồng thời không deadlock")
     void testTwentyClientsConcurrentRequests() throws InterruptedException {
         int clientCount = 20;
-        CountDownLatch startGun    = new CountDownLatch(1);
-        CountDownLatch done        = new CountDownLatch(clientCount);
+        CountDownLatch startGun = new CountDownLatch(1);
+        CountDownLatch done = new CountDownLatch(clientCount);
         AtomicInteger successCount = new AtomicInteger(0);
 
         for (int i = 0; i < clientCount; i++) {
             new Thread(() -> {
                 try (Socket s = connectToMock()) {
                     ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                    ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+                    ObjectInputStream in = new ObjectInputStream(s.getInputStream());
                     startGun.await();
                     out.writeObject(new Request(CommandType.GET_PRODUCTS, new HashMap<>()));
                     out.flush();
@@ -186,7 +196,7 @@ public class NetWorkTest {
                         successCount.incrementAndGet();
                     }
                 } catch (Exception e) {
-                    logger.error("[TC-05] " ,e);
+                    logger.error("[TC-05] ", e);
                 } finally {
                     done.countDown();
                 }
@@ -204,14 +214,14 @@ public class NetWorkTest {
     @Test
     @DisplayName("TC-037: FixedThreadPool(10) xử lý 50 client - throughput và không bị treo")
     void testFixedThreadPoolWithFiftyClients() throws InterruptedException {
-        int totalClients  = 50;
-        int poolSize      = 10;
+        int totalClients = 50;
+        int poolSize = 10;
 
-        ExecutorService executor    = Executors.newFixedThreadPool(poolSize);
-        CountDownLatch  startGun    = new CountDownLatch(1);
-        CountDownLatch  done        = new CountDownLatch(totalClients);
-        AtomicInteger   successCount = new AtomicInteger(0);
-        AtomicInteger   errorCount   = new AtomicInteger(0);
+        ExecutorService executor = Executors.newFixedThreadPool(poolSize);
+        CountDownLatch startGun = new CountDownLatch(1);
+        CountDownLatch done = new CountDownLatch(totalClients);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger errorCount = new AtomicInteger(0);
 
         for (int i = 0; i < totalClients; i++) {
             executor.submit(() -> {
@@ -219,7 +229,7 @@ public class NetWorkTest {
                     startGun.await();
                     try (Socket s = connectToMock()) {
                         ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                        ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+                        ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 
                         Map<String, Object> data = new HashMap<>();
                         out.writeObject(new Request(CommandType.GET_PRODUCTS, data));
@@ -234,7 +244,7 @@ public class NetWorkTest {
                     }
                 } catch (Exception e) {
                     errorCount.incrementAndGet();
-                    logger.error("[TC-06] Thread error: " ,e);
+                    logger.error("[TC-06] Thread error: ", e);
                 } finally {
                     done.countDown();
                 }
@@ -251,8 +261,8 @@ public class NetWorkTest {
         executor.shutdown();
         boolean terminated = executor.awaitTermination(5, TimeUnit.SECONDS);
 
-        assertTrue(allDone,      "Tất cả 50 client phải hoàn thành trong 15 giây");
-        assertTrue(terminated,   "Executor phải shutdown gọn gàng");
+        assertTrue(allDone, "Tất cả 50 client phải hoàn thành trong 15 giây");
+        assertTrue(terminated, "Executor phải shutdown gọn gàng");
         assertEquals(totalClients, successCount.get() + errorCount.get(),
                 "Tổng success + error phải đúng bằng 50");
         assertEquals(totalClients, successCount.get(),
@@ -273,7 +283,7 @@ public class NetWorkTest {
     void testLoginRequestResponse() throws Exception {
         try (Socket s = connectToMock()) {
             ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-            ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+            ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 
             Map<String, Object> data = new HashMap<>();
             data.put("username", "testUser");
@@ -294,9 +304,9 @@ public class NetWorkTest {
     void testPlaceBidRequestResponse() throws Exception {
         try (Socket s = connectToMock()) {
             ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-            ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+            ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 
-            int    productId = 42;
+            int productId = 42;
             double bidAmount = 1500.0;
 
             Map<String, Object> data = new HashMap<>();
@@ -320,7 +330,7 @@ public class NetWorkTest {
     void testMultipleRequestsOnSameConnection() throws Exception {
         try (Socket s = connectToMock()) {
             ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-            ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+            ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 
             CommandType[] commands = {
                     CommandType.GET_PRODUCTS,
@@ -348,17 +358,17 @@ public class NetWorkTest {
     @DisplayName("TC-09: 10 thread đồng thời đặt bid - không race condition")
     void testConcurrentBidding() throws InterruptedException {
         int threadCount = 10;
-        CountDownLatch startGun     = new CountDownLatch(1);
-        CountDownLatch done         = new CountDownLatch(threadCount);
-        AtomicInteger  successCount = new AtomicInteger(0);
-        AtomicInteger  errorCount   = new AtomicInteger(0);
-        Random         random       = new Random();
+        CountDownLatch startGun = new CountDownLatch(1);
+        CountDownLatch done = new CountDownLatch(threadCount);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger errorCount = new AtomicInteger(0);
+        Random random = new Random();
 
         for (int i = 0; i < threadCount; i++) {
             new Thread(() -> {
                 try (Socket s = connectToMock()) {
                     ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                    ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+                    ObjectInputStream in = new ObjectInputStream(s.getInputStream());
                     startGun.await();
 
                     double bid = 1000 + random.nextInt(1000);
@@ -390,8 +400,8 @@ public class NetWorkTest {
     @DisplayName("TC-10: AtomicInteger không bị race condition với 50 thread")
     void testAtomicBidCounterNoRaceCondition() throws InterruptedException {
         int threadCount = 50;
-        AtomicInteger  counter = new AtomicInteger(0);
-        CountDownLatch latch   = new CountDownLatch(threadCount);
+        AtomicInteger counter = new AtomicInteger(0);
+        CountDownLatch latch = new CountDownLatch(threadCount);
 
         for (int i = 0; i < threadCount; i++) {
             new Thread(() -> {
@@ -415,7 +425,10 @@ public class NetWorkTest {
             final String key = "user" + i;
             new Thread(() -> {
                 clients.put(key, "handler-" + key);
-                try { Thread.sleep(5); } catch (InterruptedException ignored) {}
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException ignored) {
+                }
                 clients.remove(key);
                 done.countDown();
             }).start();
@@ -460,19 +473,19 @@ public class NetWorkTest {
     @DisplayName("TC-13: sendBidUpdate ghi đúng data qua ObjectStream")
     void testSendBidUpdateWritesCorrectData() throws Exception {
         PipedOutputStream pipeOut = new PipedOutputStream();
-        PipedInputStream  pipeIn  = new PipedInputStream(pipeOut);
-        ObjectOutputStream oos    = new ObjectOutputStream(pipeOut);
-        ObjectInputStream  ois    = new ObjectInputStream(pipeIn);
+        PipedInputStream pipeIn = new PipedInputStream(pipeOut);
+        ObjectOutputStream oos = new ObjectOutputStream(pipeOut);
+        ObjectInputStream ois = new ObjectInputStream(pipeIn);
 
-        int    productId = 10;
-        String bidder    = "alice";
+        int productId = 10;
+        String bidder = "alice";
         double bidAmount = 3500.0;
 
         Map<String, Object> data = new HashMap<>();
-        data.put("productId",  productId);
+        data.put("productId", productId);
         data.put("bidderName", bidder);
-        data.put("bidAmount",  bidAmount);
-        data.put("timestamp",  java.time.LocalDateTime.now().toString());
+        data.put("bidAmount", bidAmount);
+        data.put("timestamp", java.time.LocalDateTime.now().toString());
 
         oos.writeObject(new Response(CommandType.BID_UPDATE, true, "New bid placed", data));
         oos.flush();
@@ -481,7 +494,7 @@ public class NetWorkTest {
         assertEquals(CommandType.BID_UPDATE, received.getCommand());
         assertTrue(received.isSuccess());
         assertEquals(productId, ((Number) received.getData().get("productId")).intValue());
-        assertEquals(bidder,    received.getData().get("bidderName"));
+        assertEquals(bidder, received.getData().get("bidderName"));
         assertEquals(bidAmount, ((Number) received.getData().get("bidAmount")).doubleValue(), 0.001);
 
         oos.close();
@@ -621,7 +634,8 @@ public class NetWorkTest {
 
         for (int i = 0; i < threadCount; i++) {
             new Thread(() -> {
-                handlers.put(CommandType.PLACE_BID, response -> {});
+                handlers.put(CommandType.PLACE_BID, response -> {
+                });
                 putCount.incrementAndGet();
                 done.countDown();
             }).start();
@@ -636,14 +650,18 @@ public class NetWorkTest {
     @DisplayName("TC-19: Listener thread thoát khi stream đóng")
     void testListenerThreadExitsOnSocketClose() throws Exception {
         PipedOutputStream serverOut = new PipedOutputStream();
-        PipedInputStream  clientIn  = new PipedInputStream(serverOut);
+        PipedInputStream clientIn = new PipedInputStream(serverOut);
         ObjectOutputStream serverOos = new ObjectOutputStream(serverOut);
-        ObjectInputStream  clientOis = new ObjectInputStream(clientIn);
+        ObjectInputStream clientOis = new ObjectInputStream(clientIn);
 
         AtomicBoolean listenerExited = new AtomicBoolean(false);
         Thread listener = new Thread(() -> {
-            try { clientOis.readObject(); } catch (Exception ignored) {}
-            finally { listenerExited.set(true); }
+            try {
+                clientOis.readObject();
+            } catch (Exception ignored) {
+            } finally {
+                listenerExited.set(true);
+            }
         });
         listener.setDaemon(true);
         listener.start();

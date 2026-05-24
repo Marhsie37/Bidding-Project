@@ -1,14 +1,14 @@
 package com.auction.server.service;
 
 import com.auction.shared.model.AuctionSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AutoBidService {
 
@@ -21,8 +21,13 @@ public class AutoBidService {
             this.increment = increment;
         }
 
-        public double getMaxBid() { return maxBid; }
-        public double getIncrement() { return increment; }
+        public double getMaxBid() {
+            return maxBid;
+        }
+
+        public double getIncrement() {
+            return increment;
+        }
     }
 
     private static AutoBidService instance;
@@ -32,7 +37,8 @@ public class AutoBidService {
     private Map<Integer, Map<String, AutoBidConfig>> autoBidConfigs = new ConcurrentHashMap<>();
     private final java.util.concurrent.atomic.AtomicBoolean processing = new java.util.concurrent.atomic.AtomicBoolean(false);
 
-    private AutoBidService() {}
+    private AutoBidService() {
+    }
 
     public static synchronized AutoBidService getInstance() {
         if (instance == null) {
