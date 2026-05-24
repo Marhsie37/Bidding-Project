@@ -27,23 +27,10 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y xvfb libgtk-3-0 libglu1-mesa libpango-1.0-0 libasound2t64
 
-      # --- CẬP NHẬT: THÊM CÁC THAM SỐ ĐỒ HỌA ẢO KHI CHẠY TEST ---
       - name: Build and Run Tests
         run: |
           xvfb-run --auto-servernum mvn -B test \
-            -Dglass.platform=Monocle \
-            -Dmonocle.platform=Headless \
-            -Dprism.order=sw \
-            -Dtestfx.robot=glass \
-            -Dtestfx.headless=true \
-            -Djava.awt.headless=true \
-            -Dsurefire.useModulePath=false \
-            -Dsurefire.argLine="\
-              --add-opens javafx.graphics/com.sun.javafx.application=ALL-UNNAMED \
-              --add-opens javafx.graphics/com.sun.glass.ui=ALL-UNNAMED \
-              --add-opens javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED \
-              --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED \
-              --add-exports javafx.graphics/com.sun.glass.ui.monocle=ALL-UNNAMED"
+            -Djava.awt.headless=true
 
       - name: Package Application
         if: success()
