@@ -1,62 +1,61 @@
 package com.auction.shared.protocol;
 
 public enum CommandType {
-    // Auth commands
-    LOGIN,
-    REGISTER,
-    LOGOUT,
+  // Auth commands
+  LOGIN,
+  REGISTER,
+  LOGOUT,
 
-    // User commands
-    GET_USER_INFO,
-    UPDATE_USER,
+  // User commands
+  GET_USER_INFO,
+  UPDATE_USER,
 
-    // Product commands
-    GET_PRODUCTS,
-    GET_PRODUCT_DETAILS,
-    ADD_PRODUCT,
-    UPDATE_PRODUCT,
-    DELETE_PRODUCT,
-    GET_MY_PRODUCTS,
+  // Product commands
+  GET_PRODUCTS,
+  GET_PRODUCT_DETAILS,
+  ADD_PRODUCT,
+  UPDATE_PRODUCT,
+  DELETE_PRODUCT,
+  GET_MY_PRODUCTS,
 
-    // Auction commands
-    PLACE_BID,
-    GET_AUCTION_DETAILS,
-    GET_AUCTION_HISTORY,
-    SUBSCRIBE_AUCTION,
-    UNSUBSCRIBE_AUCTION,
-    SET_AUTO_BID,
-    REMOVE_AUTO_BID,
+  // Auction commands
+  PLACE_BID,
+  GET_AUCTION_DETAILS,
+  GET_AUCTION_HISTORY,
+  SUBSCRIBE_AUCTION,
+  UNSUBSCRIBE_AUCTION,
+  SET_AUTO_BID,
+  REMOVE_AUTO_BID,
 
-    // Admin commands
-    ADMIN_GET_ALL_USERS,
-    ADMIN_UPDATE_USER,
-    ADMIN_DELETE_USER,
-    ADMIN_GET_ALL_PRODUCTS,
-    ADMIN_DELETE_PRODUCT,
-    ADMIN_GET_ALL_AUCTIONS,
+  // Admin commands
+  ADMIN_GET_ALL_USERS,
+  ADMIN_UPDATE_USER,
+  ADMIN_DELETE_USER,
+  ADMIN_GET_ALL_PRODUCTS,
+  ADMIN_DELETE_PRODUCT,
+  ADMIN_GET_ALL_AUCTIONS,
 
-    // Response
-    SUCCESS,
-    ERROR,
-    BID_UPDATE,
-    AUCTION_END,
-    AUCTION_EXTENDED,
+  // Response
+  SUCCESS,
+  ERROR,
+  BID_UPDATE,
+  AUCTION_END,
+  AUCTION_EXTENDED,
 
-    ADD_FUNDS, // nap tien vao tai khoan
-    PROCESS_PAYMENT, // xu ly thanh toan
-    GET_USER_BALANCE, // lay so du
+  ADD_FUNDS, // nap tien vao tai khoan
+  PROCESS_PAYMENT, // xu ly thanh toan
+  GET_USER_BALANCE, // lay so du
 
-    GET_PURCHASED_PRODUCTS, // lay san pham da mua
-    ADMIN_UNBAN_USER,
-    ADMIN_BAN_USER,
+  GET_PURCHASED_PRODUCTS, // lay san pham da mua
+  ADMIN_UNBAN_USER,
+  ADMIN_BAN_USER,
 
-    // Thông báo từ server đẩy xuống client
-    NOTIFY_NEW_BID,
-    NOTIFY_AUCTION_END,
-    NOTIFY_AUCTION_EXTENDED,
+  // Thông báo từ server đẩy xuống client
+  NOTIFY_NEW_BID,
+  NOTIFY_AUCTION_END,
+  NOTIFY_AUCTION_EXTENDED,
 
-    NEW_PRODUCT_ADDED, // thong bao san pham moi toi tat ca client
-
+  NEW_PRODUCT_ADDED, // thong bao san pham moi toi tat ca client
 
 
 }

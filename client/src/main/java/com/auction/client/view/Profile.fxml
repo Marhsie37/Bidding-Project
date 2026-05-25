@@ -1,129 +1,150 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
-<AnchorPane prefHeight="746.0" prefWidth="1152.0" style="-fx-background-color: #F1F3F4;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.Profile">
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.String?>
+<AnchorPane prefHeight="746.0" prefWidth="1152.0" style="-fx-background-color: #F1F3F4;"
+            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.auction.client.controller.Profile">
     <children>
         <VBox alignment="CENTER" layoutY="482.0" prefHeight="257.0" prefWidth="198.0" spacing="15.0">
             <children>
 
-                                                          <!-- Thêm TabPane cho sản phẩm đã mua -->
-                <TabPane prefHeight="300.0" prefWidth="400.0" />
+                <!-- Thêm TabPane cho sản phẩm đã mua -->
+                <TabPane prefHeight="300.0" prefWidth="400.0"/>
 
-                                                      </children>
+            </children>
         </VBox>
-        <AnchorPane layoutX="2.0" prefHeight="34.0" prefWidth="1184.0" style="-fx-background-color: #F1EAFF;" styleClass="topbar" stylesheets="@css/Profile.css">
+        <AnchorPane layoutX="2.0" prefHeight="34.0" prefWidth="1184.0" style="-fx-background-color: #F1EAFF;"
+                    styleClass="topbar" stylesheets="@css/Profile.css">
             <children>
-                <Button alignment="CENTER" layoutX="1002.4" layoutY="6.0" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#goToLoginScreen" prefHeight="39.0" prefWidth="112.0" styleClass="btn-logout" stylesheets="@css/Profile.css" text="Log out" textAlignment="CENTER" wrapText="true" AnchorPane.leftAnchor="1002.4">
-               <font>
-                  <Font size="17.0" />
-               </font></Button>
-                <Label layoutX="449.0" layoutY="21.0" style="-fx-font-size: 20px; -fx-font-weight: bold;" styleClass="topbar-title" stylesheets="@css/Profile.css" text="THÔNG TIN CÁ NHÂN" />
-                <Button layoutX="862.0" layoutY="6.0" onAction="#goBack" prefHeight="39.0" prefWidth="112.0" styleClass="btn-seller" stylesheets="@css/Profile.css" text="Bidder">
-               <font>
-                  <Font size="17.0" />
-               </font></Button>
+                <Button alignment="CENTER" layoutX="1002.4" layoutY="6.0" mnemonicParsing="false"
+                        nodeOrientation="LEFT_TO_RIGHT" onAction="#goToLoginScreen" prefHeight="39.0" prefWidth="112.0"
+                        styleClass="btn-logout" stylesheets="@css/Profile.css" text="Log out" textAlignment="CENTER"
+                        wrapText="true" AnchorPane.leftAnchor="1002.4">
+                    <font>
+                        <Font size="17.0"/>
+                    </font>
+                </Button>
+                <Label layoutX="449.0" layoutY="21.0" style="-fx-font-size: 20px; -fx-font-weight: bold;"
+                       styleClass="topbar-title" stylesheets="@css/Profile.css" text="THÔNG TIN CÁ NHÂN"/>
+                <Button layoutX="862.0" layoutY="6.0" onAction="#goBack" prefHeight="39.0" prefWidth="112.0"
+                        styleClass="btn-seller" stylesheets="@css/Profile.css" text="Bidder">
+                    <font>
+                        <Font size="17.0"/>
+                    </font>
+                </Button>
             </children>
         </AnchorPane>
-        <AnchorPane layoutX="187.0" layoutY="104.0" prefHeight="272.0" prefWidth="496.0" styleClass="card" stylesheets="@css/Profile.css">
+        <AnchorPane layoutX="187.0" layoutY="104.0" prefHeight="272.0" prefWidth="496.0" styleClass="card"
+                    stylesheets="@css/Profile.css">
             <children>
-            <HBox layoutX="131.0" layoutY="56.0" prefHeight="134.0" prefWidth="350.0">
-               <children>
-                  <VBox alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefHeight="200.0" prefWidth="100.0" spacing="34.0">
-                     <children>
-            
-                                  <Label stylesheets="@css/Profile.css" text="Họ tên :" />
-            
-                                  <Label text="Email:" />
-            
-                                  <Label text="Số dư (VNĐ):" />
-                     </children>
-                  </VBox>
-                  <VBox prefHeight="134.0" prefWidth="225.0" spacing="15.0">
-                     <children>
-                            <TextField fx:id="txtFullName" prefHeight="38.0" prefWidth="226.0" styleClass="field-input" stylesheets="@css/Profile.css" />
-                            <TextField fx:id="txtEmail" prefHeight="38.0" prefWidth="284.0" styleClass="field-input" stylesheets="@css/Profile.css" />
-                            <TextField fx:id="txtBalance" editable="false" prefHeight="38.0" prefWidth="284.0" styleClass="field-input-balance" stylesheets="@css/Profile.css" />
-                     </children>
-                  </VBox>
-               </children>
-            </HBox>
-            <Button layoutX="345.0" layoutY="201.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="112.0" styleClass="btn-edit" stylesheets="@css/Profile.css" text="Edit">
-               <font>
-                  <Font size="17.0" />
-               </font></Button>
-            <ImageView fitHeight="50.0" fitWidth="42.0" layoutX="47.0" layoutY="94.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@images/man.png" />
-               </image>
-            </ImageView>
-            <Label layoutX="39.0" layoutY="144.0" text="Bidder">
-               <font>
-                  <Font size="20.0" />
-               </font>
-            </Label>
-            </children></AnchorPane>
+                <HBox layoutX="131.0" layoutY="56.0" prefHeight="134.0" prefWidth="350.0">
+                    <children>
+                        <VBox alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefHeight="200.0"
+                              prefWidth="100.0" spacing="34.0">
+                            <children>
+
+                                <Label stylesheets="@css/Profile.css" text="Họ tên :"/>
+
+                                <Label text="Email:"/>
+
+                                <Label text="Số dư (VNĐ):"/>
+                            </children>
+                        </VBox>
+                        <VBox prefHeight="134.0" prefWidth="225.0" spacing="15.0">
+                            <children>
+                                <TextField fx:id="txtFullName" prefHeight="38.0" prefWidth="226.0"
+                                           styleClass="field-input" stylesheets="@css/Profile.css"/>
+                                <TextField fx:id="txtEmail" prefHeight="38.0" prefWidth="284.0" styleClass="field-input"
+                                           stylesheets="@css/Profile.css"/>
+                                <TextField fx:id="txtBalance" editable="false" prefHeight="38.0" prefWidth="284.0"
+                                           styleClass="field-input-balance" stylesheets="@css/Profile.css"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+                <Button layoutX="345.0" layoutY="201.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="112.0"
+                        styleClass="btn-edit" stylesheets="@css/Profile.css" text="Edit">
+                    <font>
+                        <Font size="17.0"/>
+                    </font>
+                </Button>
+                <ImageView fitHeight="50.0" fitWidth="42.0" layoutX="47.0" layoutY="94.0" pickOnBounds="true"
+                           preserveRatio="true">
+                    <image>
+                        <Image url="@images/man.png"/>
+                    </image>
+                </ImageView>
+                <Label layoutX="39.0" layoutY="144.0" text="Bidder">
+                    <font>
+                        <Font size="20.0"/>
+                    </font>
+                </Label>
+            </children>
+        </AnchorPane>
         <ScrollPane layoutX="318.0" layoutY="433.0" prefHeight="298.0" prefWidth="550.0" stylesheets="@css/Profile.css">
             <content>
-                <HBox fx:id="hboxPurchasedProducts" prefHeight="283.0" prefWidth="898.0" spacing="10.0" styleClass="products-section" stylesheets="@css/Profile.css" />
+                <HBox fx:id="hboxPurchasedProducts" prefHeight="283.0" prefWidth="898.0" spacing="10.0"
+                      styleClass="products-section" stylesheets="@css/Profile.css"/>
             </content>
         </ScrollPane>
-      <Label layoutX="514.0" layoutY="385.0" styleClass="text1" stylesheets="@css/Profile.css" text="Sản phẩm nhận được" />
-      <AnchorPane layoutX="691.0" layoutY="103.0" prefHeight="272.0" prefWidth="311.0" styleClass="card" stylesheets="@css/Profile.css">
-         <children>
-            <TextField fx:id="txtAmount" layoutX="73.0" layoutY="58.0" prefHeight="39.0" prefWidth="164.0" promptText="Nhập số tiền..." styleClass="deposit-input" stylesheets="@css/Profile.css" />
-            <Button fx:id="btnRecharge" layoutX="73.0" layoutY="208.0" onAction="#handleRecharge" prefHeight="36.0" prefWidth="164.0" style="-fx-background-color: #4A90E2; -fx-text-fill: white;" stylesheets="@css/Profile.css" text="NẠP TIỀN">
-               <styleClass>
-                  <String fx:value="deposit-title" />
-                  <String fx:value="btn-deposit" />
-               </styleClass>
-            </Button>
-            <Separator layoutX="53.0" layoutY="44.0" prefWidth="200.0" />
-            <Label layoutX="64.0" layoutY="14.0" text="Nạp tiền vào tài khoản">
-               <graphic>
-                  <ImageView fitHeight="30.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@images/atm-card.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-               <font>
-                  <Font size="15.0" />
-               </font>
-            </Label>
-            <Button layoutX="43.0" layoutY="111.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="94.0" styleClass="btn-quick" stylesheets="@css/Profile.css" text="10,000 đ">
-               <font>
-                  <Font size="15.0" />
-               </font>
-            </Button>
-            <Button layoutX="172.0" layoutY="111.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="93.0" styleClass="btn-quick" stylesheets="@css/Profile.css" text="100,000 đ">
-               <font>
-                  <Font size="15.0" />
-               </font>
-            </Button>
-            <Button layoutX="43.0" layoutY="159.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="94.0" styleClass="btn-quick" stylesheets="@css/Profile.css" text="200,000 đ">
-               <font>
-                  <Font size="15.0" />
-               </font>
-            </Button>
-            <Button layoutX="171.0" layoutY="159.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="94.0" styleClass="btn-quick" stylesheets="@css/Profile.css" text="500,000 đ">
-               <font>
-                  <Font size="15.0" />
-               </font>
-            </Button>
-         </children>
-      </AnchorPane>
+        <Label layoutX="514.0" layoutY="385.0" styleClass="text1" stylesheets="@css/Profile.css"
+               text="Sản phẩm nhận được"/>
+        <AnchorPane layoutX="691.0" layoutY="103.0" prefHeight="272.0" prefWidth="311.0" styleClass="card"
+                    stylesheets="@css/Profile.css">
+            <children>
+                <TextField fx:id="txtAmount" layoutX="73.0" layoutY="58.0" prefHeight="39.0" prefWidth="164.0"
+                           promptText="Nhập số tiền..." styleClass="deposit-input" stylesheets="@css/Profile.css"/>
+                <Button fx:id="btnRecharge" layoutX="73.0" layoutY="208.0" onAction="#handleRecharge" prefHeight="36.0"
+                        prefWidth="164.0" style="-fx-background-color: #4A90E2; -fx-text-fill: white;"
+                        stylesheets="@css/Profile.css" text="NẠP TIỀN">
+                    <styleClass>
+                        <String fx:value="deposit-title"/>
+                        <String fx:value="btn-deposit"/>
+                    </styleClass>
+                </Button>
+                <Separator layoutX="53.0" layoutY="44.0" prefWidth="200.0"/>
+                <Label layoutX="64.0" layoutY="14.0" text="Nạp tiền vào tài khoản">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="29.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@images/atm-card.png"/>
+                            </image>
+                        </ImageView>
+                    </graphic>
+                    <font>
+                        <Font size="15.0"/>
+                    </font>
+                </Label>
+                <Button layoutX="43.0" layoutY="111.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="94.0"
+                        styleClass="btn-quick" stylesheets="@css/Profile.css" text="10,000 đ">
+                    <font>
+                        <Font size="15.0"/>
+                    </font>
+                </Button>
+                <Button layoutX="172.0" layoutY="111.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="93.0"
+                        styleClass="btn-quick" stylesheets="@css/Profile.css" text="100,000 đ">
+                    <font>
+                        <Font size="15.0"/>
+                    </font>
+                </Button>
+                <Button layoutX="43.0" layoutY="159.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="94.0"
+                        styleClass="btn-quick" stylesheets="@css/Profile.css" text="200,000 đ">
+                    <font>
+                        <Font size="15.0"/>
+                    </font>
+                </Button>
+                <Button layoutX="171.0" layoutY="159.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="94.0"
+                        styleClass="btn-quick" stylesheets="@css/Profile.css" text="500,000 đ">
+                    <font>
+                        <Font size="15.0"/>
+                    </font>
+                </Button>
+            </children>
+        </AnchorPane>
     </children>
 </AnchorPane>

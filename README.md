@@ -104,3 +104,16 @@ Hệ thống đấu giá chạy đúng luật (giá tăng dần, auto-bid, chố
 Maven build thành công, CI/CD hoạt động.
 
 Code có test coverage cơ bản.
+
+Vị trí các file jar :
+shared/target/shared-1.0-SNAPSHOT.jar
+server/target/server-1.0-SNAPSHOT-jar-with-dependencies.jar
+client/target/client-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+Hướng dẫn chạy 
+Chạy lần lượt 2 dòng sau
+java -jar server/target/server-1.0-SNAPSHOT-jar-with-dependencies.jar
+java -jar client/target/client-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+
+ 

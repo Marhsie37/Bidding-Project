@@ -4,35 +4,56 @@ import java.io.Serializable;
 import java.util.Map;
 
 public class Request implements Serializable {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    private CommandType command;
-    private Map<String, Object> data;
-    private String token;
-    private String requestId; // ✅ THÊM MỚI
+  private CommandType command;
+  private Map<String, Object> data;
+  private String token;
+  private String requestId; // ✅ THÊM MỚI
 
-    public Request() {}
+  public Request() {
+  }
 
-    public Request(CommandType command, Map<String, Object> data) {
-        this.command = command;
-        this.data = data;
-    }
+  public Request(CommandType command, Map<String, Object> data) {
+    this.command = command;
+    this.data = data;
+  }
 
-    public Request(CommandType command, Map<String, Object> data, String token) {
-        this.command = command;
-        this.data = data;
-        this.token = token;
-    }
+  public Request(CommandType command, Map<String, Object> data, String token) {
+    this.command = command;
+    this.data = data;
+    this.token = token;
+  }
 
-    public CommandType getCommand() { return command; }
-    public void setCommand(CommandType command) { this.command = command; }
+  public CommandType getCommand() {
+    return command;
+  }
 
-    public Map<String, Object> getData() { return data; }
-    public void setData(Map<String, Object> data) { this.data = data; }
+  public void setCommand(CommandType command) {
+    this.command = command;
+  }
 
-    public String getToken() { return token; }
-    public void setToken(String token) { this.token = token; }
+  public Map<String, Object> getData() {
+    return data;
+  }
 
-    public String getRequestId() { return requestId; } // ✅ THÊM MỚI
-    public void setRequestId(String requestId) { this.requestId = requestId; } // ✅ THÊM MỚI
+  public void setData(Map<String, Object> data) {
+    this.data = data;
+  }
+
+  public String getToken() {
+    return token;
+  }
+
+  public void setToken(String token) {
+    this.token = token;
+  }
+
+  public String getRequestId() {
+    return requestId;
+  } // ✅ THÊM MỚI
+
+  public void setRequestId(String requestId) {
+    this.requestId = requestId;
+  } // ✅ THÊM MỚI
 }
