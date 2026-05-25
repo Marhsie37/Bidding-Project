@@ -411,66 +411,66 @@ public class AuctionService {
                 return result;
             }
 
-            // 9. Kiểm tra và gia hạn nếu cần (anti-sniping)
-            checkAndExtendAuctionIfNeeded(session);
+            // Đồng bộ hóa theo đối tượng session của sản phẩm này để tránh Race Condition khi đặt giá đồng thời
+            synchronized (session) {
+                // 9. Kiểm tra và gia hạn nếu cần (anti-sniping)
+                checkAndExtendAuctionIfNeeded(session);
 
-            // 2. Kiểm tra phiên còn hoạt động không
-            if (!"ACTIVE".equals(session.getStatus()) || LocalDateTime.now().isAfter(session.getEndTime())) {
-                session.setStatus("FINISHED");
-                result.put("success", false);
-                result.put("message", "Phiên đấu giá đã kết thúc!");
-                return result;
+                // 2. Kiểm tra phiên còn hoạt động không
+                if (!"ACTIVE".equals(session.getStatus()) || LocalDateTime.now().isAfter(session.getEndTime())) {
+                    session.setStatus("FINISHED");
+                    result.put("success", false);
+                    result.put("message", "Phiên đấu giá đã kết thúc!");
+                    return result;
+                }
+
+                // 3. Kiểm tra giá đặt phải cao hơn giá hiện tại ít nhất 5000
+                if (bidAmount < session.getCurrentPrice() + 5000) {
+                    result.put("success", false);
+                    result.put("message", "Giá đặt phải lớn hơn hoặc bằng giá hiện tại cộng thêm 5,000 VNĐ (tối thiểu " + (session.getCurrentPrice() + 5000) + " VNĐ)!");
+                    return result;
+                }
+
+                // 4. Lấy thông tin user từ database (thay vì từ usersDB)
+                User user = userDAO.findByUsername(username);
+                if (user == null) {
+                    result.put("success", false);
+                    result.put("message", "Không tìm thấy người dùng!");
+                    return result;
+                }
+
+                // 5. Kiểm tra số dư (lấy từ database)
+                if (user.getBalance() < bidAmount) {
+                    result.put("success", false);
+                    result.put("message", "Số dư không đủ! Số dư hiện tại: " + user.getBalance() + " VNĐ");
+                    return result;
+                }
+
+                // 6. Cập nhật session trong RAM
+                session.setCurrentPrice(bidAmount);
+                session.setCurrentWinnerId(user.getId());
+                session.setCurrentWinnerName(username);
+
+                // 7. Lưu vào database (cập nhật giá hiện tại của sản phẩm)
+                productDAO.updateCurrentPrice(productId, bidAmount);
+
+                // 8. Lưu lịch sử đấu giá vào database
+                BidTransaction bid = new BidTransaction(productId, user.getId(), username, bidAmount, false);
+                bidDAO.createBid(bid);
+
+                // 10. Gửi thông báo realtime
+                if (notificationService != null) {
+                    notificationService.notifyBidUpdate(productId, username, bidAmount);
+                }
+
+                // Kích hoạt xử lý Auto-bid ngay lập tức khi có người đặt giá mới
+                AutoBidService.getInstance().processAllAutoBids();
+
+                result.put("success", true);
+                result.put("message", "Đặt giá thành công! Bạn đang dẫn đầu với giá " + bidAmount);
+                result.put("currentPrice", bidAmount);
+                result.put("newEndTime", session.getEndTime().withNano(0).toString());
             }
-
-            // 3. Kiểm tra giá đặt phải cao hơn giá hiện tại ít nhất 5000
-            if (bidAmount < session.getCurrentPrice() + 5000) {
-                result.put("success", false);
-                result.put("message", "Giá đặt phải lớn hơn hoặc bằng giá hiện tại cộng thêm 5,000 VNĐ (tối thiểu " + (session.getCurrentPrice() + 5000) + " VNĐ)!");
-                return result;
-            }
-
-            // 4. Lấy thông tin user từ database (thay vì từ usersDB)
-            User user = userDAO.findByUsername(username);
-            if (user == null) {
-                result.put("success", false);
-                result.put("message", "Không tìm thấy người dùng!");
-                return result;
-            }
-
-            // 5. Kiểm tra số dư (lấy từ database)
-            if (user.getBalance() < bidAmount) {
-                result.put("success", false);
-                result.put("message", "Số dư không đủ! Số dư hiện tại: " + user.getBalance() + " VNĐ");
-                return result;
-            }
-
-            // 6. Cập nhật session trong RAM
-            session.setCurrentPrice(bidAmount);
-            session.setCurrentWinnerId(user.getId());
-            session.setCurrentWinnerName(username);
-
-            // 7. Lưu vào database (cập nhật giá hiện tại của sản phẩm)
-            productDAO.updateCurrentPrice(productId, bidAmount);
-
-            // 8. Lưu lịch sử đấu giá vào database
-            BidTransaction bid = new BidTransaction(productId, user.getId(), username, bidAmount, false);
-            bidDAO.createBid(bid);
-
-
-
-
-            // 10. Gửi thông báo realtime
-            if (notificationService != null) {
-                notificationService.notifyBidUpdate(productId, username, bidAmount);
-            }
-
-            // Kích hoạt xử lý Auto-bid ngay lập tức khi có người đặt giá mới
-            AutoBidService.getInstance().processAllAutoBids();
-
-            result.put("success", true);
-            result.put("message", "Đặt giá thành công! Bạn đang dẫn đầu với giá " + bidAmount);
-            result.put("currentPrice", bidAmount);
-            result.put("newEndTime", session.getEndTime().withNano(0).toString());
         } catch (Exception e) {
             e.printStackTrace();
             result.put("success", false);
