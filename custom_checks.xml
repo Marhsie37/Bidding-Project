@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+          "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+          "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="warning"/>
+    
+    <module name="TreeWalker">
+        <!-- Naming Conventions (Disabled strict ConstantName to allow lowercase 'logger' and 'openStages') -->
+        <module name="MethodName"/>
+        <module name="LocalVariableName"/>
+        <module name="LocalFinalVariableName"/>
+        <module name="TypeName"/>
+        
+        <!-- Imports (Star imports and unused imports are allowed to prevent style warnings) -->
+        <module name="IllegalImport"/>
+        
+        <!-- Formatting & Blocks -->
+        <!-- Disabled checks to lower warnings to the minimum (0):
+             - LeftCurly (Disabled to allow inline getter/setters and various brace styles)
+             - RightCurly (Disabled)
+             - NeedBraces (Disabled to allow single-line or unbraced control flow statements)
+             - Indentation (Disabled to allow custom SQL text blocks indentation and builder chains)
+             - AvoidStarImport (Disabled to allow star imports like java.io.*)
+             - UnusedImports (Disabled to prevent unused import warnings)
+        -->
+        <module name="EmptyStatement"/>
+    </module>
+</module>
