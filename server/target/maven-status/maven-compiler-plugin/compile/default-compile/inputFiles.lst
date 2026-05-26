@@ -1,12 +1,12 @@
-D:\Bidding-Project\server\src\main\java\com\auction\server\AuctionServer.java
-D:\Bidding-Project\server\src\main\java\com\auction\server\ClientHandler.java
-D:\Bidding-Project\server\src\main\java\com\auction\server\dao\AuctionDAO.java
-D:\Bidding-Project\server\src\main\java\com\auction\server\dao\BidDAO.java
-D:\Bidding-Project\server\src\main\java\com\auction\server\dao\DatabaseConnection.java
-D:\Bidding-Project\server\src\main\java\com\auction\server\dao\ProductDAO.java
-D:\Bidding-Project\server\src\main\java\com\auction\server\dao\TransactionDAO.java
-D:\Bidding-Project\server\src\main\java\com\auction\server\dao\UserDAO.java
-D:\Bidding-Project\server\src\main\java\com\auction\server\dao\UserProductDAO.java
-D:\Bidding-Project\server\src\main\java\com\auction\server\service\AuctionService.java
-D:\Bidding-Project\server\src\main\java\com\auction\server\service\AutoBidService.java
-D:\Bidding-Project\server\src\main\java\com\auction\server\service\NotificationService.java
+D:\IdeaProjects\New Project\server\src\main\java\com\auction\server\AuctionServer.java
+D:\IdeaProjects\New Project\server\src\main\java\com\auction\server\ClientHandler.java
+D:\IdeaProjects\New Project\server\src\main\java\com\auction\server\dao\AuctionDAO.java
+D:\IdeaProjects\New Project\server\src\main\java\com\auction\server\dao\BidDAO.java
+D:\IdeaProjects\New Project\server\src\main\java\com\auction\server\dao\DatabaseConnection.java
+D:\IdeaProjects\New Project\server\src\main\java\com\auction\server\dao\ProductDAO.java
+D:\IdeaProjects\New Project\server\src\main\java\com\auction\server\dao\TransactionDAO.java
+D:\IdeaProjects\New Project\server\src\main\java\com\auction\server\dao\UserDAO.java
+D:\IdeaProjects\New Project\server\src\main\java\com\auction\server\dao\UserProductDAO.java
+D:\IdeaProjects\New Project\server\src\main\java\com\auction\server\service\AuctionService.java
+D:\IdeaProjects\New Project\server\src\main\java\com\auction\server\service\AutoBidService.java
+D:\IdeaProjects\New Project\server\src\main\java\com\auction\server\service\NotificationService.java
