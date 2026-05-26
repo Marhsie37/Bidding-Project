@@ -27,7 +27,7 @@ public class TransactionDAO {
 
   public boolean logTransaction(int userId, double amount, String type, String description) {
     String sql = "INSERT INTO transactions (user_id, amount, type, description) VALUES (?, ?, ?, ?)";
-    try (PreparedStatement stmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
       stmt.setInt(1, userId);
       stmt.setDouble(2, amount);
       stmt.setString(3, type);

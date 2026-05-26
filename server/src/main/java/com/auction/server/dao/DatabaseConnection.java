@@ -5,83 +5,86 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class DatabaseConnection {
-    private static volatile DatabaseConnection instance;
-    private HikariDataSource dataSource;
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseConnection.class);
+  private static volatile DatabaseConnection instance;
+  private HikariDataSource dataSource;
+  private static final Logger logger = LoggerFactory.getLogger(DatabaseConnection.class);
 
-    private static final String URL = "jdbc:mysql://localhost:3306/auction_system?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true";
-    private static final String USER = "root";
-    private static final String PASSWORD = "admin";
+  private static final String URL = "jdbc:mysql://localhost:3306/auction_system?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true";
+  private static final String USER = "root";
+  private static final String PASSWORD = "admin";
 
-    private static final String H2_URL = "jdbc:h2:mem:auction_test;DB_CLOSE_DELAY=-1;MODE=MySQL";
-    private static final String H2_USER = "sa";
-    private static final String H2_PASSWORD = "";
+  private static final String H2_URL = "jdbc:h2:mem:auction_test;DB_CLOSE_DELAY=-1;MODE=MySQL;NON_KEYWORDS=TYPE";
+  private static final String H2_USER = "sa";
+  private static final String H2_PASSWORD = "";
 
-    private boolean isTestMode = false;
+  private boolean isTestMode = false;
 
-    private DatabaseConnection() {
-        initDataSource();
-        createTables();
-    }
+  private DatabaseConnection() {
+    initDataSource();
+    createTables();
+  }
 
-    public static DatabaseConnection getInstance() {
+  public static DatabaseConnection getInstance() {
+    if (instance == null) {
+      synchronized (DatabaseConnection.class) {
         if (instance == null) {
-            synchronized (DatabaseConnection.class) {
-                if (instance == null) {
-                    instance = new DatabaseConnection();
-                }
-            }
+          instance = new DatabaseConnection();
         }
-        return instance;
+      }
+    }
+    return instance;
+  }
+
+  private void initDataSource() {
+    // Simple logic to detect if we're running tests
+    for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
+      if (element.getClassName().contains("org.junit") || element.getClassName().contains("surefire")) {
+        isTestMode = true;
+        break;
+      }
     }
 
-    private void initDataSource() {
-        // Simple logic to detect if we're running tests
-        for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
-            if (element.getClassName().contains("org.junit") || element.getClassName().contains("surefire")) {
-                isTestMode = true;
-                break;
-            }
-        }
+    HikariConfig config = new HikariConfig();
+    if (isTestMode) {
+      config.setJdbcUrl(H2_URL);
+      config.setUsername(H2_USER);
+      config.setPassword(H2_PASSWORD);
+      config.setDriverClassName("org.h2.Driver");
+      config.setMaximumPoolSize(10);
+      logger.info("✅ TEST MODE: Đã khởi tạo HikariCP với H2 Database ảo trên RAM thành công!");
+    } else {
+      config.setJdbcUrl(URL);
+      config.setUsername(USER);
+      config.setPassword(PASSWORD);
+      config.setDriverClassName("com.mysql.cj.jdbc.Driver");
 
-        HikariConfig config = new HikariConfig();
-        if (isTestMode) {
-            config.setJdbcUrl(H2_URL);
-            config.setUsername(H2_USER);
-            config.setPassword(H2_PASSWORD);
-            config.setDriverClassName("org.h2.Driver");
-            config.setMaximumPoolSize(10);
-            logger.info("✅ TEST MODE: Đã khởi tạo HikariCP với H2 Database ảo trên RAM thành công!");
-        } else {
-            config.setJdbcUrl(URL);
-            config.setUsername(USER);
-            config.setPassword(PASSWORD);
-            config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+      // Cấu hình tối ưu cho HikariCP
+      config.setMaximumPoolSize(20); // Số connection tối đa
+      config.setMinimumIdle(5); // Số connection tối thiểu luôn duy trì
+      config.setIdleTimeout(300000); // 5 phút (thời gian tối đa connection rảnh rỗi)
+      config.setConnectionTimeout(20000); // 20 giây (thời gian chờ tối đa khi lấy connection)
+      config.setMaxLifetime(1200000); // 20 phút (thời gian sống tối đa của 1 connection)
 
-            // Cấu hình tối ưu cho HikariCP
-            config.setMaximumPoolSize(20); // Số connection tối đa
-            config.setMinimumIdle(5); // Số connection tối thiểu luôn duy trì
-            config.setIdleTimeout(300000); // 5 phút (thời gian tối đa connection rảnh rỗi)
-            config.setConnectionTimeout(20000); // 20 giây (thời gian chờ tối đa khi lấy connection)
-            config.setMaxLifetime(1200000); // 20 phút (thời gian sống tối đa của 1 connection)
+      // Cấu hình tối ưu MySQL JDBC Driver
+      config.addDataSourceProperty("cachePrepStmts", "true");
+      config.addDataSourceProperty("prepStmtCacheSize", "250");
+      config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+      config.addDataSourceProperty("useServerPrepStmts", "true");
 
-            // Cấu hình tối ưu MySQL JDBC Driver
-            config.addDataSourceProperty("cachePrepStmts", "true");
-            config.addDataSourceProperty("prepStmtCacheSize", "250");
-            config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-            config.addDataSourceProperty("useServerPrepStmts", "true");
-
-            logger.info("✅ PRODUCTION MODE: Đã khởi tạo HikariCP với MySQL thành công!");
-        }
-
-        this.dataSource = new HikariDataSource(config);
+      logger.info("✅ PRODUCTION MODE: Đã khởi tạo HikariCP với MySQL thành công!");
     }
 
-    private void createTables() {
-        String createUsersTable = """
+    this.dataSource = new HikariDataSource(config);
+  }
+
+  private void createTables() {
+    String createUsersTable = """
                 CREATE TABLE IF NOT EXISTS users (
                     id INT PRIMARY KEY AUTO_INCREMENT,
                     username VARCHAR(50) UNIQUE NOT NULL,
@@ -96,7 +99,7 @@ public class DatabaseConnection {
                 ) ENGINE=InnoDB
             """;
 
-        String createProductsTable = """
+    String createProductsTable = """
                 CREATE TABLE IF NOT EXISTS products (
                     id INT PRIMARY KEY AUTO_INCREMENT,
                     name VARCHAR(200) NOT NULL,
@@ -117,7 +120,7 @@ public class DatabaseConnection {
                 ) ENGINE=InnoDB
             """;
 
-        String createBidsTable = """
+    String createBidsTable = """
                 CREATE TABLE IF NOT EXISTS bids (
                     id INT PRIMARY KEY AUTO_INCREMENT,
                     product_id INT NOT NULL,
@@ -130,7 +133,7 @@ public class DatabaseConnection {
                 ) ENGINE=InnoDB
             """;
 
-        String createAutoBidsTable = """
+    String createAutoBidsTable = """
                 CREATE TABLE IF NOT EXISTS auto_bids (
                     id INT PRIMARY KEY AUTO_INCREMENT,
                     product_id INT NOT NULL,
@@ -145,7 +148,7 @@ public class DatabaseConnection {
                 ) ENGINE=InnoDB
             """;
 
-        String createUserProductsTable = """
+    String createUserProductsTable = """
                 CREATE TABLE IF NOT EXISTS user_products (
                     id INT PRIMARY KEY AUTO_INCREMENT,
                     user_id INT NOT NULL,
@@ -159,51 +162,64 @@ public class DatabaseConnection {
                 ) ENGINE=InnoDB
             """;
 
-        // Sử dụng một connection từ pool (qua try-with-resources để đảm bảo đóng tự động)
-        try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
-            stmt.execute(createUsersTable);
+    String createTransactionsTable = """
+                CREATE TABLE IF NOT EXISTS transactions (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    user_id INT,
+                    amount DOUBLE,
+                    type VARCHAR(50),
+                    description VARCHAR(255),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT fk_tx_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                ) ENGINE=InnoDB
+            """;
 
-            try {
-                stmt.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'ACTIVE'");
-            } catch (SQLException e) {
-                logger.error("Column status already exists or error: ", e);
-            }
+    // Sử dụng một connection từ pool (qua try-with-resources để đảm bảo đóng tự động)
+    try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
+      stmt.execute(createUsersTable);
 
-            stmt.execute(createProductsTable);
-            stmt.execute(createBidsTable);
-            stmt.execute(createAutoBidsTable);
-            stmt.execute(createUserProductsTable);
+      try {
+        stmt.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'ACTIVE'");
+      } catch (SQLException e) {
+        logger.error("Column status already exists or error: ", e);
+      }
 
-            String checkAdmin = "SELECT COUNT(*) FROM users WHERE username = 'admin'";
-            try (ResultSet rs = stmt.executeQuery(checkAdmin)) {
-                if (rs.next() && rs.getInt(1) == 0) {
-                    String insertAdmin = "INSERT INTO users (username, password, email, full_name, role, balance, status) " +
-                            "VALUES ('admin', 'admin123', 'admin@auction.com', 'System Admin', 'ADMIN', 0, 'ACTIVE')";
-                    stmt.execute(insertAdmin);
-                    logger.info("Default admin created: username='admin', password='admin123'");
-                }
-            }
+      stmt.execute(createProductsTable);
+      stmt.execute(createBidsTable);
+      stmt.execute(createAutoBidsTable);
+      stmt.execute(createUserProductsTable);
+      stmt.execute(createTransactionsTable);
 
-            logger.info("Database tables created/verified successfully.");
-        } catch (SQLException e) {
-            logger.error("Error creating tables: ", e);
+      String checkAdmin = "SELECT COUNT(*) FROM users WHERE username = 'admin'";
+      try (ResultSet rs = stmt.executeQuery(checkAdmin)) {
+        if (rs.next() && rs.getInt(1) == 0) {
+          String insertAdmin = "INSERT INTO users (username, password, email, full_name, role, balance, status) " +
+                  "VALUES ('admin', 'admin123', 'admin@auction.com', 'System Admin', 'ADMIN', 0, 'ACTIVE')";
+          stmt.execute(insertAdmin);
+          logger.info("Default admin created: username='admin', password='admin123'");
         }
-    }
+      }
 
-    public Connection getConnection() {
-        try {
-            // Lấy 1 connection rảnh rỗi từ trong HikariCP Pool
-            return dataSource.getConnection();
-        } catch (SQLException e) {
-            logger.error("Error getting connection from HikariCP pool: ", e);
-            return null;
-        }
+      logger.info("Database tables created/verified successfully.");
+    } catch (SQLException e) {
+      logger.error("Error creating tables: ", e);
     }
+  }
 
-    public void closeConnection() {
-        if (dataSource != null && !dataSource.isClosed()) {
-            dataSource.close();
-            logger.info("HikariCP connection pool closed.");
-        }
+  public Connection getConnection() {
+    try {
+      // Lấy 1 connection rảnh rỗi từ trong HikariCP Pool
+      return dataSource.getConnection();
+    } catch (SQLException e) {
+      logger.error("Error getting connection from HikariCP pool: ", e);
+      return null;
     }
+  }
+
+  public void closeConnection() {
+    if (dataSource != null && !dataSource.isClosed()) {
+      dataSource.close();
+      logger.info("HikariCP connection pool closed.");
+    }
+  }
 }

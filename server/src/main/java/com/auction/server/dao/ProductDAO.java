@@ -33,7 +33,7 @@ public class ProductDAO {
     String sql = "SELECT p.*, u.username as seller_name " +
             "FROM products p LEFT JOIN users u ON p.seller_id = u.id " +
             "WHERE p.id = ?";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setInt(1, productId);
       try (ResultSet rs = pstmt.executeQuery()) {
         if (rs.next()) {
@@ -52,7 +52,7 @@ public class ProductDAO {
             "FROM products p LEFT JOIN users u ON p.seller_id = u.id " +
             "WHERE p.status IN ('PENDING', 'ACTIVE') AND p.end_time > ? " +
             "ORDER BY p.end_time ASC";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
       try (ResultSet rs = pstmt.executeQuery()) {
         while (rs.next()) {
@@ -70,7 +70,7 @@ public class ProductDAO {
     String sql = "SELECT p.*, u.username as seller_name FROM products p " +
             "LEFT JOIN users u ON p.seller_id = u.id " +
             "WHERE p.seller_id = ? ORDER BY p.created_at DESC";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setInt(1, sellerId);
       try (ResultSet rs = pstmt.executeQuery()) {
         while (rs.next()) {
@@ -87,7 +87,7 @@ public class ProductDAO {
     String sql = "INSERT INTO products (name, description, starting_price, current_price, " +
             "seller_id, category, image_url, duration_hours, end_time, status) " +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
       pstmt.setString(1, product.getName());
       pstmt.setString(2, product.getDescription());
       pstmt.setDouble(3, product.getStartingPrice());
@@ -121,7 +121,7 @@ public class ProductDAO {
     String sql = "UPDATE products SET name = ?, description = ?, category = ?, image_url = ?, " +
             "starting_price = ?, current_price = ?, duration_hours = ?, end_time = ? " +
             "WHERE id = ? AND seller_id = ?";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setString(1, product.getName());
       pstmt.setString(2, product.getDescription());
       pstmt.setString(3, product.getCategory());
@@ -144,7 +144,7 @@ public class ProductDAO {
 
   public boolean updateCurrentPrice(int productId, double newPrice) {
     String sql = "UPDATE products SET current_price = ? WHERE id = ?";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setDouble(1, newPrice);
       pstmt.setInt(2, productId);
       return pstmt.executeUpdate() > 0;
@@ -156,7 +156,7 @@ public class ProductDAO {
 
   public boolean updateWinner(int productId, int winnerId) {
     String sql = "UPDATE products SET winner_id = ?, status = 'ENDED' WHERE id = ?";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       if (winnerId > 0) {
         pstmt.setInt(1, winnerId);
       } else {
@@ -172,7 +172,7 @@ public class ProductDAO {
 
   public boolean updateStatus(int productId, String status) {
     String sql = "UPDATE products SET status = ? WHERE id = ?";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setString(1, status);
       pstmt.setInt(2, productId);
       return pstmt.executeUpdate() > 0;
@@ -184,7 +184,7 @@ public class ProductDAO {
 
   public boolean activateProduct(int productId) {
     String sql = "UPDATE products SET status = 'ACTIVE', start_time = ? WHERE id = ? AND status = 'PENDING'";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
       pstmt.setInt(2, productId);
       return pstmt.executeUpdate() > 0;
@@ -196,7 +196,7 @@ public class ProductDAO {
 
   public boolean deleteProduct(int productId, int sellerId) {
     String sql = "DELETE FROM products WHERE id = ? AND seller_id = ? AND status = 'PENDING'";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setInt(1, productId);
       pstmt.setInt(2, sellerId);
       return pstmt.executeUpdate() > 0;
@@ -208,7 +208,7 @@ public class ProductDAO {
 
   public boolean adminDeleteProduct(int productId) {
     String sql = "DELETE FROM products WHERE id = ?";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setInt(1, productId);
       return pstmt.executeUpdate() > 0;
     } catch (SQLException e) {
@@ -223,7 +223,7 @@ public class ProductDAO {
             "FROM products p LEFT JOIN users u ON p.seller_id = u.id " +
             "WHERE p.status IN ('ACTIVE', 'PENDING') AND p.end_time > NOW() " +
             "ORDER BY p.created_at DESC";
-    try (Statement stmt = getConnection().createStatement();
+    try (Connection conn = getConnection(); Statement stmt = conn.createStatement();
          ResultSet rs = stmt.executeQuery(sql)) {
       while (rs.next()) {
         products.add(mapResultSetToProduct(rs));
@@ -269,7 +269,7 @@ public class ProductDAO {
 
   public boolean updateEndTime(int productId, LocalDateTime newEndTime) {
     String sql = "UPDATE products SET end_time = ? WHERE id = ?";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setTimestamp(1, Timestamp.valueOf(newEndTime));
       pstmt.setInt(2, productId);
       return pstmt.executeUpdate() > 0;

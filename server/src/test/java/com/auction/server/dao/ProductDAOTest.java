@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ProductDAOTest {
-  private Connection testConn;
   private ProductDAO productDAO;
   private int testSellerId = 1;
   private static int createdProductId;
@@ -24,36 +23,7 @@ public class ProductDAOTest {
 
   @BeforeAll
   void setupDatabase() throws Exception {
-    testConn = DriverManager.getConnection("jdbc:h2:mem:testdb_product;DB_CLOSE_DELAY=-1");
-    try (Statement stmt = testConn.createStatement()) {
-      stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
-              "id INT PRIMARY KEY AUTO_INCREMENT, " +
-              "username VARCHAR(50))");
-
-      stmt.execute("CREATE TABLE IF NOT EXISTS products (" +
-              "id INT PRIMARY KEY AUTO_INCREMENT, " +
-              "name VARCHAR(200), " +
-              "description TEXT, " +
-              "starting_price DOUBLE, " +
-              "current_price DOUBLE, " +
-              "seller_id INT, " +
-              "category VARCHAR(100), " +
-              "image_url VARCHAR(255), " +
-              "duration_hours INT, " +
-              "start_time TIMESTAMP, " +
-              "end_time TIMESTAMP, " +
-              "status VARCHAR(50), " +
-              "winner_id INT, " +
-              "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-    }
-    productDAO = new ProductDAO(testConn);
-  }
-
-  @AfterAll
-  void tearDown() throws Exception {
-    if (testConn != null) {
-      testConn.close();
-    }
+    productDAO = new ProductDAO();
   }
 
   @Test

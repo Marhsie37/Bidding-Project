@@ -30,7 +30,7 @@ public class BidDAO {
 
   public boolean createBid(BidTransaction bid) {
     String sql = "INSERT INTO bids (product_id, bidder_id, bid_amount, is_auto_bid) VALUES (?, ?, ?, ?)";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
       pstmt.setInt(1, bid.getAuctionId());
       pstmt.setInt(2, bid.getBidderId());
       pstmt.setDouble(3, bid.getBidAmount());
@@ -56,7 +56,7 @@ public class BidDAO {
     String sql = "SELECT b.*, u.username as bidder_name FROM bids b " +
             "LEFT JOIN users u ON b.bidder_id = u.id " +
             "WHERE b.product_id = ? ORDER BY b.bid_time DESC";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setInt(1, productId);
       try (ResultSet rs = pstmt.executeQuery()) {
         while (rs.next()) {
@@ -74,7 +74,7 @@ public class BidDAO {
     String sql = "SELECT b.*, u.username as bidder_name FROM bids b " +
             "LEFT JOIN users u ON b.bidder_id = u.id " +
             "WHERE b.bidder_id = ? ORDER BY b.bid_time DESC LIMIT 50";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setInt(1, userId);
       try (ResultSet rs = pstmt.executeQuery()) {
         while (rs.next()) {
@@ -89,7 +89,7 @@ public class BidDAO {
 
   public double getCurrentHighestBid(int productId) {
     String sql = "SELECT MAX(bid_amount) as max_bid FROM bids WHERE product_id = ?";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setInt(1, productId);
       try (ResultSet rs = pstmt.executeQuery()) {
         if (rs.next()) {
@@ -104,7 +104,7 @@ public class BidDAO {
 
   public int getCurrentHighestBidder(int productId) {
     String sql = "SELECT bidder_id FROM bids WHERE product_id = ? ORDER BY bid_amount DESC LIMIT 1";
-    try (PreparedStatement pstmt = getConnection().prepareStatement(sql)) {
+    try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setInt(1, productId);
       try (ResultSet rs = pstmt.executeQuery()) {
         if (rs.next()) {

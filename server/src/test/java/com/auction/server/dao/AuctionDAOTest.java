@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class AuctionDAOTest {
-  private Connection testConn;
   private AuctionDAO auctionDAO;
   private UserDAO userDAO;
   private ProductDAO productDAO;
@@ -28,48 +27,9 @@ public class AuctionDAOTest {
 
   @BeforeAll
   void setup() throws Exception {
-    testConn = DriverManager.getConnection("jdbc:h2:mem:testdb_auction;DB_CLOSE_DELAY=-1");
-    try (Statement stmt = testConn.createStatement()) {
-      stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
-              "id INT PRIMARY KEY AUTO_INCREMENT, " +
-              "username VARCHAR(50) UNIQUE, " +
-              "password VARCHAR(255), " +
-              "email VARCHAR(100) UNIQUE, " +
-              "full_name VARCHAR(100), " +
-              "role VARCHAR(20), " +
-              "balance DOUBLE DEFAULT 0, " +
-              "active BOOLEAN DEFAULT TRUE, " +
-              "status VARCHAR(20) DEFAULT 'ACTIVE', " +
-              "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-
-      stmt.execute("CREATE TABLE IF NOT EXISTS products (" +
-              "id INT PRIMARY KEY AUTO_INCREMENT, " +
-              "name VARCHAR(200), " +
-              "description TEXT, " +
-              "starting_price DOUBLE, " +
-              "current_price DOUBLE, " +
-              "seller_id INT, " +
-              "category VARCHAR(100), " +
-              "image_url VARCHAR(255), " +
-              "duration_hours INT, " +
-              "start_time TIMESTAMP, " +
-              "end_time TIMESTAMP, " +
-              "status VARCHAR(50), " +
-              "winner_id INT, " +
-              "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-
-      stmt.execute("CREATE TABLE IF NOT EXISTS bids (" +
-              "id INT PRIMARY KEY AUTO_INCREMENT, " +
-              "product_id INT, " +
-              "bidder_id INT, " +
-              "bid_amount DOUBLE, " +
-              "is_auto_bid BOOLEAN DEFAULT FALSE, " +
-              "bid_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-    }
-
-    auctionDAO = new AuctionDAO(testConn);
-    userDAO = new UserDAO(testConn);
-    productDAO = new ProductDAO(testConn);
+    auctionDAO = new AuctionDAO();
+    userDAO = new UserDAO();
+    productDAO = new ProductDAO();
 
     String uniqueUser = "bidder_" + System.currentTimeMillis();
     userDAO.createUser(uniqueUser, "pass", uniqueUser + "@test.com", "Test Bidder", "BIDDER");
@@ -87,13 +47,6 @@ public class AuctionDAOTest {
     testProductId = p.getId();
 
     logger.info("--- SETUP HOÀN TẤT: UserID=" + testBidderId + ", ProductID=" + testProductId + " ---");
-  }
-
-  @AfterAll
-  void tearDown() throws Exception {
-    if (testConn != null) {
-      testConn.close();
-    }
   }
 
   @Test
