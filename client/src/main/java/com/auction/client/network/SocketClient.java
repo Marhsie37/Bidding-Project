@@ -39,22 +39,21 @@ public class SocketClient {
     }
 
     private String readServerHost() {
-        try {
-            java.io.File file = new java.io.File("server_config.txt");
-            if (file.exists()) {
-                java.util.Scanner scanner = new java.util.Scanner(file);
+        java.io.File file = new java.io.File("server_config.txt");
+        if (file.exists()) {
+            try (java.util.Scanner scanner = new java.util.Scanner(file)) {
                 if (scanner.hasNextLine()) {
                     String ip = scanner.nextLine().trim();
-                    scanner.close();
                     if (!ip.isEmpty()) {
-                        System.out.println("Sử dụng IP server từ config: " + ip);
+                        logger.info("Sử dụng IP server từ server_config.txt: {}", ip);
                         return ip;
                     }
                 }
-                scanner.close();
+            } catch (Exception e) {
+                logger.error("Không thể đọc file server_config.txt, dùng mặc định localhost. Lỗi: ", e);
             }
-        } catch (Exception e) {
-            System.err.println("Không thể đọc file server_config.txt, dùng mặc định localhost.");
+        } else {
+            logger.info("Không tìm thấy file server_config.txt, mặc định kết nối đến localhost.");
         }
         return "localhost";
     }
@@ -106,8 +105,10 @@ public class SocketClient {
                         }
 
                         if (handler == null && (handlers == null || handlers.isEmpty())) {
-                            if (response.getCommand() != null && response.getCommand().toString().equals("NEW_PRODUCT_ADDED")) {
-                                logger.info("📩 Đã nhận thông báo sản phẩm mới [Real-time] từ Server (Hệ thống bỏ qua an toàn)");
+                            if (response.getCommand() != null
+                                    && response.getCommand().toString().equals("NEW_PRODUCT_ADDED")) {
+                                logger.info(
+                                        "📩 Đã nhận thông báo sản phẩm mới [Real-time] từ Server (Hệ thống bỏ qua an toàn)");
                             } else {
                                 logger.warn("⚠️ Không có handler cho: {} (requestId={})",
                                         response.getCommand(), requestId);
@@ -302,9 +303,12 @@ public class SocketClient {
         responseHandlers.clear();
         multiHandlers.clear();
         try {
-            if (inputStream != null) inputStream.close();
-            if (outputStream != null) outputStream.close();
-            if (socket != null && !socket.isClosed()) socket.close();
+            if (inputStream != null)
+                inputStream.close();
+            if (outputStream != null)
+                outputStream.close();
+            if (socket != null && !socket.isClosed())
+                socket.close();
         } catch (IOException e) {
             logger.error("Error disconnecting: ", e);
         }
@@ -339,4 +343,5 @@ public class SocketClient {
     public void registerResponseHandler(CommandType command, Consumer<Response> handler) {
         responseHandlers.put(command, handler);
     }
+
 }
