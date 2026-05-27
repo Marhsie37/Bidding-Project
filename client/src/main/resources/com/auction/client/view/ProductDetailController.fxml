@@ -1,89 +1,120 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
+<ScrollPane prefHeight="788.0" prefWidth="1171.0" stylesheets="@css/ProductDetail.css"
+            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.auction.client.controller.ProductDetailController">
+    <content>
+        <AnchorPane prefHeight="1116.0" prefWidth="1150.0" style="-fx-background-color: #E6E6FA;"
+                    stylesheets="@css/ProductDetail.css">
+            <children>
+                <AnchorPane layoutX="2.0" prefHeight="47.0" prefWidth="1146.0" style="-fx-background-color: #F1EAFF;">
+                    <children>
+                        <Button layoutX="7.0" layoutY="4.0" mnemonicParsing="false" onAction="#goToMain"
+                                prefHeight="39.0" prefWidth="106.0" styleClass="btn-back"
+                                stylesheets="@css/ProductDetail.css" text="PREVIOUS"/>
+                    </children>
+                </AnchorPane>
 
-<ScrollPane prefHeight="788.0" prefWidth="1171.0" stylesheets="@css/ProductDetail.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.ProductDetailController">
-   <content>
-      <AnchorPane prefHeight="1116.0" prefWidth="1150.0" style="-fx-background-color: #E6E6FA;" stylesheets="@css/ProductDetail.css">
-         <children>
-            <AnchorPane layoutX="2.0" prefHeight="47.0" prefWidth="1146.0" style="-fx-background-color: #F1EAFF;">
-               <children>
-                  <Button layoutX="7.0" layoutY="4.0" mnemonicParsing="false" onAction="#goToMain" prefHeight="39.0" prefWidth="106.0" styleClass="btn-back" stylesheets="@css/ProductDetail.css" text="PREVIOUS" />
-               </children>
-            </AnchorPane>
+                <AnchorPane layoutX="627.0" layoutY="61.0" prefHeight="638.0" prefWidth="311.0" styleClass="card"
+                            stylesheets="@css/ProductDetail.css">
+                    <children>
+                        <Label layoutX="18.0" layoutY="33.0" styleClass="product-title"
+                               stylesheets="@css/ProductDetail.css" text="Tên sản phẩm"/>
+                        <TextField fx:id="txtBidAmount" layoutX="15.0" layoutY="286.0" prefHeight="42.0"
+                                   prefWidth="283.0" promptText="Nhập tiền cược" styleClass="bid-input"
+                                   stylesheets="@css/ProductDetail.css"/>
+                        <Button layoutX="14.0" layoutY="341.0" mnemonicParsing="false" onAction="#handlePlaceBid"
+                                prefHeight="42.0" prefWidth="283.0" styleClass="btn-bid"
+                                stylesheets="@css/ProductDetail.css" text="BID"/>
+                        <AnchorPane layoutX="15.0" layoutY="180.0" prefHeight="90.0" prefWidth="283.0"
+                                    styleClass="price-box" stylesheets="@css/ProductDetail.css">
+                            <children>
+                                <Label alignment="CENTER" layoutX="65.0" layoutY="14.0" prefHeight="18.0"
+                                       prefWidth="147.0" styleClass="price-label" stylesheets="@css/ProductDetail.css"
+                                       text="Giá hiện tại"/>
+                                <Label fx:id="lblDetailPrice" alignment="CENTER" layoutX="55.0" layoutY="46.0"
+                                       prefHeight="23.0" prefWidth="169.0" styleClass="price-value"
+                                       stylesheets="@css/ProductDetail.css" text="Hiện giá max">
+                                    <font>
+                                        <Font size="25.0"/>
+                                    </font>
+                                </Label>
+                            </children>
+                        </AnchorPane>
+                        <Separator layoutX="56.0" layoutY="415.0" prefWidth="200.0"
+                                   stylesheets="@css/ProductDetail.css"/>
+                        <Label layoutX="15.0" layoutY="436.0" styleClass="auto-bid-header"
+                               stylesheets="@css/ProductDetail.css" text="Đấu giá tự động"/>
+                        <Label layoutX="15.0" layoutY="479.0" styleClass="auto-bid-label"
+                               stylesheets="@css/ProductDetail.css" text="Max Bid"/>
+                        <TextField fx:id="txtMaxAutoPrice" layoutX="97.0" layoutY="469.0" prefHeight="35.0"
+                                   prefWidth="190.0" styleClass="max-bid-input" stylesheets="@css/ProductDetail.css"/>
+                        <Label layoutX="15.0" layoutY="529.0" styleClass="auto-bid-label"
+                               stylesheets="@css/ProductDetail.css" text="Increment"/>
+                        <TextField fx:id="txtIncrement" layoutX="97.0" layoutY="519.0" prefHeight="35.0"
+                                   prefWidth="190.0" styleClass="max-bid-input" stylesheets="@css/ProductDetail.css"/>
+                        <Button layoutX="169.0" layoutY="572.0" mnemonicParsing="false" onAction="#handleStartAutoBid"
+                                prefHeight="43.0" prefWidth="114.0" styleClass="btn-activate"
+                                stylesheets="@css/ProductDetail.css" text="KÍCH HOẠT"/>
+                        <AnchorPane layoutX="15.0" layoutY="77.0" prefHeight="90.0" prefWidth="283.0"
+                                    styleClass="countdown-box" stylesheets="@css/ProductDetail.css">
+                            <children>
+                                <Label fx:id="lblDetailTimer" alignment="CENTER" layoutX="55.0" layoutY="46.0"
+                                       prefHeight="23.0" prefWidth="169.0" styleClass="countdown-time"
+                                       stylesheets="@css/ProductDetail.css" text="Hiện thời gian">
+                                    <font>
+                                        <Font size="25.0"/>
+                                    </font>
+                                </Label>
+                                <Label alignment="CENTER" layoutX="65.0" layoutY="21.0" prefHeight="18.0"
+                                       prefWidth="147.0" styleClass="countdown-label"
+                                       stylesheets="@css/ProductDetail.css" text="Thời gian còn lại"/>
+                            </children>
+                        </AnchorPane>
+                    </children>
+                </AnchorPane>
 
-            <AnchorPane layoutX="627.0" layoutY="61.0" prefHeight="638.0" prefWidth="311.0" styleClass="card" stylesheets="@css/ProductDetail.css">
-               <children>
-                  <Label layoutX="18.0" layoutY="33.0" styleClass="product-title" stylesheets="@css/ProductDetail.css" text="Tên sản phẩm" />
-                  <TextField fx:id="txtBidAmount" layoutX="15.0" layoutY="286.0" prefHeight="42.0" prefWidth="283.0" promptText="Nhập tiền cược" styleClass="bid-input" stylesheets="@css/ProductDetail.css" />
-                  <Button layoutX="14.0" layoutY="341.0" mnemonicParsing="false" onAction="#handlePlaceBid" prefHeight="42.0" prefWidth="283.0" styleClass="btn-bid" stylesheets="@css/ProductDetail.css" text="BID" />
-                  <AnchorPane layoutX="15.0" layoutY="180.0" prefHeight="90.0" prefWidth="283.0" styleClass="price-box" stylesheets="@css/ProductDetail.css">
-                     <children>
-                        <Label alignment="CENTER" layoutX="65.0" layoutY="14.0" prefHeight="18.0" prefWidth="147.0" styleClass="price-label" stylesheets="@css/ProductDetail.css" text="Giá hiện tại" />
-                        <Label fx:id="lblDetailPrice" alignment="CENTER" layoutX="55.0" layoutY="46.0" prefHeight="23.0" prefWidth="169.0" styleClass="price-value" stylesheets="@css/ProductDetail.css" text="Hiện giá max">
-                           <font>
-                              <Font size="25.0" />
-                           </font>
+                <ImageView fx:id="imgDetail" fitHeight="144.0" fitWidth="144.0" layoutX="161.0" layoutY="88.0"
+                           pickOnBounds="true" styleClass="product-image"/>
+
+                <!-- 🟢 BIỂU ĐỒ LỊCH SỬ GIÁ -->
+                <VBox layoutX="73.0" layoutY="448.0" prefHeight="250.0" prefWidth="519.0" spacing="10">
+                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333;"
+                           text="📈 LỊCH SỬ BIẾN ĐỘNG GIÁ"/>
+                    <fx:include fx:id="auctionChart" source="AuctionChart.fxml"/>
+                </VBox>
+
+                <Label layoutX="741.0" layoutY="704.0" prefHeight="34.0" prefWidth="84.0"
+                       styleClass="bid-history-header" stylesheets="@css/ProductDetail.css" text="Lịch sử bid"/>
+
+                <ListView fx:id="lvBidHistory" layoutX="627.0" layoutY="742.0" prefHeight="300.0" prefWidth="311.0"
+                          styleClass="bid-history-card" stylesheets="@css/ProductDetail.css"/>
+                <AnchorPane layoutX="161.0" layoutY="241.0" prefHeight="197.0" prefWidth="375.0" styleClass="card"
+                            stylesheets="@css/ProductDetail.css">
+                    <children>
+                        <Label fx:id="lblDescription" alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="7.0"
+                               layoutY="59.0" maxHeight="197.0" maxWidth="375.0" minHeight="0.0" prefHeight="132.0"
+                               prefWidth="362.0" stylesheets="@css" text="Mô tả sản phẩm" wrapText="true">
+                            <font>
+                                <Font size="17.0"/>
+                            </font>
                         </Label>
-                     </children>
-                  </AnchorPane>
-                  <Separator layoutX="56.0" layoutY="415.0" prefWidth="200.0" stylesheets="@css/ProductDetail.css" />
-                  <Label layoutX="15.0" layoutY="436.0" styleClass="auto-bid-header" stylesheets="@css/ProductDetail.css" text="Đấu giá tự động" />
-                  <Label layoutX="15.0" layoutY="479.0" styleClass="auto-bid-label" stylesheets="@css/ProductDetail.css" text="Max Bid" />
-                  <TextField fx:id="txtMaxAutoPrice" layoutX="97.0" layoutY="469.0" prefHeight="35.0" prefWidth="190.0" styleClass="max-bid-input" stylesheets="@css/ProductDetail.css" />
-                  <Label layoutX="15.0" layoutY="529.0" styleClass="auto-bid-label" stylesheets="@css/ProductDetail.css" text="Increment" />
-                  <TextField fx:id="txtIncrement" layoutX="97.0" layoutY="519.0" prefHeight="35.0" prefWidth="190.0" styleClass="max-bid-input" stylesheets="@css/ProductDetail.css" />
-                  <Button layoutX="169.0" layoutY="572.0" mnemonicParsing="false" onAction="#handleStartAutoBid" prefHeight="43.0" prefWidth="114.0" styleClass="btn-activate" stylesheets="@css/ProductDetail.css" text="KÍCH HOẠT" />
-                  <AnchorPane layoutX="15.0" layoutY="77.0" prefHeight="90.0" prefWidth="283.0" styleClass="countdown-box" stylesheets="@css/ProductDetail.css">
-                     <children>
-                        <Label fx:id="lblDetailTimer" alignment="CENTER" layoutX="55.0" layoutY="46.0" prefHeight="23.0" prefWidth="169.0" styleClass="countdown-time" stylesheets="@css/ProductDetail.css" text="Hiện thời gian">
-                           <font>
-                              <Font size="25.0" />
-                           </font>
+                        <Label alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="97.0" layoutY="14.0"
+                               maxHeight="197.0" maxWidth="375.0" minHeight="0.0" prefHeight="42.0" prefWidth="182.0"
+                               stylesheets="@css" text="Mô tả sản phẩm" wrapText="true">
+                            <font>
+                                <Font size="25.0"/>
+                            </font>
                         </Label>
-                        <Label alignment="CENTER" layoutX="65.0" layoutY="21.0" prefHeight="18.0" prefWidth="147.0" styleClass="countdown-label" stylesheets="@css/ProductDetail.css" text="Thời gian còn lại" />
-                     </children>
-                  </AnchorPane>
-               </children>
-            </AnchorPane>
+                        <Separator layoutX="88.0" layoutY="46.0" prefWidth="200.0"/>
+                    </children>
+                </AnchorPane>
 
-            <ImageView fx:id="imgDetail" fitHeight="144.0" fitWidth="144.0" layoutX="161.0" layoutY="88.0" pickOnBounds="true" styleClass="product-image" />
-
-            <!-- 🟢 BIỂU ĐỒ LỊCH SỬ GIÁ -->
-            <VBox layoutX="73.0" layoutY="448.0" prefHeight="250.0" prefWidth="519.0" spacing="10">
-               <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #333;" text="📈 LỊCH SỬ BIẾN ĐỘNG GIÁ" />
-               <fx:include fx:id="auctionChart" source="AuctionChart.fxml" />
-            </VBox>
-
-            <Label layoutX="741.0" layoutY="704.0" prefHeight="34.0" prefWidth="84.0" styleClass="bid-history-header" stylesheets="@css/ProductDetail.css" text="Lịch sử bid" />
-
-            <ListView fx:id="lvBidHistory" layoutX="627.0" layoutY="742.0" prefHeight="300.0" prefWidth="311.0" styleClass="bid-history-card" stylesheets="@css/ProductDetail.css" />
-            <AnchorPane layoutX="161.0" layoutY="241.0" prefHeight="197.0" prefWidth="375.0" styleClass="card" stylesheets="@css/ProductDetail.css">
-               <children>
-                  <Label fx:id="lblDescription" alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="7.0" layoutY="59.0" maxHeight="197.0" maxWidth="375.0" minHeight="0.0" prefHeight="132.0" prefWidth="362.0" stylesheets="@css" text="Mô tả sản phẩm" wrapText="true">
-                     <font>
-                        <Font size="17.0" />
-                     </font>
-                  </Label>
-                  <Label alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="97.0" layoutY="14.0" maxHeight="197.0" maxWidth="375.0" minHeight="0.0" prefHeight="42.0" prefWidth="182.0" stylesheets="@css" text="Mô tả sản phẩm" wrapText="true">
-                     <font>
-                        <Font size="25.0" />
-                     </font>
-                  </Label>
-                  <Separator layoutX="88.0" layoutY="46.0" prefWidth="200.0" />
-               </children>
-            </AnchorPane>
-
-         </children>
-      </AnchorPane>
-   </content>
+            </children>
+        </AnchorPane>
+    </content>
 </ScrollPane>

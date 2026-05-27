@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-
 <AnchorPane prefHeight="746.0" prefWidth="1152.0" style="-fx-background-color: #F1F3F4;"
             xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -22,14 +16,16 @@
             <children>
                 <Label layoutX="430.0" layoutY="14.0"
                        style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #3a2060;"
-                       text="SẢN PHẨM CỦA TÔI" />
+                       text="SẢN PHẨM CỦA TÔI"/>
 
                 <Button layoutX="862.0" layoutY="6.0"
                         onAction="#goBack"
                         prefHeight="39.0" prefWidth="130.0"
                         styleClass="btn-seller" stylesheets="@css/Profile.css"
                         text="← Hồ sơ">
-                    <font><Font size="15.0" /></font>
+                    <font>
+                        <Font size="15.0"/>
+                    </font>
                 </Button>
 
                 <Button layoutX="1005.0" layoutY="6.0"
@@ -37,14 +33,16 @@
                         prefHeight="39.0" prefWidth="112.0"
                         styleClass="btn-logout" stylesheets="@css/Profile.css"
                         text="Log out" textAlignment="CENTER" wrapText="true">
-                    <font><Font size="15.0" /></font>
+                    <font>
+                        <Font size="15.0"/>
+                    </font>
                 </Button>
             </children>
         </AnchorPane>
 
         <!-- ══════ TIÊU ĐỀ ══════ -->
         <Label layoutX="111.0" layoutY="62.0"
-               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #5a3ea0;" />
+               style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #5a3ea0;"/>
 
         <!-- ══════ TABPANE SẢN PHẨM ══════ -->
         <TabPane fx:id="tabPaneProducts"
@@ -61,7 +59,7 @@
                                 <!-- Thanh thông tin tổng quan -->
                                 <Label fx:id="lblActiveCount"
                                        layoutX="16.0" layoutY="12.0"
-                                       style="-fx-font-size: 13px; -fx-text-fill: #5a3ea0; -fx-font-weight: 600;" />
+                                       style="-fx-font-size: 13px; -fx-text-fill: #5a3ea0; -fx-font-weight: 600;"/>
 
                                 <ScrollPane fitToWidth="true"
                                             layoutX="0.0" layoutY="40.0"
@@ -70,7 +68,7 @@
                                     <content>
                                         <VBox fx:id="vBoxActiveProducts"
                                               prefWidth="910.0" spacing="10.0"
-                                              style="-fx-padding: 12;" />
+                                              style="-fx-padding: 12;"/>
                                     </content>
                                 </ScrollPane>
                             </children>
@@ -85,7 +83,7 @@
                             <children>
                                 <Label fx:id="lblSoldCount"
                                        layoutX="16.0" layoutY="12.0"
-                                       style="-fx-font-size: 13px; -fx-text-fill: #2e7d32; -fx-font-weight: 600;" />
+                                       style="-fx-font-size: 13px; -fx-text-fill: #2e7d32; -fx-font-weight: 600;"/>
 
                                 <ScrollPane fitToWidth="true"
                                             layoutX="0.0" layoutY="40.0"
@@ -94,7 +92,7 @@
                                     <content>
                                         <VBox fx:id="vBoxSoldProducts"
                                               prefWidth="910.0" spacing="10.0"
-                                              style="-fx-padding: 12;" />
+                                              style="-fx-padding: 12;"/>
                                     </content>
                                 </ScrollPane>
                             </children>

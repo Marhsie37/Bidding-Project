@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TransactionDAOTest {
-  private Connection testConn;
   private TransactionDAO transactionDAO;
   private UserDAO userDAO;
   private int testUserId;
@@ -19,43 +18,12 @@ public class TransactionDAOTest {
 
   @BeforeAll
   void setup() throws Exception {
-    testConn = DriverManager.getConnection("jdbc:h2:mem:testdb_tx;DB_CLOSE_DELAY=-1;NON_KEYWORDS=TYPE");
-
-    try (Statement stmt = testConn.createStatement()) {
-      stmt.execute("CREATE TABLE IF NOT EXISTS users (" +
-              "id INT PRIMARY KEY AUTO_INCREMENT, " +
-              "username VARCHAR(50) UNIQUE, " +
-              "password VARCHAR(255), " +
-              "email VARCHAR(100) UNIQUE, " +
-              "full_name VARCHAR(100), " +
-              "role VARCHAR(20), " +
-              "balance DOUBLE DEFAULT 0, " +
-              "active BOOLEAN DEFAULT TRUE, " +
-              "status VARCHAR(20) DEFAULT 'ACTIVE', " +
-              "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-
-      stmt.execute("CREATE TABLE IF NOT EXISTS transactions (" +
-              "id INT PRIMARY KEY AUTO_INCREMENT, " +
-              "user_id INT, " +
-              "amount DOUBLE, " +
-              "type VARCHAR(50), " +
-              "description VARCHAR(255), " +
-              "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-    }
-
-    transactionDAO = new TransactionDAO(testConn);
-    userDAO = new UserDAO(testConn);
+    transactionDAO = new TransactionDAO();
+    userDAO = new UserDAO();
 
     String tempUser = "trans_user_" + System.currentTimeMillis();
     userDAO.createUser(tempUser, "123", tempUser + "@test.com", "Trans Tester", "BIDDER");
     testUserId = userDAO.findByUsername(tempUser).getId();
-  }
-
-  @AfterAll
-  void tearDown() throws SQLException {
-    if (testConn != null) {
-      testConn.close();
-    }
   }
 
   @Test
@@ -89,7 +57,8 @@ public class TransactionDAOTest {
   @DisplayName("Kiểm tra dữ liệu thực tế trong Database H2")
   void testVerifyDataInDb() {
     String sql = "SELECT COUNT(*) FROM transactions WHERE user_id = " + testUserId;
-    try (Statement stmt = testConn.createStatement();
+    try (Connection conn = DatabaseConnection.getInstance().getConnection();
+         Statement stmt = conn.createStatement();
          ResultSet rs = stmt.executeQuery(sql)) {
       if (rs.next()) {
         int count = rs.getInt(1);

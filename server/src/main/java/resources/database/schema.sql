@@ -75,10 +75,7 @@ CREATE TABLE IF NOT EXISTS products
 (
     50
 ),
-    image_url VARCHAR
-(
-    500
-),
+    image_url LONGTEXT,
     duration_hours INT DEFAULT 24,
     start_time TIMESTAMP NULL DEFAULT NULL,
     end_time TIMESTAMP NULL DEFAULT NULL,

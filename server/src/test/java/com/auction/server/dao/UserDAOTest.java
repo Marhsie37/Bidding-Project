@@ -13,37 +13,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserDAOTest {
-  private Connection testConn;
   private UserDAO userDAO;
   private String uniqueSuffix;
 
   @BeforeAll
   void setup() throws Exception {
-    testConn = DriverManager.getConnection("jdbc:h2:mem:testdb_user;DB_CLOSE_DELAY=-1");
-
-    try (Statement stmt = testConn.createStatement()) {
-      stmt.execute("CREATE TABLE users (" +
-              "id INT PRIMARY KEY AUTO_INCREMENT, " +
-              "username VARCHAR(50) UNIQUE, " +
-              "password VARCHAR(50), " +
-              "email VARCHAR(100) UNIQUE, " +
-              "full_name VARCHAR(100), " +
-              "role VARCHAR(20), " +
-              "balance DOUBLE DEFAULT 0, " +
-              "active BOOLEAN DEFAULT TRUE, " +
-              "status VARCHAR(20) DEFAULT 'ACTIVE', " +
-              "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-    }
-
-    userDAO = new UserDAO(testConn);
+    userDAO = new UserDAO();
     uniqueSuffix = String.valueOf(System.currentTimeMillis());
-  }
-
-  @AfterAll
-  void tearDown() throws Exception {
-    if (testConn != null) {
-      testConn.close();
-    }
   }
 
   @Test
