@@ -67,8 +67,9 @@ public class ProductDAO {
 
   public List<Product> getProductsBySeller(int sellerId) {
     List<Product> products = new ArrayList<>();
-    String sql = "SELECT p.*, u.username as seller_name FROM products p " +
+    String sql = "SELECT p.*, u.username as seller_name, w.username as winner_name FROM products p " +
             "LEFT JOIN users u ON p.seller_id = u.id " +
+            "LEFT JOIN users w ON p.winner_id = w.id " +
             "WHERE p.seller_id = ? ORDER BY p.created_at DESC";
     try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
       pstmt.setInt(1, sellerId);
