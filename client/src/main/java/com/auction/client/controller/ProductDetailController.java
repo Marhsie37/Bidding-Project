@@ -48,6 +48,10 @@ public class ProductDetailController {
   @FXML
   private TextField txtIncrement;
   @FXML
+  private Button btnBid;
+  @FXML
+  private Button btnAutoBid;
+  @FXML
   private ListView<String> lvBidHistory;
   @FXML
   private VBox auctionChart;
@@ -112,12 +116,34 @@ public class ProductDetailController {
       if (remaining <= 0) {
         lblDetailTimer.setText("HẾT HẠN!");
         timerTimeline.stop();
+        lockExpiredUI();
       } else {
         lblDetailTimer.setText(formatTime(remaining));
       }
     }));
     timerTimeline.setCycleCount(Timeline.INDEFINITE);
     timerTimeline.play();
+
+    // Khóa ngay nếu sản phẩm đã hết hạn khi mở màn hình
+    if (product != null && product.getRemainingSeconds() <= 0) {
+      lockExpiredUI();
+    }
+  }
+
+  private void lockExpiredUI() {
+    Platform.runLater(() -> {
+      lblDetailTimer.setText("HẾT HẠN!");
+      lblDetailTimer.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");
+      if (btnBid != null) {
+        btnBid.setDisable(true);
+        btnBid.setText("ĐÃ KẾT THÚC");
+        btnBid.setStyle("-fx-background-color: #aaaaaa; -fx-text-fill: white; -fx-font-weight: bold;");
+      }
+      if (txtBidAmount != null) txtBidAmount.setDisable(true);
+      if (btnAutoBid != null) btnAutoBid.setDisable(true);
+      if (txtMaxAutoPrice != null) txtMaxAutoPrice.setDisable(true);
+      if (txtIncrement != null) txtIncrement.setDisable(true);
+    });
   }
 
   private void loadBidHistory() {

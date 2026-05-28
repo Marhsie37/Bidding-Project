@@ -27,7 +27,7 @@
                         <TextField fx:id="txtBidAmount" layoutX="15.0" layoutY="286.0" prefHeight="42.0"
                                    prefWidth="283.0" promptText="Nhập tiền cược" styleClass="bid-input"
                                    stylesheets="@css/ProductDetail.css"/>
-                        <Button layoutX="14.0" layoutY="341.0" mnemonicParsing="false" onAction="#handlePlaceBid"
+                        <Button fx:id="btnBid" layoutX="14.0" layoutY="341.0" mnemonicParsing="false" onAction="#handlePlaceBid"
                                 prefHeight="42.0" prefWidth="283.0" styleClass="btn-bid"
                                 stylesheets="@css/ProductDetail.css" text="BID"/>
                         <AnchorPane layoutX="15.0" layoutY="180.0" prefHeight="90.0" prefWidth="283.0"
@@ -57,7 +57,7 @@
                                stylesheets="@css/ProductDetail.css" text="Increment"/>
                         <TextField fx:id="txtIncrement" layoutX="97.0" layoutY="519.0" prefHeight="35.0"
                                    prefWidth="190.0" styleClass="max-bid-input" stylesheets="@css/ProductDetail.css"/>
-                        <Button layoutX="169.0" layoutY="572.0" mnemonicParsing="false" onAction="#handleStartAutoBid"
+                        <Button fx:id="btnAutoBid" layoutX="169.0" layoutY="572.0" mnemonicParsing="false" onAction="#handleStartAutoBid"
                                 prefHeight="43.0" prefWidth="114.0" styleClass="btn-activate"
                                 stylesheets="@css/ProductDetail.css" text="KÍCH HOẠT"/>
                         <AnchorPane layoutX="15.0" layoutY="77.0" prefHeight="90.0" prefWidth="283.0"
