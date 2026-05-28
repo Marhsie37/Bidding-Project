@@ -176,7 +176,7 @@ public class AuctionService {
       }
 
       // Tạo Product object
-      LocalDateTime endTime = LocalDateTime.now().plusSeconds(durationHours); //đổi plusHours về plusSeconds sẽ đổi từ giờ thành giây
+      LocalDateTime endTime = LocalDateTime.now().plusSeconds(durationHours); // Theo yêu cầu của người dùng, sử dụng GIÂY để test nhanh
       Product product = new Product();
       product.setName(productName);
       product.setDescription(description);
@@ -301,10 +301,18 @@ public class AuctionService {
         }
         if (data.containsKey("durationHours")) {
           int durationHours = ((Number) data.get("durationHours")).intValue();
-          LocalDateTime newEndTime = LocalDateTime.now().plusHours(durationHours);
+          LocalDateTime newEndTime = LocalDateTime.now().plusSeconds(durationHours); // Sử dụng GIÂY
           product.setEndTime(newEndTime);
           product.setDurationHours(durationHours);
-          if (session != null) session.setEndTime(newEndTime);
+          
+          // Reactivate if it was finished
+          if (newEndTime.isAfter(LocalDateTime.now())) {
+            product.setStatus("ACTIVE");
+            if (session != null) {
+              session.setEndTime(newEndTime);
+              session.setStatus("ACTIVE");
+            }
+          }
         }
       }
 
