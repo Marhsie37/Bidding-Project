@@ -52,13 +52,18 @@ public class NotificationService {
   }
 
   public void notifyAuctionEnd(int auctionId, int winnerId, String winnerName, double finalPrice) {
-    CopyOnWriteArrayList<ClientHandler> handlers = subscribers.get(auctionId);
-    if (handlers != null) {
-      for (ClientHandler handler : handlers) {
-        handler.sendAuctionEnd(auctionId, winnerId, winnerName, finalPrice);
-      }
-
-    } //clean up subscribers
+    Map<String, Object> data = new java.util.HashMap<>();
+    data.put("productId", auctionId);
+    data.put("winnerId", winnerId);
+    data.put("winnerName", winnerName);
+    data.put("finalPrice", finalPrice);
+    
+    com.auction.shared.protocol.Response broadcast = new com.auction.shared.protocol.Response(
+        com.auction.shared.protocol.CommandType.AUCTION_END, true, "Auction ended", data);
+        
+    com.auction.server.AuctionServer.getInstance().broadcastToAll(broadcast);
+    
+    //clean up subscribers
     subscribers.remove(auctionId);
   }
 
