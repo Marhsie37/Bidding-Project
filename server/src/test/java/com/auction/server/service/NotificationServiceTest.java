@@ -49,6 +49,18 @@ class NotificationServiceTest {
       receivedUpdates.add(new Object[]{"AUCTION_EXTENDED", productId, newEndTime});
     }
 
+    @Override
+    public void sendResponsePublic(com.auction.shared.protocol.Response response) {
+      if (response.getCommand() == com.auction.shared.protocol.CommandType.AUCTION_END) {
+        java.util.Map<String, Object> data = response.getData();
+        int productId = (int) data.get("productId");
+        int winnerId = (int) data.get("winnerId");
+        String winnerName = (String) data.get("winnerName");
+        double finalPrice = (double) data.get("finalPrice");
+        receivedUpdates.add(new Object[]{"AUCTION_END", productId, winnerId, winnerName, finalPrice});
+      }
+    }
+
     public boolean hasBidUpdate(int productId, double bidAmount) {
       return receivedUpdates.stream().anyMatch(update ->
               update[0].equals("BID_UPDATE") &&
@@ -142,13 +154,16 @@ class NotificationServiceTest {
 
   @Test
   void testNotifyAuctionEnd() {
-    notificationService.subscribe(400, "user1", testHandler1);
-    notificationService.subscribe(400, "user2", testHandler2);
+    com.auction.server.AuctionServer.getInstance().registerClient("user1", testHandler1);
+    com.auction.server.AuctionServer.getInstance().registerClient("user2", testHandler2);
 
     notificationService.notifyAuctionEnd(400, 42, "winner", 5000.0);
 
     assertTrue(testHandler1.hasAuctionEnd(400, 42, 5000.0));
     assertTrue(testHandler2.hasAuctionEnd(400, 42, 5000.0));
+    
+    com.auction.server.AuctionServer.getInstance().unregisterClient("user1");
+    com.auction.server.AuctionServer.getInstance().unregisterClient("user2");
   }
 
   @Test
