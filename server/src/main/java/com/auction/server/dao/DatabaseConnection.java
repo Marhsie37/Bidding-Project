@@ -15,9 +15,9 @@ public class DatabaseConnection {
   private HikariDataSource dataSource;
   private static final Logger logger = LoggerFactory.getLogger(DatabaseConnection.class);
 
-  private static final String URL = "jdbc:mysql://localhost:3306/auction_system?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true";
+  private static final String URL = "jdbc:mysql://zephyr.proxy.rlwy.net:53289/auction_system";
   private static final String USER = "root";
-  private static final String PASSWORD = "admin";
+  private static final String PASSWORD = "ThQyIjNwDIeHMLXpuftiXwjwKxhecSYU";
 
   private static final String H2_URL = "jdbc:h2:mem:auction_test;DB_CLOSE_DELAY=-1;MODE=MySQL;NON_KEYWORDS=TYPE";
   private static final String H2_USER = "sa";

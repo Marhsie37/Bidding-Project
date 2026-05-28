@@ -18,7 +18,7 @@ public class DatabaseConnectionTest {
   @Test
   public void testSimulatedConnection() {
     // Một test cơ bản để xác nhận cấu hình URL hợp lệ
-    String dbUrl = "jdbc:mysql://localhost:3306/auction_db";
+    String dbUrl = "jdbc:mysql://zephyr.proxy.rlwy.net:53289/auction_system";
     assertTrue(dbUrl.startsWith("jdbc:"), "Chuỗi kết nối Database phải đúng định dạng JDBC");
   }
 }

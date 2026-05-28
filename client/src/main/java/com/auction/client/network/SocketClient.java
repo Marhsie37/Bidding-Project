@@ -34,29 +34,36 @@ public class SocketClient {
   private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
 
   private SocketClient() {
-    this.serverHost = readServerHost();
-    this.serverPort = 9999;
+    loadServerConfig();
   }
 
-  private String readServerHost() {
+  private void loadServerConfig() {
+    this.serverHost = "localhost";
+    this.serverPort = 9999;
     try {
       java.io.File file = new java.io.File("server_config.txt");
       if (file.exists()) {
         java.util.Scanner scanner = new java.util.Scanner(file);
         if (scanner.hasNextLine()) {
-          String ip = scanner.nextLine().trim();
+          String configLine = scanner.nextLine().trim();
           scanner.close();
-          if (!ip.isEmpty()) {
-            System.out.println("Sử dụng IP server từ config: " + ip);
-            return ip;
+          if (!configLine.isEmpty()) {
+            if (configLine.contains(":")) {
+              String[] parts = configLine.split(":");
+              this.serverHost = parts[0];
+              this.serverPort = Integer.parseInt(parts[1]);
+            } else {
+              this.serverHost = configLine;
+            }
+            System.out.println("Sử dụng cấu hình server từ file: " + this.serverHost + ":" + this.serverPort);
+            return;
           }
         }
         scanner.close();
       }
     } catch (Exception e) {
-      System.err.println("Không thể đọc file server_config.txt, dùng mặc định localhost.");
+      System.err.println("Không thể đọc file server_config.txt hoặc sai định dạng, dùng mặc định localhost:9999.");
     }
-    return "localhost";
   }
 
   public static SocketClient getInstance() {
