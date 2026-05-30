@@ -1,124 +1,131 @@
 package com.auction.test.network;
 
-import com.auction.shared.protocol.*;
 import com.auction.server.ClientHandler;
 import com.auction.server.service.NotificationService;
-
-import org.junit.jupiter.api.*;
-
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-import java.util.function.Consumer;
+import com.auction.shared.protocol.CommandType;
+import com.auction.shared.protocol.Request;
+import com.auction.shared.protocol.Response;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
 public class NetWorkTest {
 
-    private static final int MOCK_PORT = 9999;
-    private static ServerSocket mockServerSocket;
-    private static Thread mockServerThread;
-    private static final Logger logger = LoggerFactory.getLogger(NetWorkTest.class);
-   //Mock server
-    @BeforeAll
-    static void startMockServer() throws IOException {
-        mockServerSocket = new ServerSocket(MOCK_PORT);
-        mockServerThread = new Thread(() -> {
-            while (!mockServerSocket.isClosed()) {
-                try {
-                    Socket client = mockServerSocket.accept();
-                    new Thread(() -> handleMockClient(client)).start();
-                } catch (IOException e) {
-                    if (!mockServerSocket.isClosed()) {
-                        logger.error("[MockServer] accept error: " ,e);
-                    }
-                }
-            }
-        });
-        mockServerThread.setDaemon(true);
-        mockServerThread.start();
-        logger.info("[MockServer] Started on port " + MOCK_PORT);
-    }
+  private static final int MOCK_PORT = 9999;
+  private static ServerSocket mockServerSocket;
+  private static Thread mockServerThread;
+  private static final Logger logger = LoggerFactory.getLogger(NetWorkTest.class);
 
-    private static void handleMockClient(Socket client) {
-        try (
-                ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
-                ObjectInputStream  in  = new ObjectInputStream(client.getInputStream())
-        ) {
-            while (!client.isClosed()) {
-                Object obj = in.readObject();
-                if (obj instanceof Request) {
-                    Response res = buildMockResponse((Request) obj);
-                    out.writeObject(res);
-                    out.flush();
-                }
-            }
-        } catch (EOFException ignored) {
-        } catch (Exception e) {
-            logger.error("[MockServer] client error: " ,e);
+  //Mock server
+  @BeforeAll
+  static void startMockServer() throws IOException {
+    mockServerSocket = new ServerSocket(MOCK_PORT);
+    mockServerThread = new Thread(() -> {
+      while (!mockServerSocket.isClosed()) {
+        try {
+          Socket client = mockServerSocket.accept();
+          new Thread(() -> handleMockClient(client)).start();
+        } catch (IOException e) {
+          if (!mockServerSocket.isClosed()) {
+            logger.error("[MockServer] accept error: ", e);
+          }
         }
-    }
+      }
+    });
+    mockServerThread.setDaemon(true);
+    mockServerThread.start();
+    logger.info("[MockServer] Started on port " + MOCK_PORT);
+  }
 
-    private static Response buildMockResponse(Request req) {
-        Map<String, Object> data = new HashMap<>();
-        switch (req.getCommand()) {
-            case LOGIN:
-                data.put("user", "testUser");
-                data.put("role", "USER");
-                return new Response(CommandType.LOGIN, true, "Login successful", data);
-            case PLACE_BID:
-                data.put("productId", req.getData().get("productId"));
-                data.put("bidAmount", req.getData().get("bidAmount"));
-                data.put("bidderName", "testBidder");
-                return new Response(CommandType.PLACE_BID, true, "Bid placed", data);
-            case GET_PRODUCTS:
-                data.put("products", Collections.emptyList());
-                return new Response(CommandType.GET_PRODUCTS, true, "Success", data);
-            case SUBSCRIBE_AUCTION:
-                return new Response(CommandType.SUBSCRIBE_AUCTION, true, "Subscribed", null);
-            case LOGOUT:
-                return new Response(CommandType.LOGOUT, true, "Logged out", null);
-            default:
-                return new Response(req.getCommand(), true, "OK", null);
+  private static void handleMockClient(Socket client) {
+    try (
+            ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(client.getInputStream())
+    ) {
+      while (!client.isClosed()) {
+        Object obj = in.readObject();
+        if (obj instanceof Request) {
+          Response res = buildMockResponse((Request) obj);
+          out.writeObject(res);
+          out.flush();
         }
+      }
+    } catch (EOFException ignored) {
+    } catch (Exception e) {
+      logger.error("[MockServer] client error: ", e);
     }
+  }
 
-    @AfterAll
-    static void stopMockServer() throws IOException {
-        if (mockServerSocket != null && !mockServerSocket.isClosed()) {
-            mockServerSocket.close();
-        }
-        logger.info("[MockServer] Stopped");
+  private static Response buildMockResponse(Request req) {
+    Map<String, Object> data = new HashMap<>();
+    switch (req.getCommand()) {
+      case LOGIN:
+        data.put("user", "testUser");
+        data.put("role", "USER");
+        return new Response(CommandType.LOGIN, true, "Login successful", data);
+      case PLACE_BID:
+        data.put("productId", req.getData().get("productId"));
+        data.put("bidAmount", req.getData().get("bidAmount"));
+        data.put("bidderName", "testBidder");
+        return new Response(CommandType.PLACE_BID, true, "Bid placed", data);
+      case GET_PRODUCTS:
+        data.put("products", Collections.emptyList());
+        return new Response(CommandType.GET_PRODUCTS, true, "Success", data);
+      case SUBSCRIBE_AUCTION:
+        return new Response(CommandType.SUBSCRIBE_AUCTION, true, "Subscribed", null);
+      case LOGOUT:
+        return new Response(CommandType.LOGOUT, true, "Logged out", null);
+      default:
+        return new Response(req.getCommand(), true, "OK", null);
     }
+  }
 
-    private Socket connectToMock() throws IOException {
-        return new Socket("localhost", MOCK_PORT);
+  @AfterAll
+  static void stopMockServer() throws IOException {
+    if (mockServerSocket != null && !mockServerSocket.isClosed()) {
+      mockServerSocket.close();
     }
+    logger.info("[MockServer] Stopped");
+  }
 
-    // =========================================================
-    //  TEST GROUP 1: Kết nối Socket
-    // =========================================================
+  private Socket connectToMock() throws IOException {
+    return new Socket("localhost", MOCK_PORT);
+  }
 
-    @Test
-    @DisplayName("TC-01: Client kết nối được server")
-    void testClientCanConnectToServer() throws Exception {
-        try (Socket socket = connectToMock()) {
-            assertTrue(socket.isConnected(), "Socket phải được kết nối");
-            assertFalse(socket.isClosed(), "Socket không được đóng");
-            assertEquals(MOCK_PORT, socket.getPort(), "Phải kết nối đúng port");
-        }
+  // =========================================================
+  //  TEST GROUP 1: Kết nối Socket
+  // =========================================================
+
+  @Test
+  @DisplayName("TC-01: Client kết nối được server")
+  void testClientCanConnectToServer() throws Exception {
+    try (Socket socket = connectToMock()) {
+      assertTrue(socket.isConnected(), "Socket phải được kết nối");
+      assertFalse(socket.isClosed(), "Socket không được đóng");
+      assertEquals(MOCK_PORT, socket.getPort(), "Phải kết nối đúng port");
     }
+  }
 
-    @Test
-    @DisplayName("TC-02: Kết nối đến port sai phải thất bại")
-    void testConnectionToWrongPortFails() {
-        assertThrows(IOException.class, () -> new Socket("localhost", 9998));
-    }
+  @Test
+  @DisplayName("TC-02: Kết nối đến port sai phải thất bại")
+  void testConnectionToWrongPortFails() {
+    assertThrows(IOException.class, () -> new Socket("localhost", 9998));
+  }
 
     /*@Test
     @DisplayName("TC-03: Kết nối đến host không tồn tại phải thất bại")
@@ -127,644 +134,655 @@ public class NetWorkTest {
                 () -> new Socket("this.host.does.not.exist.xyz", MOCK_PORT));
     }*/
 
-    // =========================================================
-    //  TEST GROUP 2: Nhiều client cùng lúc
-    // =========================================================
+  // =========================================================
+  //  TEST GROUP 2: Nhiều client cùng lúc
+  // =========================================================
 
-    @Test
-    @DisplayName("TC-04: 10 client kết nối đồng thời không lỗi")
-    void testMultipleClientsConnect() throws InterruptedException {
-        int clientCount = 10;
-        CountDownLatch connected   = new CountDownLatch(clientCount);
-        CountDownLatch done        = new CountDownLatch(clientCount);
-        AtomicInteger successCount = new AtomicInteger(0);
-        List<Socket>  sockets      = Collections.synchronizedList(new ArrayList<>());
+  @Test
+  @DisplayName("TC-04: 10 client kết nối đồng thời không lỗi")
+  void testMultipleClientsConnect() throws InterruptedException {
+    int clientCount = 10;
+    CountDownLatch connected = new CountDownLatch(clientCount);
+    CountDownLatch done = new CountDownLatch(clientCount);
+    AtomicInteger successCount = new AtomicInteger(0);
+    List<Socket> sockets = Collections.synchronizedList(new ArrayList<>());
 
-        for (int i = 0; i < clientCount; i++) {
-            new Thread(() -> {
-                try {
-                    Socket s = connectToMock();
-                    sockets.add(s);
-                    successCount.incrementAndGet();
-                    connected.countDown();
-                    connected.await(3, TimeUnit.SECONDS);
-                } catch (Exception e) {
-                    logger.error("[TC-04] " ,e);
-                } finally {
-                    done.countDown();
-                }
-            }).start();
+    for (int i = 0; i < clientCount; i++) {
+      new Thread(() -> {
+        try {
+          Socket s = connectToMock();
+          sockets.add(s);
+          successCount.incrementAndGet();
+          connected.countDown();
+          connected.await(3, TimeUnit.SECONDS);
+        } catch (Exception e) {
+          logger.error("[TC-04] ", e);
+        } finally {
+          done.countDown();
         }
-
-        boolean allDone = done.await(5, TimeUnit.SECONDS);
-        for (Socket s : sockets) {
-            try { s.close(); } catch (IOException ignored) {}
-        }
-
-        assertTrue(allDone, "Tất cả thread phải hoàn thành");
-        assertEquals(clientCount, successCount.get());
+      }).start();
     }
 
-    @Test
-    @DisplayName("TC-05: 20 client gửi request đồng thời không deadlock")
-    void testTwentyClientsConcurrentRequests() throws InterruptedException {
-        int clientCount = 20;
-        CountDownLatch startGun    = new CountDownLatch(1);
-        CountDownLatch done        = new CountDownLatch(clientCount);
-        AtomicInteger successCount = new AtomicInteger(0);
-
-        for (int i = 0; i < clientCount; i++) {
-            new Thread(() -> {
-                try (Socket s = connectToMock()) {
-                    ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                    ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
-                    startGun.await();
-                    out.writeObject(new Request(CommandType.GET_PRODUCTS, new HashMap<>()));
-                    out.flush();
-                    Object res = in.readObject();
-                    if (res instanceof Response && ((Response) res).isSuccess()) {
-                        successCount.incrementAndGet();
-                    }
-                } catch (Exception e) {
-                    logger.error("[TC-05] " ,e);
-                } finally {
-                    done.countDown();
-                }
-            }).start();
-        }
-
-        startGun.countDown();
-        assertTrue(done.await(10, TimeUnit.SECONDS), "Phải hoàn thành trong 10 giây");
-        assertEquals(clientCount, successCount.get());
+    boolean allDone = done.await(5, TimeUnit.SECONDS);
+    for (Socket s : sockets) {
+      try {
+        s.close();
+      } catch (IOException ignored) {
+      }
     }
-    // =========================================================
+
+    assertTrue(allDone, "Tất cả thread phải hoàn thành");
+    assertEquals(clientCount, successCount.get());
+  }
+
+  @Test
+  @DisplayName("TC-05: 20 client gửi request đồng thời không deadlock")
+  void testTwentyClientsConcurrentRequests() throws InterruptedException {
+    int clientCount = 20;
+    CountDownLatch startGun = new CountDownLatch(1);
+    CountDownLatch done = new CountDownLatch(clientCount);
+    AtomicInteger successCount = new AtomicInteger(0);
+
+    for (int i = 0; i < clientCount; i++) {
+      new Thread(() -> {
+        try (Socket s = connectToMock()) {
+          ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+          ObjectInputStream in = new ObjectInputStream(s.getInputStream());
+          startGun.await();
+          out.writeObject(new Request(CommandType.GET_PRODUCTS, new HashMap<>()));
+          out.flush();
+          Object res = in.readObject();
+          if (res instanceof Response && ((Response) res).isSuccess()) {
+            successCount.incrementAndGet();
+          }
+        } catch (Exception e) {
+          logger.error("[TC-05] ", e);
+        } finally {
+          done.countDown();
+        }
+      }).start();
+    }
+
+    startGun.countDown();
+    assertTrue(done.await(10, TimeUnit.SECONDS), "Phải hoàn thành trong 10 giây");
+    assertEquals(clientCount, successCount.get());
+  }
+  // =========================================================
 //  TEST GROUP 2 (bổ sung): FixedThreadPool với 50 client
 // =========================================================
 
-    @Test
-    @DisplayName("TC-037: FixedThreadPool(10) xử lý 50 client - throughput và không bị treo")
-    void testFixedThreadPoolWithFiftyClients() throws InterruptedException {
-        int totalClients  = 50;
-        int poolSize      = 10;
+  @Test
+  @DisplayName("TC-037: FixedThreadPool(10) xử lý 50 client - throughput và không bị treo")
+  void testFixedThreadPoolWithFiftyClients() throws InterruptedException {
+    int totalClients = 50;
+    int poolSize = 10;
 
-        ExecutorService executor    = Executors.newFixedThreadPool(poolSize);
-        CountDownLatch  startGun    = new CountDownLatch(1);
-        CountDownLatch  done        = new CountDownLatch(totalClients);
-        AtomicInteger   successCount = new AtomicInteger(0);
-        AtomicInteger   errorCount   = new AtomicInteger(0);
+    ExecutorService executor = Executors.newFixedThreadPool(poolSize);
+    CountDownLatch startGun = new CountDownLatch(1);
+    CountDownLatch done = new CountDownLatch(totalClients);
+    AtomicInteger successCount = new AtomicInteger(0);
+    AtomicInteger errorCount = new AtomicInteger(0);
 
-        for (int i = 0; i < totalClients; i++) {
-            executor.submit(() -> {
-                try {
-                    startGun.await();
-                    try (Socket s = connectToMock()) {
-                        ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                        ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
-
-                        Map<String, Object> data = new HashMap<>();
-                        out.writeObject(new Request(CommandType.GET_PRODUCTS, data));
-                        out.flush();
-
-                        Object res = in.readObject();
-                        if (res instanceof Response && ((Response) res).isSuccess()) {
-                            successCount.incrementAndGet();
-                        } else {
-                            errorCount.incrementAndGet();
-                        }
-                    }
-                } catch (Exception e) {
-                    errorCount.incrementAndGet();
-                    logger.error("[TC-06] Thread error: " ,e);
-                } finally {
-                    done.countDown();
-                }
-            });
-        }
-
-        // Bắn súng cho tất cả thread cùng khởi động
-        startGun.countDown();
-
-        // Chờ tất cả 50 task hoàn thành trong 15 giây
-        boolean allDone = done.await(15, TimeUnit.SECONDS);
-
-        // Shutdown executor gọn gàng
-        executor.shutdown();
-        boolean terminated = executor.awaitTermination(5, TimeUnit.SECONDS);
-
-        assertTrue(allDone,      "Tất cả 50 client phải hoàn thành trong 15 giây");
-        assertTrue(terminated,   "Executor phải shutdown gọn gàng");
-        assertEquals(totalClients, successCount.get() + errorCount.get(),
-                "Tổng success + error phải đúng bằng 50");
-        assertEquals(totalClients, successCount.get(),
-                "Tất cả 50 client phải nhận response thành công");
-        assertEquals(0, errorCount.get(),
-                "Không được có lỗi nào");
-
-        System.out.printf("[TC-06] Pool size: %d | Clients: %d | Success: %d | Error: %d%n",
-                poolSize, totalClients, successCount.get(), errorCount.get());
-    }
-
-    // =========================================================
-    //  TEST GROUP 3: Request / Response
-    // =========================================================
-
-    @Test
-    @DisplayName("TC-06: LOGIN request nhận response đúng")
-    void testLoginRequestResponse() throws Exception {
-        try (Socket s = connectToMock()) {
+    for (int i = 0; i < totalClients; i++) {
+      executor.submit(() -> {
+        try {
+          startGun.await();
+          try (Socket s = connectToMock()) {
             ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-            ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
+            ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 
             Map<String, Object> data = new HashMap<>();
-            data.put("username", "testUser");
-            data.put("password", "testPass");
-
-            out.writeObject(new Request(CommandType.LOGIN, data));
+            out.writeObject(new Request(CommandType.GET_PRODUCTS, data));
             out.flush();
 
-            Response res = (Response) in.readObject();
-            assertNotNull(res);
-            assertEquals(CommandType.LOGIN, res.getCommand());
-            assertTrue(res.isSuccess());
-        }
-    }
-
-    @Test
-    @DisplayName("TC-07: PLACE_BID request nhận response đúng productId và bidAmount")
-    void testPlaceBidRequestResponse() throws Exception {
-        try (Socket s = connectToMock()) {
-            ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-            ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
-
-            int    productId = 42;
-            double bidAmount = 1500.0;
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("productId", productId);
-            data.put("bidAmount", bidAmount);
-
-            out.writeObject(new Request(CommandType.PLACE_BID, data));
-            out.flush();
-
-            Response res = (Response) in.readObject();
-            assertNotNull(res);
-            assertEquals(CommandType.PLACE_BID, res.getCommand());
-            assertTrue(res.isSuccess());
-            assertEquals(productId, ((Number) res.getData().get("productId")).intValue());
-            assertEquals(bidAmount, ((Number) res.getData().get("bidAmount")).doubleValue(), 0.001);
-        }
-    }
-
-    @Test
-    @DisplayName("TC-08: Nhiều request liên tiếp trên cùng kết nối")
-    void testMultipleRequestsOnSameConnection() throws Exception {
-        try (Socket s = connectToMock()) {
-            ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-            ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
-
-            CommandType[] commands = {
-                    CommandType.GET_PRODUCTS,
-                    CommandType.SUBSCRIBE_AUCTION,
-                    CommandType.LOGOUT
-            };
-
-            for (CommandType cmd : commands) {
-                Map<String, Object> data = new HashMap<>();
-                if (cmd == CommandType.SUBSCRIBE_AUCTION) data.put("productId", 1);
-                out.writeObject(new Request(cmd, data));
-                out.flush();
-                Response res = (Response) in.readObject();
-                assertEquals(cmd, res.getCommand());
-                assertTrue(res.isSuccess());
+            Object res = in.readObject();
+            if (res instanceof Response && ((Response) res).isSuccess()) {
+              successCount.incrementAndGet();
+            } else {
+              errorCount.incrementAndGet();
             }
+          }
+        } catch (Exception e) {
+          errorCount.incrementAndGet();
+          logger.error("[TC-06] Thread error: ", e);
+        } finally {
+          done.countDown();
         }
+      });
     }
 
-    // =========================================================
-    //  TEST GROUP 4: Concurrent Bidding
-    // =========================================================
+    // Bắn súng cho tất cả thread cùng khởi động
+    startGun.countDown();
 
-    @Test
-    @DisplayName("TC-09: 10 thread đồng thời đặt bid - không race condition")
-    void testConcurrentBidding() throws InterruptedException {
-        int threadCount = 10;
-        CountDownLatch startGun     = new CountDownLatch(1);
-        CountDownLatch done         = new CountDownLatch(threadCount);
-        AtomicInteger  successCount = new AtomicInteger(0);
-        AtomicInteger  errorCount   = new AtomicInteger(0);
-        Random         random       = new Random();
+    // Chờ tất cả 50 task hoàn thành trong 15 giây
+    boolean allDone = done.await(15, TimeUnit.SECONDS);
 
-        for (int i = 0; i < threadCount; i++) {
-            new Thread(() -> {
-                try (Socket s = connectToMock()) {
-                    ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-                    ObjectInputStream  in  = new ObjectInputStream(s.getInputStream());
-                    startGun.await();
+    // Shutdown executor gọn gàng
+    executor.shutdown();
+    boolean terminated = executor.awaitTermination(5, TimeUnit.SECONDS);
 
-                    double bid = 1000 + random.nextInt(1000);
-                    Map<String, Object> data = new HashMap<>();
-                    data.put("productId", 1);
-                    data.put("bidAmount", bid);
+    assertTrue(allDone, "Tất cả 50 client phải hoàn thành trong 15 giây");
+    assertTrue(terminated, "Executor phải shutdown gọn gàng");
+    assertEquals(totalClients, successCount.get() + errorCount.get(),
+            "Tổng success + error phải đúng bằng 50");
+    assertEquals(totalClients, successCount.get(),
+            "Tất cả 50 client phải nhận response thành công");
+    assertEquals(0, errorCount.get(),
+            "Không được có lỗi nào");
 
-                    out.writeObject(new Request(CommandType.PLACE_BID, data));
-                    out.flush();
+    System.out.printf("[TC-06] Pool size: %d | Clients: %d | Success: %d | Error: %d%n",
+            poolSize, totalClients, successCount.get(), errorCount.get());
+  }
 
-                    Response res = (Response) in.readObject();
-                    if (res.isSuccess()) successCount.incrementAndGet();
-                    else errorCount.incrementAndGet();
-                } catch (Exception e) {
-                    errorCount.incrementAndGet();
-                } finally {
-                    done.countDown();
-                }
-            }).start();
-        }
+  // =========================================================
+  //  TEST GROUP 3: Request / Response
+  // =========================================================
 
-        startGun.countDown();
-        assertTrue(done.await(10, TimeUnit.SECONDS));
-        assertEquals(threadCount, successCount.get() + errorCount.get());
-        System.out.printf("[TC-09] %d success, %d error%n", successCount.get(), errorCount.get());
+  @Test
+  @DisplayName("TC-06: LOGIN request nhận response đúng")
+  void testLoginRequestResponse() throws Exception {
+    try (Socket s = connectToMock()) {
+      ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+      ObjectInputStream in = new ObjectInputStream(s.getInputStream());
+
+      Map<String, Object> data = new HashMap<>();
+      data.put("username", "testUser");
+      data.put("password", "testPass");
+
+      out.writeObject(new Request(CommandType.LOGIN, data));
+      out.flush();
+
+      Response res = (Response) in.readObject();
+      assertNotNull(res);
+      assertEquals(CommandType.LOGIN, res.getCommand());
+      assertTrue(res.isSuccess());
     }
+  }
 
-    @Test
-    @DisplayName("TC-10: AtomicInteger không bị race condition với 50 thread")
-    void testAtomicBidCounterNoRaceCondition() throws InterruptedException {
-        int threadCount = 50;
-        AtomicInteger  counter = new AtomicInteger(0);
-        CountDownLatch latch   = new CountDownLatch(threadCount);
+  @Test
+  @DisplayName("TC-07: PLACE_BID request nhận response đúng productId và bidAmount")
+  void testPlaceBidRequestResponse() throws Exception {
+    try (Socket s = connectToMock()) {
+      ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+      ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 
-        for (int i = 0; i < threadCount; i++) {
-            new Thread(() -> {
-                counter.incrementAndGet();
-                latch.countDown();
-            }).start();
-        }
+      int productId = 42;
+      double bidAmount = 1500.0;
 
-        latch.await(5, TimeUnit.SECONDS);
-        assertEquals(threadCount, counter.get());
+      Map<String, Object> data = new HashMap<>();
+      data.put("productId", productId);
+      data.put("bidAmount", bidAmount);
+
+      out.writeObject(new Request(CommandType.PLACE_BID, data));
+      out.flush();
+
+      Response res = (Response) in.readObject();
+      assertNotNull(res);
+      assertEquals(CommandType.PLACE_BID, res.getCommand());
+      assertTrue(res.isSuccess());
+      assertEquals(productId, ((Number) res.getData().get("productId")).intValue());
+      assertEquals(bidAmount, ((Number) res.getData().get("bidAmount")).doubleValue(), 0.001);
     }
+  }
 
-    @Test
-    @DisplayName("TC-11: ConcurrentHashMap không ConcurrentModificationException")
-    void testConcurrentHashMapThreadSafe() throws InterruptedException {
-        ConcurrentHashMap<String, String> clients = new ConcurrentHashMap<>();
-        int threadCount = 20;
-        CountDownLatch done = new CountDownLatch(threadCount * 2);
+  @Test
+  @DisplayName("TC-08: Nhiều request liên tiếp trên cùng kết nối")
+  void testMultipleRequestsOnSameConnection() throws Exception {
+    try (Socket s = connectToMock()) {
+      ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+      ObjectInputStream in = new ObjectInputStream(s.getInputStream());
 
-        for (int i = 0; i < threadCount; i++) {
-            final String key = "user" + i;
-            new Thread(() -> {
-                clients.put(key, "handler-" + key);
-                try { Thread.sleep(5); } catch (InterruptedException ignored) {}
-                clients.remove(key);
-                done.countDown();
-            }).start();
-        }
+      CommandType[] commands = {
+              CommandType.GET_PRODUCTS,
+              CommandType.SUBSCRIBE_AUCTION,
+              CommandType.LOGOUT
+      };
 
-        for (int i = 0; i < threadCount; i++) {
-            new Thread(() -> {
-                clients.forEach((k, v) -> assertNotNull(v));
-                done.countDown();
-            }).start();
-        }
-
-        assertTrue(done.await(10, TimeUnit.SECONDS));
-    }
-
-    // =========================================================
-    //  TEST GROUP 5: Realtime Update
-    // =========================================================
-
-    @Test
-    @DisplayName("TC-12: Bid mới đến được subscriber qua BlockingQueue")
-    void testRealtimeBidUpdateReachesSubscriber() throws InterruptedException {
-        BlockingQueue<String> updateQueue = new LinkedBlockingQueue<>();
-
-        new Thread(() -> {
-            try {
-                Thread.sleep(100);
-                updateQueue.put("BID_UPDATE:product=1:amount=2000.0");
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }).start();
-
-        String update = updateQueue.poll(2, TimeUnit.SECONDS);
-        assertNotNull(update, "Subscriber phải nhận được BID_UPDATE trong 2 giây");
-        assertTrue(update.startsWith("BID_UPDATE"));
-        assertTrue(update.contains("product=1"));
-        assertTrue(update.contains("amount=2000.0"));
-    }
-
-    @Test
-    @DisplayName("TC-13: sendBidUpdate ghi đúng data qua ObjectStream")
-    void testSendBidUpdateWritesCorrectData() throws Exception {
-        PipedOutputStream pipeOut = new PipedOutputStream();
-        PipedInputStream  pipeIn  = new PipedInputStream(pipeOut);
-        ObjectOutputStream oos    = new ObjectOutputStream(pipeOut);
-        ObjectInputStream  ois    = new ObjectInputStream(pipeIn);
-
-        int    productId = 10;
-        String bidder    = "alice";
-        double bidAmount = 3500.0;
-
+      for (CommandType cmd : commands) {
         Map<String, Object> data = new HashMap<>();
-        data.put("productId",  productId);
-        data.put("bidderName", bidder);
-        data.put("bidAmount",  bidAmount);
-        data.put("timestamp",  java.time.LocalDateTime.now().toString());
+        if (cmd == CommandType.SUBSCRIBE_AUCTION) data.put("productId", 1);
+        out.writeObject(new Request(cmd, data));
+        out.flush();
+        Response res = (Response) in.readObject();
+        assertEquals(cmd, res.getCommand());
+        assertTrue(res.isSuccess());
+      }
+    }
+  }
 
-        oos.writeObject(new Response(CommandType.BID_UPDATE, true, "New bid placed", data));
-        oos.flush();
+  // =========================================================
+  //  TEST GROUP 4: Concurrent Bidding
+  // =========================================================
 
-        Response received = (Response) ois.readObject();
-        assertEquals(CommandType.BID_UPDATE, received.getCommand());
-        assertTrue(received.isSuccess());
-        assertEquals(productId, ((Number) received.getData().get("productId")).intValue());
-        assertEquals(bidder,    received.getData().get("bidderName"));
-        assertEquals(bidAmount, ((Number) received.getData().get("bidAmount")).doubleValue(), 0.001);
+  @Test
+  @DisplayName("TC-09: 10 thread đồng thời đặt bid - không race condition")
+  void testConcurrentBidding() throws InterruptedException {
+    int threadCount = 10;
+    CountDownLatch startGun = new CountDownLatch(1);
+    CountDownLatch done = new CountDownLatch(threadCount);
+    AtomicInteger successCount = new AtomicInteger(0);
+    AtomicInteger errorCount = new AtomicInteger(0);
+    Random random = new Random();
 
-        oos.close();
-        ois.close();
+    for (int i = 0; i < threadCount; i++) {
+      new Thread(() -> {
+        try (Socket s = connectToMock()) {
+          ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+          ObjectInputStream in = new ObjectInputStream(s.getInputStream());
+          startGun.await();
+
+          double bid = 1000 + random.nextInt(1000);
+          Map<String, Object> data = new HashMap<>();
+          data.put("productId", 1);
+          data.put("bidAmount", bid);
+
+          out.writeObject(new Request(CommandType.PLACE_BID, data));
+          out.flush();
+
+          Response res = (Response) in.readObject();
+          if (res.isSuccess()) successCount.incrementAndGet();
+          else errorCount.incrementAndGet();
+        } catch (Exception e) {
+          errorCount.incrementAndGet();
+        } finally {
+          done.countDown();
+        }
+      }).start();
     }
 
-    // =========================================================
-    //  TEST GROUP 6: Observer Pattern
-    // =========================================================
+    startGun.countDown();
+    assertTrue(done.await(10, TimeUnit.SECONDS));
+    assertEquals(threadCount, successCount.get() + errorCount.get());
+    System.out.printf("[TC-09] %d success, %d error%n", successCount.get(), errorCount.get());
+  }
 
-    // =========================================================
+  @Test
+  @DisplayName("TC-10: AtomicInteger không bị race condition với 50 thread")
+  void testAtomicBidCounterNoRaceCondition() throws InterruptedException {
+    int threadCount = 50;
+    AtomicInteger counter = new AtomicInteger(0);
+    CountDownLatch latch = new CountDownLatch(threadCount);
+
+    for (int i = 0; i < threadCount; i++) {
+      new Thread(() -> {
+        counter.incrementAndGet();
+        latch.countDown();
+      }).start();
+    }
+
+    latch.await(5, TimeUnit.SECONDS);
+    assertEquals(threadCount, counter.get());
+  }
+
+  @Test
+  @DisplayName("TC-11: ConcurrentHashMap không ConcurrentModificationException")
+  void testConcurrentHashMapThreadSafe() throws InterruptedException {
+    ConcurrentHashMap<String, String> clients = new ConcurrentHashMap<>();
+    int threadCount = 20;
+    CountDownLatch done = new CountDownLatch(threadCount * 2);
+
+    for (int i = 0; i < threadCount; i++) {
+      final String key = "user" + i;
+      new Thread(() -> {
+        clients.put(key, "handler-" + key);
+        try {
+          Thread.sleep(5);
+        } catch (InterruptedException ignored) {
+        }
+        clients.remove(key);
+        done.countDown();
+      }).start();
+    }
+
+    for (int i = 0; i < threadCount; i++) {
+      new Thread(() -> {
+        clients.forEach((k, v) -> assertNotNull(v));
+        done.countDown();
+      }).start();
+    }
+
+    assertTrue(done.await(10, TimeUnit.SECONDS));
+  }
+
+  // =========================================================
+  //  TEST GROUP 5: Realtime Update
+  // =========================================================
+
+  @Test
+  @DisplayName("TC-12: Bid mới đến được subscriber qua BlockingQueue")
+  void testRealtimeBidUpdateReachesSubscriber() throws InterruptedException {
+    BlockingQueue<String> updateQueue = new LinkedBlockingQueue<>();
+
+    new Thread(() -> {
+      try {
+        Thread.sleep(100);
+        updateQueue.put("BID_UPDATE:product=1:amount=2000.0");
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }).start();
+
+    String update = updateQueue.poll(2, TimeUnit.SECONDS);
+    assertNotNull(update, "Subscriber phải nhận được BID_UPDATE trong 2 giây");
+    assertTrue(update.startsWith("BID_UPDATE"));
+    assertTrue(update.contains("product=1"));
+    assertTrue(update.contains("amount=2000.0"));
+  }
+
+  @Test
+  @DisplayName("TC-13: sendBidUpdate ghi đúng data qua ObjectStream")
+  void testSendBidUpdateWritesCorrectData() throws Exception {
+    PipedOutputStream pipeOut = new PipedOutputStream();
+    PipedInputStream pipeIn = new PipedInputStream(pipeOut);
+    ObjectOutputStream oos = new ObjectOutputStream(pipeOut);
+    ObjectInputStream ois = new ObjectInputStream(pipeIn);
+
+    int productId = 10;
+    String bidder = "alice";
+    double bidAmount = 3500.0;
+
+    Map<String, Object> data = new HashMap<>();
+    data.put("productId", productId);
+    data.put("bidderName", bidder);
+    data.put("bidAmount", bidAmount);
+    data.put("timestamp", java.time.LocalDateTime.now().toString());
+
+    oos.writeObject(new Response(CommandType.BID_UPDATE, true, "New bid placed", data));
+    oos.flush();
+
+    Response received = (Response) ois.readObject();
+    assertEquals(CommandType.BID_UPDATE, received.getCommand());
+    assertTrue(received.isSuccess());
+    assertEquals(productId, ((Number) received.getData().get("productId")).intValue());
+    assertEquals(bidder, received.getData().get("bidderName"));
+    assertEquals(bidAmount, ((Number) received.getData().get("bidAmount")).doubleValue(), 0.001);
+
+    oos.close();
+    ois.close();
+  }
+
+  // =========================================================
+  //  TEST GROUP 6: Observer Pattern
+  // =========================================================
+
+  // =========================================================
 //  TEST GROUP 6: Observer Pattern (SỬA LẠI)
 // =========================================================
 
-    // =========================================================
-    //  TEST GROUP 6: Observer Pattern (SỬA LẠI HOÀN TOÀN)
-    // =========================================================
+  // =========================================================
+  //  TEST GROUP 6: Observer Pattern (SỬA LẠI HOÀN TOÀN)
+  // =========================================================
 
-    @Test
-    @DisplayName("TC-14: Subscribe thêm handler - notifyBidUpdate không crash")
-    void testSubscribeAddsHandlerToList() {
-        // Reset NotificationService trước mỗi test
-        NotificationService service = NotificationService.getInstance();
+  @Test
+  @DisplayName("TC-14: Subscribe thêm handler - notifyBidUpdate không crash")
+  void testSubscribeAddsHandlerToList() {
+    // Reset NotificationService trước mỗi test
+    NotificationService service = NotificationService.getInstance();
 
-        int auctionId = 999; // Dùng ID riêng để tránh conflict
-        MockClientHandler mockHandler = new MockClientHandler("userA");
+    int auctionId = 999; // Dùng ID riêng để tránh conflict
+    MockClientHandler mockHandler = new MockClientHandler("userA");
 
-        service.subscribe(auctionId, "userA", mockHandler);
+    service.subscribe(auctionId, "userA", mockHandler);
 
-        // Gọi notify, không throw exception là pass
-        assertDoesNotThrow(() -> service.notifyBidUpdate(auctionId, "userB", 500.0));
+    // Gọi notify, không throw exception là pass
+    assertDoesNotThrow(() -> service.notifyBidUpdate(auctionId, "userB", 500.0));
 
-        // Dọn dẹp
-        service.unsubscribe(auctionId, "userA");
-    }
+    // Dọn dẹp
+    service.unsubscribe(auctionId, "userA");
+  }
 
-    @Test
-    @DisplayName("TC-15: Unsubscribe - handler không nhận notification sau khi hủy")
-    void testUnsubscribeRemovesHandler() {
-        NotificationService service = NotificationService.getInstance();
-        int auctionId = 888;
-        MockClientHandler mockHandler = new MockClientHandler("userB");
+  @Test
+  @DisplayName("TC-15: Unsubscribe - handler không nhận notification sau khi hủy")
+  void testUnsubscribeRemovesHandler() {
+    NotificationService service = NotificationService.getInstance();
+    int auctionId = 888;
+    MockClientHandler mockHandler = new MockClientHandler("userB");
 
-        service.subscribe(auctionId, "userB", mockHandler);
-        service.notifyBidUpdate(auctionId, "someone", 100.0);
+    service.subscribe(auctionId, "userB", mockHandler);
+    service.notifyBidUpdate(auctionId, "someone", 100.0);
 
-        // Kiểm tra đã nhận được 1 notification
-        assertEquals(1, mockHandler.getBidUpdateCallCount(), "Sau lần notify đầu, handler phải nhận được 1 update");
+    // Kiểm tra đã nhận được 1 notification
+    assertEquals(1, mockHandler.getBidUpdateCallCount(), "Sau lần notify đầu, handler phải nhận được 1 update");
 
-        // Unsubscribe và notify lại
-        service.unsubscribe(auctionId, "userB");
-        service.notifyBidUpdate(auctionId, "someone", 200.0);
+    // Unsubscribe và notify lại
+    service.unsubscribe(auctionId, "userB");
+    service.notifyBidUpdate(auctionId, "someone", 200.0);
 
-        // Không tăng thêm
-        assertEquals(1, mockHandler.getBidUpdateCallCount(), "Sau khi unsubscribe, handler không được nhận thêm update nào");
+    // Không tăng thêm
+    assertEquals(1, mockHandler.getBidUpdateCallCount(), "Sau khi unsubscribe, handler không được nhận thêm update nào");
 
-        // Dọn dẹp
-        service.unsubscribe(auctionId, "userB");
-    }
+    // Dọn dẹp
+    service.unsubscribe(auctionId, "userB");
+  }
 
-    @Test
-    @DisplayName("TC-16: Tất cả subscriber nhận được notification")
-    void testMultipleSubscribersAllReceiveNotification() throws InterruptedException {
-        NotificationService service = NotificationService.getInstance();
-        int auctionId = 777;
-        int subscriberCount = 5;
+  @Test
+  @DisplayName("TC-16: Tất cả subscriber nhận được notification")
+  void testMultipleSubscribersAllReceiveNotification() throws InterruptedException {
+    NotificationService service = NotificationService.getInstance();
+    int auctionId = 777;
+    int subscriberCount = 5;
 
-        List<MockClientHandler> handlers = new ArrayList<>();
-        CountDownLatch latch = new CountDownLatch(subscriberCount);
+    List<MockClientHandler> handlers = new ArrayList<>();
+    CountDownLatch latch = new CountDownLatch(subscriberCount);
 
-        for (int i = 0; i < subscriberCount; i++) {
-            final String user = "user_" + i;
-            MockClientHandler handler = new MockClientHandler(user) {
-                @Override
-                public void sendBidUpdate(int pid, String bidder, double amount) {
-                    super.sendBidUpdate(pid, bidder, amount);
-                    latch.countDown();
-                }
-            };
-            handlers.add(handler);
-            service.subscribe(auctionId, user, handler);
+    for (int i = 0; i < subscriberCount; i++) {
+      final String user = "user_" + i;
+      MockClientHandler handler = new MockClientHandler(user) {
+        @Override
+        public void sendBidUpdate(int pid, String bidder, double amount) {
+          super.sendBidUpdate(pid, bidder, amount);
+          latch.countDown();
         }
-
-        service.notifyBidUpdate(auctionId, "bigBidder", 9999.0);
-
-        // Chờ tất cả nhận được notification
-        boolean allReceived = latch.await(3, TimeUnit.SECONDS);
-        assertTrue(allReceived, "Tất cả subscriber phải nhận notification trong 3 giây");
-
-        // Kiểm tra mỗi handler nhận đúng 1 notification
-        for (MockClientHandler handler : handlers) {
-            assertEquals(1, handler.getBidUpdateCallCount(), "Mỗi subscriber phải nhận đúng 1 notification");
-        }
-
-        // Dọn dẹp
-        for (int i = 0; i < subscriberCount; i++) {
-            service.unsubscribe(auctionId, "user_" + i);
-        }
+      };
+      handlers.add(handler);
+      service.subscribe(auctionId, user, handler);
     }
 
-    @Test
-    @DisplayName("TC-17: Subscribers bị xóa sau AUCTION_END")
-    void testSubscribersRemovedAfterAuctionEnd() {
-        NotificationService service = NotificationService.getInstance();
-        int auctionId = 666;
-        MockClientHandler handler = new MockClientHandler("buyer");
+    service.notifyBidUpdate(auctionId, "bigBidder", 9999.0);
 
-        service.subscribe(auctionId, "buyer", handler);
-        service.notifyBidUpdate(auctionId, "someone", 1000.0);
+    // Chờ tất cả nhận được notification
+    boolean allReceived = latch.await(3, TimeUnit.SECONDS);
+    assertTrue(allReceived, "Tất cả subscriber phải nhận notification trong 3 giây");
 
-        // Kiểm tra nhận được update
-        assertEquals(1, handler.getBidUpdateCallCount(), "Trước khi auction end, vẫn nhận được update");
-
-        // Gửi auction end (sẽ xóa subscriber)
-        service.notifyAuctionEnd(auctionId, 1, "buyer", 5000.0);
-
-        // Gửi thêm bid update
-        service.notifyBidUpdate(auctionId, "late", 6000.0);
-
-        // Số lần nhận vẫn là 1 (không tăng)
-        assertEquals(1, handler.getBidUpdateCallCount(), "Sau auction end, handler không được nhận thêm bid update");
-
-        // Dọn dẹp
-        service.unsubscribe(auctionId, "buyer");
-    }
-    // =========================================================
-    //  TEST GROUP 7: Thread Safety
-    // =========================================================
-
-    @Test
-    @DisplayName("TC-18: ConcurrentHashMap handlers thread-safe khi nhiều thread ghi cùng lúc")
-    void testResponseHandlersConcurrentAccess() throws InterruptedException {
-        ConcurrentHashMap<CommandType, Consumer<Response>> handlers = new ConcurrentHashMap<>();
-        int threadCount = 20;
-        CountDownLatch done = new CountDownLatch(threadCount);
-        AtomicInteger putCount = new AtomicInteger(0);
-
-        for (int i = 0; i < threadCount; i++) {
-            new Thread(() -> {
-                handlers.put(CommandType.PLACE_BID, response -> {});
-                putCount.incrementAndGet();
-                done.countDown();
-            }).start();
-        }
-
-        done.await(5, TimeUnit.SECONDS);
-        assertEquals(threadCount, putCount.get());
-        assertTrue(handlers.containsKey(CommandType.PLACE_BID));
+    // Kiểm tra mỗi handler nhận đúng 1 notification
+    for (MockClientHandler handler : handlers) {
+      assertEquals(1, handler.getBidUpdateCallCount(), "Mỗi subscriber phải nhận đúng 1 notification");
     }
 
-    @Test
-    @DisplayName("TC-19: Listener thread thoát khi stream đóng")
-    void testListenerThreadExitsOnSocketClose() throws Exception {
-        PipedOutputStream serverOut = new PipedOutputStream();
-        PipedInputStream  clientIn  = new PipedInputStream(serverOut);
-        ObjectOutputStream serverOos = new ObjectOutputStream(serverOut);
-        ObjectInputStream  clientOis = new ObjectInputStream(clientIn);
+    // Dọn dẹp
+    for (int i = 0; i < subscriberCount; i++) {
+      service.unsubscribe(auctionId, "user_" + i);
+    }
+  }
 
-        AtomicBoolean listenerExited = new AtomicBoolean(false);
-        Thread listener = new Thread(() -> {
-            try { clientOis.readObject(); } catch (Exception ignored) {}
-            finally { listenerExited.set(true); }
+  @Test
+  @DisplayName("TC-17: Subscribers bị xóa sau AUCTION_END")
+  void testSubscribersRemovedAfterAuctionEnd() {
+    NotificationService service = NotificationService.getInstance();
+    int auctionId = 666;
+    MockClientHandler handler = new MockClientHandler("buyer");
+
+    service.subscribe(auctionId, "buyer", handler);
+    service.notifyBidUpdate(auctionId, "someone", 1000.0);
+
+    // Kiểm tra nhận được update
+    assertEquals(1, handler.getBidUpdateCallCount(), "Trước khi auction end, vẫn nhận được update");
+
+    // Gửi auction end (sẽ xóa subscriber)
+    service.notifyAuctionEnd(auctionId, 1, "buyer", 5000.0);
+
+    // Gửi thêm bid update
+    service.notifyBidUpdate(auctionId, "late", 6000.0);
+
+    // Số lần nhận vẫn là 1 (không tăng)
+    assertEquals(1, handler.getBidUpdateCallCount(), "Sau auction end, handler không được nhận thêm bid update");
+
+    // Dọn dẹp
+    service.unsubscribe(auctionId, "buyer");
+  }
+  // =========================================================
+  //  TEST GROUP 7: Thread Safety
+  // =========================================================
+
+  @Test
+  @DisplayName("TC-18: ConcurrentHashMap handlers thread-safe khi nhiều thread ghi cùng lúc")
+  void testResponseHandlersConcurrentAccess() throws InterruptedException {
+    ConcurrentHashMap<CommandType, Consumer<Response>> handlers = new ConcurrentHashMap<>();
+    int threadCount = 20;
+    CountDownLatch done = new CountDownLatch(threadCount);
+    AtomicInteger putCount = new AtomicInteger(0);
+
+    for (int i = 0; i < threadCount; i++) {
+      new Thread(() -> {
+        handlers.put(CommandType.PLACE_BID, response -> {
         });
-        listener.setDaemon(true);
-        listener.start();
-
-        Thread.sleep(100);
-        serverOos.close();
-        listener.join(2000);
-        assertTrue(listenerExited.get());
+        putCount.incrementAndGet();
+        done.countDown();
+      }).start();
     }
 
-    // =========================================================
-    //  TEST GROUP 8: Serialization
-    // =========================================================
+    done.await(5, TimeUnit.SECONDS);
+    assertEquals(threadCount, putCount.get());
+    assertTrue(handlers.containsKey(CommandType.PLACE_BID));
+  }
 
-    @Test
-    @DisplayName("TC-20: Request serialize/deserialize đúng")
-    void testRequestSerialization() throws Exception {
-        Map<String, Object> reqData = new HashMap<>();
-        reqData.put("productId", 7);
-        reqData.put("bidAmount", 250.0);
-        Request original = new Request(CommandType.PLACE_BID, reqData, "token-abc");
+  @Test
+  @DisplayName("TC-19: Listener thread thoát khi stream đóng")
+  void testListenerThreadExitsOnSocketClose() throws Exception {
+    PipedOutputStream serverOut = new PipedOutputStream();
+    PipedInputStream clientIn = new PipedInputStream(serverOut);
+    ObjectOutputStream serverOos = new ObjectOutputStream(serverOut);
+    ObjectInputStream clientOis = new ObjectInputStream(clientIn);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        new ObjectOutputStream(baos).writeObject(original);
-        Request copy = (Request) new ObjectInputStream(
-                new ByteArrayInputStream(baos.toByteArray())).readObject();
+    AtomicBoolean listenerExited = new AtomicBoolean(false);
+    Thread listener = new Thread(() -> {
+      try {
+        clientOis.readObject();
+      } catch (Exception ignored) {
+      } finally {
+        listenerExited.set(true);
+      }
+    });
+    listener.setDaemon(true);
+    listener.start();
 
-        assertEquals(CommandType.PLACE_BID, copy.getCommand());
-        assertEquals(7, ((Number) copy.getData().get("productId")).intValue());
-        assertEquals(250.0, ((Number) copy.getData().get("bidAmount")).doubleValue(), 0.001);
-        assertEquals("token-abc", copy.getToken());
-    }
+    Thread.sleep(100);
+    serverOos.close();
+    listener.join(2000);
+    assertTrue(listenerExited.get());
+  }
 
-    @Test
-    @DisplayName("TC-21: Response serialize/deserialize đúng")
-    void testResponseSerialization() throws Exception {
-        Map<String, Object> resData = new HashMap<>();
-        resData.put("winnerId", 3);
-        resData.put("finalPrice", 9999.99);
-        Response original = new Response(CommandType.AUCTION_END, true, "Auction ended", resData);
+  // =========================================================
+  //  TEST GROUP 8: Serialization
+  // =========================================================
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        new ObjectOutputStream(baos).writeObject(original);
-        Response copy = (Response) new ObjectInputStream(
-                new ByteArrayInputStream(baos.toByteArray())).readObject();
+  @Test
+  @DisplayName("TC-20: Request serialize/deserialize đúng")
+  void testRequestSerialization() throws Exception {
+    Map<String, Object> reqData = new HashMap<>();
+    reqData.put("productId", 7);
+    reqData.put("bidAmount", 250.0);
+    Request original = new Request(CommandType.PLACE_BID, reqData, "token-abc");
 
-        assertEquals(CommandType.AUCTION_END, copy.getCommand());
-        assertTrue(copy.isSuccess());
-        assertEquals("Auction ended", copy.getMessage());
-        assertEquals(9999.99, ((Number) copy.getData().get("finalPrice")).doubleValue(), 0.001);
-    }
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    new ObjectOutputStream(baos).writeObject(original);
+    Request copy = (Request) new ObjectInputStream(
+            new ByteArrayInputStream(baos.toByteArray())).readObject();
 
-    // =========================================================
-    //  UTILITY
-    // =========================================================
+    assertEquals(CommandType.PLACE_BID, copy.getCommand());
+    assertEquals(7, ((Number) copy.getData().get("productId")).intValue());
+    assertEquals(250.0, ((Number) copy.getData().get("bidAmount")).doubleValue(), 0.001);
+    assertEquals("token-abc", copy.getToken());
+  }
 
-    // =========================================================
-    //  MOCK CLIENT HANDLER (KHÔNG CẦN SOCKET)
-    // =========================================================
+  @Test
+  @DisplayName("TC-21: Response serialize/deserialize đúng")
+  void testResponseSerialization() throws Exception {
+    Map<String, Object> resData = new HashMap<>();
+    resData.put("winnerId", 3);
+    resData.put("finalPrice", 9999.99);
+    Response original = new Response(CommandType.AUCTION_END, true, "Auction ended", resData);
 
-    // =========================================================
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    new ObjectOutputStream(baos).writeObject(original);
+    Response copy = (Response) new ObjectInputStream(
+            new ByteArrayInputStream(baos.toByteArray())).readObject();
+
+    assertEquals(CommandType.AUCTION_END, copy.getCommand());
+    assertTrue(copy.isSuccess());
+    assertEquals("Auction ended", copy.getMessage());
+    assertEquals(9999.99, ((Number) copy.getData().get("finalPrice")).doubleValue(), 0.001);
+  }
+
+  // =========================================================
+  //  UTILITY
+  // =========================================================
+
+  // =========================================================
+  //  MOCK CLIENT HANDLER (KHÔNG CẦN SOCKET)
+  // =========================================================
+
+  // =========================================================
 //  MOCK CLIENT HANDLER (KHÔNG CẦN SOCKET)
 // =========================================================
 
-    static class MockClientHandler extends ClientHandler {
-        private final String mockUsername;
-        private int bidUpdateCallCount = 0;
-        private int auctionEndCallCount = 0;
-        private int auctionExtendedCallCount = 0;
-        private double lastBidAmount = 0;
+  static class MockClientHandler extends ClientHandler {
+    private final String mockUsername;
+    private int bidUpdateCallCount = 0;
+    private int auctionEndCallCount = 0;
+    private int auctionExtendedCallCount = 0;
+    private double lastBidAmount = 0;
 
-        public MockClientHandler(String username) {
-            super(null);
-            this.mockUsername = username;
-        }
-
-        @Override
-        public void sendBidUpdate(int productId, String bidderName, double bidAmount) {
-            bidUpdateCallCount++;
-            lastBidAmount = bidAmount;
-        }
-
-        @Override
-        public void sendAuctionEnd(int productId, int winnerId, String winnerName, double finalPrice) {
-            auctionEndCallCount++;
-        }
-
-        @Override
-        public void sendAuctionExtended(int productId, java.time.LocalDateTime newEndTime) {
-            auctionExtendedCallCount++;
-        }
-
-        @Override
-        public String getUsername() {
-            return mockUsername;
-        }
-
-        // Các method getter
-        public int getBidUpdateCallCount() {
-            return bidUpdateCallCount;
-        }
-
-        public int getAuctionEndCallCount() {
-            return auctionEndCallCount;
-        }
-
-        public int getAuctionExtendedCallCount() {
-            return auctionExtendedCallCount;
-        }
-
-        public double getLastBidAmount() {
-            return lastBidAmount;
-        }
-
-        public void resetCounts() {
-            bidUpdateCallCount = 0;
-            auctionEndCallCount = 0;
-            auctionExtendedCallCount = 0;
-            lastBidAmount = 0;
-        }
+    public MockClientHandler(String username) {
+      super(null);
+      this.mockUsername = username;
     }
+
+    @Override
+    public void sendBidUpdate(int productId, String bidderName, double bidAmount) {
+      bidUpdateCallCount++;
+      lastBidAmount = bidAmount;
+    }
+
+    @Override
+    public void sendAuctionEnd(int productId, int winnerId, String winnerName, double finalPrice) {
+      auctionEndCallCount++;
+    }
+
+    @Override
+    public void sendAuctionExtended(int productId, java.time.LocalDateTime newEndTime) {
+      auctionExtendedCallCount++;
+    }
+
+    @Override
+    public String getUsername() {
+      return mockUsername;
+    }
+
+    // Các method getter
+    public int getBidUpdateCallCount() {
+      return bidUpdateCallCount;
+    }
+
+    public int getAuctionEndCallCount() {
+      return auctionEndCallCount;
+    }
+
+    public int getAuctionExtendedCallCount() {
+      return auctionExtendedCallCount;
+    }
+
+    public double getLastBidAmount() {
+      return lastBidAmount;
+    }
+
+    public void resetCounts() {
+      bidUpdateCallCount = 0;
+      auctionEndCallCount = 0;
+      auctionExtendedCallCount = 0;
+      lastBidAmount = 0;
+    }
+  }
 }
 
 

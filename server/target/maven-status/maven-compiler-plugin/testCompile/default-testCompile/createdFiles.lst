@@ -13,9 +13,9 @@ com\auction\server\dao\AuctionDAOTest.class
 com\auction\server\service\DatabaseConnectionTest.class
 com\auction\test\network\NetWorkTest$MockClientHandler.class
 com\auction\server\dao\BidDAOTest.class
-UserDAOTest.class
 com\auction\test\network\ConcurrentBiddingStressTest$2.class
 com\auction\server\AuctionServerTest.class
+com\auction\server\dao\UserDAOTest.class
 com\auction\server\service\AuctionServiceTest.class
 com\auction\test\network\ConcurrentBiddingStressTest$1.class
 com\auction\server\service\AutoBidServiceTest.class

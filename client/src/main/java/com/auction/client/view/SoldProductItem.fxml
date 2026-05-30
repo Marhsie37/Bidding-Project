@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.geometry.Insets?>
-
-<HBox fx:id="rootCard" alignment="CENTER_LEFT" spacing="12.0" 
+<HBox fx:id="rootCard" alignment="CENTER_LEFT" spacing="12.0"
       styleClass="sold-product-card"
       stylesheets="@css/SellerProductItem.css"
-      xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" 
+      xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.auction.client.controller.SoldProductItemController">
     <padding>
-        <Insets bottom="10.0" left="14.0" right="14.0" top="10.0" />
+        <Insets bottom="10.0" left="14.0" right="14.0" top="10.0"/>
     </padding>
     <children>
-        <ImageView fx:id="imgView" fitHeight="60.0" fitWidth="60.0" preserveRatio="true" />
+        <ImageView fx:id="imgView" fitHeight="60.0" fitWidth="60.0" preserveRatio="true"/>
         <VBox spacing="4.0" HBox.hgrow="ALWAYS">
             <children>
-                <Label fx:id="lblName" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #1a1a2e;" text="Tên sản phẩm" />
-                <Label fx:id="lblFinalPrice" style="-fx-font-size: 12px; -fx-text-fill: #2e7d32; -fx-font-weight: 700;" text="Giá bán cuối: 0 VNĐ" />
-                <Label fx:id="lblWinner" style="-fx-font-size: 11px; -fx-text-fill: #666666;" text="Người thắng: " />
+                <Label fx:id="lblName" style="-fx-font-weight: bold; -fx-font-size: 14px; -fx-text-fill: #1a1a2e;"
+                       text="Tên sản phẩm"/>
+                <Label fx:id="lblFinalPrice" style="-fx-font-size: 12px; -fx-text-fill: #2e7d32; -fx-font-weight: 700;"
+                       text="Giá bán cuối: 0 VNĐ"/>
+                <Label fx:id="lblWinner" style="-fx-font-size: 11px; -fx-text-fill: #666666;" text="Người thắng: "/>
             </children>
         </VBox>
         <VBox alignment="CENTER_RIGHT" spacing="6.0">
             <children>
-                <Label style="-fx-background-color: #e8f5e9; -fx-text-fill: #1b5e20; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 4 10 4 10; -fx-background-radius: 20;" text="✅ Đã bán" />
+                <Label style="-fx-background-color: #e8f5e9; -fx-text-fill: #1b5e20; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 4 10 4 10; -fx-background-radius: 20;"
+                       text="✅ Đã bán"/>
             </children>
         </VBox>
     </children>

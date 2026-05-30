@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-
-<HBox fx:id="rootItem" alignment="CENTER_LEFT" prefHeight="132.0" prefWidth="451.0" spacing="15.0" style="-fx-background-color: #f3e5f5; -fx-padding: 10; -fx-background-radius: 10;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.ProductItemController">
+<HBox fx:id="rootItem" alignment="CENTER_LEFT" prefHeight="132.0" prefWidth="451.0" spacing="15.0"
+      style="-fx-background-color: #f3e5f5; -fx-padding: 10; -fx-background-radius: 10;"
+      xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.auction.client.controller.ProductItemController">
     <children>
-        <ImageView fx:id="imgView" fitHeight="117.0" fitWidth="117.0" preserveRatio="true" />
+        <ImageView fx:id="imgView" fitHeight="117.0" fitWidth="117.0" preserveRatio="true"/>
         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
             <children>
-                <Label fx:id="lblName" style="-fx-font-weight: bold; -fx-font-size: 16;" text="Tên sản phẩm" />
-                <Label fx:id="lblPrice" style="-fx-text-fill: red;" text="Giá" />
-                <Label fx:id="lblTimer" style="-fx-text-fill: green;" text="Thời gian" />
+                <Label fx:id="lblName" style="-fx-font-weight: bold; -fx-font-size: 16;" text="Tên sản phẩm"/>
+                <Label fx:id="lblPrice" style="-fx-text-fill: red;" text="Giá"/>
+                <Label fx:id="lblTimer" style="-fx-text-fill: green;" text="Thời gian"/>
             </children>
         </VBox>
-      <HBox prefHeight="118.0" prefWidth="147.0" spacing="15.0">
-         <children>
-              <Button fx:id="btnEdit" prefHeight="32.0" prefWidth="72.0" styleClass="btn-action" stylesheets="@css/ProductItem.css" text="Sửa" />
-              <Button fx:id="btnDelete" prefHeight="32.0" prefWidth="72.0" styleClass="btn-action" stylesheets="@css/ProductItem.css" text="Xóa" />
-         </children>
-      </HBox>
+        <HBox prefHeight="118.0" prefWidth="147.0" spacing="15.0">
+            <children>
+                <Button fx:id="btnEdit" prefHeight="32.0" prefWidth="72.0" styleClass="btn-action"
+                        stylesheets="@css/ProductItem.css" text="Sửa"/>
+                <Button fx:id="btnDelete" prefHeight="32.0" prefWidth="72.0" styleClass="btn-action"
+                        stylesheets="@css/ProductItem.css" text="Xóa"/>
+            </children>
+        </HBox>
     </children>
 </HBox>

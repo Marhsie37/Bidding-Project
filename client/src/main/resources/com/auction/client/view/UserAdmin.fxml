@@ -6,32 +6,37 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
-<HBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="618.0" spacing="15.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-border-width: 1;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controller.UserItemController">
+<HBox alignment="CENTER_LEFT" prefHeight="53.0" prefWidth="618.0" spacing="15.0"
+      style="-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 10; -fx-border-width: 1;"
+      xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.auction.client.controller.UserItemController">
     <children>
         <VBox alignment="CENTER_LEFT" prefHeight="32.0" prefWidth="342.0" HBox.hgrow="ALWAYS">
             <children>
-                <Label fx:id="lblInfo" prefHeight="20.0" prefWidth="406.0" text="Fullname | Email | Status" wrapText="true">
+                <Label fx:id="lblInfo" prefHeight="20.0" prefWidth="406.0" text="Fullname | Email | Status"
+                       wrapText="true">
                     <font>
-                        <Font name="System Bold" size="14.0" />
+                        <Font name="System Bold" size="14.0"/>
                     </font>
                 </Label>
             </children>
         </VBox>
 
-              <Button fx:id="btnBan" maxWidth="104.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="73.0" style="-fx-cursor: hand;" styleClass="btn-base" stylesheets="@css/ItemAdmin.css" text="Ban">
+        <Button fx:id="btnBan" maxWidth="104.0" mnemonicParsing="false" prefHeight="32.0" prefWidth="73.0"
+                style="-fx-cursor: hand;" styleClass="btn-base" stylesheets="@css/ItemAdmin.css" text="Ban">
             <font>
-                <Font name="System Bold" size="12.0" />
+                <Font name="System Bold" size="12.0"/>
             </font>
         </Button>
 
-              <Button fx:id="btnDelete" alignment="CENTER" mnemonicParsing="false" prefHeight="32.0" prefWidth="73.0" styleClass="btn-delete-orange" stylesheets="@css/ItemAdmin.css" text="Xóa">
+        <Button fx:id="btnDelete" alignment="CENTER" mnemonicParsing="false" prefHeight="32.0" prefWidth="73.0"
+                styleClass="btn-delete-orange" stylesheets="@css/ItemAdmin.css" text="Xóa">
             <font>
-                <Font name="System Bold" size="12.0" />
+                <Font name="System Bold" size="12.0"/>
             </font>
         </Button>
     </children>
     <padding>
-        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0" />
+        <Insets bottom="10.0" left="15.0" right="15.0" top="10.0"/>
     </padding>
 </HBox>
