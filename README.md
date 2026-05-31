@@ -97,6 +97,6 @@ java -jar client/target/client-1.0-SNAPSHOT-jar-with-dependencies.jar
 - Quản lý kết nối Database tối ưu thông qua HikariCP Connection Pool.
 - Tự động đóng phiên đấu giá khi hết thời gian và xác định người thắng cuộc.
 
-## 7. Link Video demo và bản báo cáo PDF
+## 7. Link Video demo và bản báo cáo PDF.
 
 - https://drive.google.com/drive/folders/11zb0DWXlwV3iadEGGJ2ahmghHVyGf72t?usp=drive_link
