@@ -46,8 +46,8 @@ AuctionSystem/
 
 Sau khi build dự án thành công, các file thực thi `.jar` (đã bao gồm toàn bộ thư viện phụ thuộc - fat jar) sẽ nằm tại:
 
-- **Server Executable**: `server/target/server-1.0-SNAPSHOT-jar-with-dependencies.jar`
-- **Client Executable**: `client/target/client-1.0-SNAPSHOT-jar-with-dependencies.jar`
+- **Server Executable**: `server/src/main/serverjar/server-1.0-SNAPSHOT-jar-with-dependencies.jar`
+- **Client Executable**: `client/src/main/clientjar/client-1.0-SNAPSHOT-jar-with-dependencies.jar`
 
 ## 5. Hướng dẫn chạy Server / Client theo thứ tự cụ thể
 
@@ -61,7 +61,7 @@ mvn clean package -DskipTests --also-make
 - **Quan trọng:** Server phải được khởi chạy **ĐẦU TIÊN** để lắng nghe các kết nối từ Client.
 - Chạy bằng file jar:
 ```bash
-java -jar server/target/server-1.0-SNAPSHOT-jar-with-dependencies.jar
+java -jar server/src/main/serverjar/server-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 - *Lưu ý: Server sẽ tự động khởi tạo các bảng trong Database (SQLite) và tạo tài khoản Admin mặc định (`admin` / `admin123`) ở lần chạy đầu tiên.*
 - *Ngoài ra,nếu muốn sử dụng online thì ứng dụng đã được khởi tạo sẵn server,không cần thực hiện bước này*
@@ -70,7 +70,7 @@ java -jar server/target/server-1.0-SNAPSHOT-jar-with-dependencies.jar
 - Sau khi Server đã hiển thị thông báo sẵn sàng, bạn có thể khởi chạy một hoặc NHIỀU Client trên các cửa sổ terminal khác nhau.
 - Chạy bằng file jar:
 ```bash
-java -jar client/target/client-1.0-SNAPSHOT-jar-with-dependencies.jar
+java -jar client/src/main/clientjar/client-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 - *Để test tính năng đa luồng, bạn có thể copy file `client...jar` sang nhiều máy khác nhau trong cùng mạng LAN (hoặc Internet nếu dùng Cloud Server) và chạy đồng thời.*
 
